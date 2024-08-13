@@ -1,12 +1,13 @@
 package component;
 
-import logic.function.Function;
-import logic.function.math.impl.Number;
+import logic.function.returnable.Returnable;
 
 public class Cell {
     private int row;
     private int col;
-    private Function originalValue;
+
+    private String originalValue;
+    private Returnable effectiveValue;
 
 
 

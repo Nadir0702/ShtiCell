@@ -1,18 +1,19 @@
-package logic.function.string.impl;
+package logic.function.returnable;
 
-import logic.function.string.StringFunction;
-
-public class String implements StringFunction {
+public class String implements Returnable {
     private java.lang.String value;
-    private int length;
 
     public String(java.lang.String string) {
         this.value = string;
-        this.length = string.length();
     }
 
     @Override
-    public java.lang.String invoke() {
+    public Returnable invoke() {
+        return this;
+    }
+
+    @Override
+    public Object getValue() {
         return this.value;
     }
 
