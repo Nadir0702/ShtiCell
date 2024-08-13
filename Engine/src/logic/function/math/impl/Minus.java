@@ -1,12 +1,14 @@
-package logic.function;
+package logic.function.math.impl;
 
-public class Minus  implements Math {
+import logic.function.math.MathFunction;
+
+public class Minus  implements MathFunction {
     private final String name = "MINUS";
-    private Math argument1;
-    private Math argument2;
+    private MathFunction argument1;
+    private MathFunction argument2;
 
 
-    public Minus(Math argument1, Math argument2) {
+    public Minus(MathFunction argument1, MathFunction argument2) {
         this.argument1 = argument1;
         this.argument2 = argument2;
     }

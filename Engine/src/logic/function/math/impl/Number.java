@@ -1,6 +1,8 @@
-package logic.function;
+package logic.function.math.impl;
 
-public class Number implements Math {
+import logic.function.math.MathFunction;
+
+public class Number implements MathFunction {
     private java.lang.Number value;
 
     public Number(java.lang.Number number) {

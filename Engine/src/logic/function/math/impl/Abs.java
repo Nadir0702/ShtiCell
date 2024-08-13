@@ -1,10 +1,12 @@
-package logic.function;
+package logic.function.math.impl;
 
-public class Abs implements Math {
+import logic.function.math.MathFunction;
+
+public class Abs implements MathFunction {
     private final String name = "ABS";
-    private Math argument;
+    private MathFunction argument;
 
-    public Abs(Math argument) {
+    public Abs(MathFunction argument) {
         this.argument = argument;
     }
 

@@ -1,11 +1,13 @@
-package logic.function;
+package logic.function.math.impl;
 
-public class Pow implements Math{
+import logic.function.math.MathFunction;
+
+public class Pow implements MathFunction {
     private final String name = "POW";
-    private Math argument1;
-    private Math argument2;
+    private MathFunction argument1;
+    private MathFunction argument2;
 
-    public Pow(Math argument1, Math argument2) {
+    public Pow(MathFunction argument1, MathFunction argument2) {
         this.argument1 = argument1;
         this.argument2 = argument2;
     }

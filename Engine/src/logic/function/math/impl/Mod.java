@@ -1,11 +1,13 @@
-package logic.function;
+package logic.function.math.impl;
 
-public class Mod implements Math {
+import logic.function.math.MathFunction;
+
+public class Mod implements MathFunction {
     private final String name = "MOD";
-    private Math argument1;
-    private Math argument2;
+    private MathFunction argument1;
+    private MathFunction argument2;
 
-    public Mod(Math argument1, Math argument2) {
+    public Mod(MathFunction argument1, MathFunction argument2) {
         this.argument1 = argument1;
         this.argument2 = argument2;
     }

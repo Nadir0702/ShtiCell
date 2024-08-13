@@ -1,11 +1,13 @@
-package logic.function;
+package logic.function.math.impl;
 
-public class Divide  implements Math {
+import logic.function.math.MathFunction;
+
+public class Divide  implements MathFunction {
     private final String name = "DIVIDE";
-    private Math argument1;
-    private Math argument2;
+    private MathFunction argument1;
+    private MathFunction argument2;
 
-    public Divide(Math argument1, Math argument2) {
+    public Divide(MathFunction argument1, MathFunction argument2) {
         this.argument1 = argument1;
         this.argument2 = argument2;
     }

@@ -1,6 +1,8 @@
-package logic.function;
+package logic.function.math.impl;
 
-public abstract class BinaryFunction implements Math {
+import logic.function.math.MathFunction;
+
+public abstract class BinaryFunction implements MathFunction {
     /*private Function argument1;
     private Function argument2;
 
