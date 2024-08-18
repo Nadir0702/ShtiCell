@@ -25,5 +25,4 @@ public abstract class BinaryFunction implements Function {
     abstract protected Returnable calculate(Returnable argument1, Returnable argument2);
 
     abstract protected boolean validateArgumentsTypes(Returnable argument1, Returnable argument2);
-
 }
