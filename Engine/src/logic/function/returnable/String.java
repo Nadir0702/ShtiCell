@@ -8,18 +8,17 @@ public class String implements Returnable {
     }
 
     @Override
-    public Returnable invoke() {
-        return this;
-    }
-
-    @Override
     public Object getValue() {
         return this.value;
     }
 
     @Override
-    public java.lang.String getFunctionName() {
-        return "";
+    public <T> T tryConvertTo(Class<T> type) {
+        if (String.class.isAssignableFrom(type)) {
+            return type.cast(this.value);
+        }
+
+        return null;
     }
 
     @Override

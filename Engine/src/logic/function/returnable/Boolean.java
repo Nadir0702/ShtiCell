@@ -8,18 +8,17 @@ public class Boolean implements Returnable {
     }
 
     @Override
-    public Returnable invoke() {
-        return this;
-    }
-
-    @Override
     public Object getValue() {
         return this.value;
     }
 
     @Override
-    public java.lang.String getFunctionName() {
-        return "";
+    public <T> T tryConvertTo(Class<T> type) {
+        if(Boolean.class.isAssignableFrom(type)) {
+            return type.cast(this.value);
+        }
+
+        return null;
     }
 
     @Override

@@ -1,17 +1,20 @@
 package ui.menu;
 
+import ui.io.api.Output;
+import ui.io.impl.OutputImpl;
+
 import java.util.Arrays;
 import java.util.List;
 
-public enum MainMenuOption implements MenuItem {
-    INITIALIZER{
-        @Override
-        public void executeOption() {}
+import static java.lang.System.exit;
+
+public enum MainMenuOption {
+    INVALID_CHOICE{
+        private Output printer = new OutputImpl();
 
         @Override
-        public String toString()
-        {
-            return "Initializer";
+        public void executeOption() {
+            printer.printInvalidMenuOption();
         }
     },
     LOAD_XML_FILE{
@@ -52,6 +55,7 @@ public enum MainMenuOption implements MenuItem {
         @Override
         public void executeOption() {
 
+
         }
 
         @Override
@@ -73,7 +77,7 @@ public enum MainMenuOption implements MenuItem {
     EXIT{
         @Override
         public void executeOption() {
-
+            exit(0);
         }
 
         @Override
@@ -82,13 +86,5 @@ public enum MainMenuOption implements MenuItem {
         }
     };
 
-    @Override
-    public List<MenuItem> getMenuItems() {
-        return Arrays.asList(values());
-    }
-
-    @Override
-    public String getMenuItemName() {
-        return this.name();
-    }
+    public abstract void executeOption();
 }

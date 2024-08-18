@@ -1,6 +1,5 @@
 package logic.function;
 
-
 import logic.function.returnable.Returnable;
 
 public abstract class BinaryFunction implements Function {

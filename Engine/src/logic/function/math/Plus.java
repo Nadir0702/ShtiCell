@@ -14,9 +14,11 @@ public class Plus extends BinaryFunction {
 
     @Override
     protected Returnable calculate(Returnable argument1, Returnable argument2) {
-        return validateArgumentsTypes(argument1, argument2) ?
+        /*return validateArgumentsTypes(argument1, argument2) ?
                 new Number((double)argument1.getValue() + (double)argument2.getValue()) :
-                new Number(Double.NaN);
+                new Number(Double.NaN);*/
+
+        return new Number(argument1.tryConvertTo(Double.class) + argument2.tryConvertTo(Double.class));
     }
 
     @Override

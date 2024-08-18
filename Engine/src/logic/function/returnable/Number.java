@@ -8,18 +8,18 @@ public class Number implements Returnable {
     }
 
     @Override
-    public Returnable invoke() {
-        return this;
-    }
-
-    @Override
     public Object getValue() {
         return this.value;
     }
 
     @Override
-    public java.lang.String getFunctionName() {
-        return "";
+    public <T> T tryConvertTo(Class<T> type) {
+        if(Double.class.isAssignableFrom(type)) {
+            return type.cast(this.value);
+        }
+        else{
+            throw new ClassCastException("Cannot convert double to " + type);
+        }
     }
 
     @Override
