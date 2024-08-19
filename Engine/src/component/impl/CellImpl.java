@@ -1,6 +1,8 @@
 package component.impl;
 
 import component.api.Cell;
+import logic.function.Function;
+import logic.function.parser.FunctionParser;
 import logic.function.returnable.Returnable;
 import java.util.List;
 
@@ -23,6 +25,10 @@ public class CellImpl implements Cell {
         this.version = version;
         this.dependingOn = dependingOn;
         this.influencingOn = influencingOn;
+    }
+
+    private void calculateEffectiveValue() {
+        this.effectiveValue = FunctionParser.parseFunction(this.originalValue).invoke();
     }
 
     @Override

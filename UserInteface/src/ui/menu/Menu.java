@@ -1,26 +1,45 @@
 package ui.menu;
 
-import ui.io.api.Input;
-import ui.io.api.Output;
-import ui.io.impl.InputImpl;
-import ui.io.impl.OutputImpl;
+import logic.Engine;
+import logic.EngineImpl;
+
+import java.util.InputMismatchException;
+import java.util.Scanner;
 
 public class Menu {
-    private Input input;
-    private Output output;
     private MainMenuOption chosenItem;
 
-    public Menu() {
-        this.input = new InputImpl();
-        this.output = new OutputImpl();
-    }
-
     public void runMenu(){
+        Engine engine = new EngineImpl();
 
         do {
-            this.output.printMainMenu();
-            this.chosenItem = this.input.getMainMenuChoiceFromUser();
-            this.chosenItem.executeOption();
+            this.printMainMenu();
+            this.chosenItem = this.getMainMenuChoiceFromUser();
+            this.chosenItem.executeOption(engine);
         } while(true);
+    }
+
+    private MainMenuOption getMainMenuChoiceFromUser() {
+        Scanner scanner = new Scanner(System.in);
+        int input = 0;
+
+        try {
+            input = scanner.nextInt();
+        }
+        catch (InputMismatchException e) {
+            System.out.println("Error: input entered was not a number.");
+        }
+
+        return input > 0 && input < MainMenuOption.values().length ?
+                MainMenuOption.values()[input] :
+                MainMenuOption.INVALID_CHOICE;
+    }
+
+    private void printMainMenu() {
+        for (MainMenuOption option : MainMenuOption.values()) {
+            if(MainMenuOption.INVALID_CHOICE != option) {
+                System.out.println(option.ordinal() + ") " + option);
+            }
+        }
     }
 }

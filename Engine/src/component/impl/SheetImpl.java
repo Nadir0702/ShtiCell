@@ -7,17 +7,43 @@ import java.util.Map;
 
 public class SheetImpl implements Sheet {
     private String sheetName;
-    private String xmlPath;
     private Layout layout;
     private Map<String, Cell> cells;
     private int version;
+    private int numOfCellsUpdated;
 
-    private class Layout {
-        private int row;
-        private int column;
-        private int rowHeight;
-        private int columnWidth;
+    public class Layout {
+        private final int row;
+        private final int column;
+        private final int rowHeight;
+        private final int columnWidth;
 
+        public Layout(int row, int column, int rowHeight, int columnWidth) {
+            this.row = row;
+            this.column = column;
+            this.rowHeight = rowHeight;
+            this.columnWidth = columnWidth;
+        }
+
+        public int getRow() {
+            return row;
+        }
+
+        public int getColumn() {
+            return column;
+        }
+
+        public int getRowHeight() {
+            return rowHeight;
+        }
+
+        public int getColumnWidth() {
+            return columnWidth;
+        }
+    }
+
+    public Layout getLayout() {
+        return layout;
     }
 
     public SheetImpl() {

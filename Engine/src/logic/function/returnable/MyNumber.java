@@ -1,9 +1,11 @@
 package logic.function.returnable;
 
-public class Number implements Returnable {
+import component.api.CellType;
+
+public class MyNumber implements Returnable {
     private double value;
 
-    public Number(double number) {
+    public MyNumber(double number) {
         this.value = number;
     }
 
@@ -23,7 +25,22 @@ public class Number implements Returnable {
     }
 
     @Override
-    public java.lang.String toString() {
+    public String getFunctionName() {
+        return MyNumber.class.getSimpleName();
+    }
+
+    @Override
+    public Returnable invoke() {
+        return this;
+    }
+
+    @Override
+    public CellType getReturnType() {
+        return null;
+    }
+
+    @Override
+    public String toString() {
         return this.value < 0 ?
                 "(" + this.value + ")" :
                 "" + this.value;

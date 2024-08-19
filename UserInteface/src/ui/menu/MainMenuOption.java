@@ -1,26 +1,57 @@
 package ui.menu;
 
-import ui.io.api.Output;
-import ui.io.impl.OutputImpl;
+import logic.Engine;
 
-import java.util.Arrays;
-import java.util.List;
+import javax.print.attribute.standard.MediaSize;
+
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Scanner;
 
 import static java.lang.System.exit;
+import static java.lang.System.setOut;
 
 public enum MainMenuOption {
     INVALID_CHOICE{
-        private Output printer = new OutputImpl();
-
         @Override
-        public void executeOption() {
-            printer.printInvalidMenuOption();
+        public void executeOption(Engine engine) {
+            System.out.println("No such menu option, Please Try Again:");
         }
     },
     LOAD_XML_FILE{
         @Override
-        public void executeOption() {
+        public void executeOption(Engine engine) {
+            String path = getFilePathFromUser();
+            if (engine.LoadData(path)) {
+                System.out.println("File Loaded Successfully");
+            } else {
+                System.out.println("Error: Couldn't load file.");
+            }
+        }
 
+        private String getFilePathFromUser() {
+            Scanner scanner = new Scanner(System.in);
+
+            System.out.println("Please Enter the full path of the file you wish to load:");
+            String path = scanner.nextLine();
+
+            while( !isValidPathFormat(path)){
+                System.out.println("Please Enter the valid path of the file you wish to load:");
+                path = scanner.nextLine();
+            }
+
+            return path;
+        }
+
+        private boolean isValidPathFormat(String filePath) {
+            try {
+                Path path = Paths.get(filePath);
+                return true; // Path is valid if no exception is thrown
+            } catch (InvalidPathException e) {
+                System.out.println("The File Path is invalid.");
+                return false; // Path is invalid
+            }
         }
 
         @Override
@@ -31,8 +62,8 @@ public enum MainMenuOption {
     },
     SHOW_SHEET{
         @Override
-        public void executeOption() {
-
+        public void executeOption(Engine engine) {
+            engine.showSheet();
         }
 
         @Override
@@ -42,8 +73,9 @@ public enum MainMenuOption {
     },
     SHOW_SINGLE_CELL{
         @Override
-        public void executeOption() {
-
+        public void executeOption(Engine engine) {
+            String cellID = getCellIDFromUser();
+            engine.showSingleCellData(cellID);
         }
 
         @Override
@@ -53,8 +85,9 @@ public enum MainMenuOption {
     },
     UPDATE_SINGLE_CELL{
         @Override
-        public void executeOption() {
-
+        public void executeOption(Engine engine) {
+            String cellID = getCellIDFromUser();
+            engine.updateSingleCellData(cellID);
 
         }
 
@@ -65,7 +98,7 @@ public enum MainMenuOption {
     },
     SHOW_VERSIONS{
         @Override
-        public void executeOption() {
+        public void executeOption(Engine engine) {
 
         }
 
@@ -76,7 +109,7 @@ public enum MainMenuOption {
     },
     EXIT{
         @Override
-        public void executeOption() {
+        public void executeOption(Engine engine) {
             exit(0);
         }
 
@@ -86,5 +119,36 @@ public enum MainMenuOption {
         }
     };
 
-    public abstract void executeOption();
+    private static String getCellIDFromUser() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Please Enter the cell ID(for example A4):");
+        String cellID = scanner.nextLine();
+
+        while (!isValidCellID(cellID)){
+            System.out.println("Please Enter the valid cell ID(for example A4):");
+            cellID = scanner.nextLine();
+        }
+
+        return cellID;
+    }
+
+    private static boolean isValidCellID(String cellID) {
+        boolean isValid = true;
+
+        if (cellID.isBlank()) {
+            System.out.println("Cannot enter an empty cell ID");
+            isValid = false;
+        }else if (!Character.isUpperCase(cellID.charAt(0))) {
+            System.out.println("Please enter column as upper case letter.");
+            isValid = false;
+        }else if (!cellID.substring(1).matches("\\d+")) {
+            System.out.println("Please enter row as number");
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    public abstract void executeOption(Engine engine);
 }
