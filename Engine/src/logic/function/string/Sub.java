@@ -15,15 +15,32 @@ public class Sub extends TrinaryFunction {
     }
 
     @Override
-    public Returnable calculate(Returnable source, Returnable startIndex, Returnable endIndex) {
+    public Returnable calculate(Returnable source, Returnable i_StartIndex, Returnable i_IndIndex) {
         try {
-            return new ReturnableImpl(
-                    source.tryConvertTo(String.class).substring(startIndex.tryConvertTo(Integer.class),
-                                                                endIndex.tryConvertTo(Integer.class)),
-                    CellType.STRING);
+            double startIndex, endIndex;
+            String original = source.tryConvertTo(String.class);
+            startIndex = i_StartIndex.tryConvertTo(Double.class);
+            endIndex = i_IndIndex.tryConvertTo(Double.class);
+
+            return validateIndices(original, startIndex, endIndex) ?
+                    new ReturnableImpl(original.substring((int)startIndex, (int)endIndex), CellType.STRING) :
+                    ErrorValue.UNDEFINED;
+
         } catch (ClassCastException e) {
             return ErrorValue.UNDEFINED;
         }
+    }
+
+    private boolean validateIndices(String source, double start, double end) {
+        return isNaturalNumber(start)
+                && isNaturalNumber(end)
+                && start >= 0
+                && end <= source.length()
+                && start <= end;
+    }
+
+    public boolean isNaturalNumber(double value) {
+        return value - (double)((int) value) == 0;
     }
 
     @Override
