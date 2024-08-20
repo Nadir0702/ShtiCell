@@ -1,6 +1,7 @@
 package dto;
 
 import component.api.Cell;
+import component.api.Sheet;
 import component.impl.SheetImpl;
 import logic.function.returnable.api.Returnable;
 
@@ -14,7 +15,7 @@ public class SheetDTO {
     private final int version;
     private final int numOfCellsUpdated;
 
-    public SheetDTO(SheetImpl sheet) {
+    public SheetDTO(Sheet sheet) {
         this.sheetName = sheet.getSheetName();
         this.layout = sheet.getLayout();
         this.version = sheet.getVersion();

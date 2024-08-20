@@ -1,5 +1,6 @@
 package ui.menu;
 
+import dto.SheetDTO;
 import logic.Engine;
 
 import javax.print.attribute.standard.MediaSize;
@@ -63,7 +64,7 @@ public enum MainMenuOption {
     SHOW_SHEET{
         @Override
         public void executeOption(Engine engine) {
-            engine.showSheet();
+            SheetDTO sheetDTO = engine.getSheetAsDTO();
         }
 
         @Override
@@ -75,7 +76,7 @@ public enum MainMenuOption {
         @Override
         public void executeOption(Engine engine) {
             String cellID = getCellIDFromUser();
-            engine.showSingleCellData(cellID);
+            engine.getSingleCellData(cellID);
         }
 
         @Override

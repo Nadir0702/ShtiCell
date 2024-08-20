@@ -42,18 +42,19 @@ public class SheetImpl implements Sheet {
         }
     }
 
-    public Layout getLayout() {
-        return layout;
-    }
-
     public SheetImpl() {
         this.cells = new HashMap<String, Cell>();
         this.version = 1;
         this.numOfCellsUpdated = 0;
         this.layout = new Layout(0, 0, 0, 0);
         this.sheetName = "Sheet";
-
     }
+
+    @Override
+    public Layout getLayout() {
+        return layout;
+    }
+
 
     @Override
     public int getVersion() {
@@ -61,27 +62,28 @@ public class SheetImpl implements Sheet {
     }
 
     @Override
-    public Cell getCell(int row, int col) {
-        return this.cells.get(Cell.createCellId(row, col));
+    public Cell getCell(String cellId) {
+        return this.cells.get(cellId);
     }
 
     @Override
-    public void setCell(int row, int col, String value) {
-        Cell cell = this.cells.get(Cell.createCellId(row, col));
+    public void setCell(String cellId, String value) {
+        Cell cell = this.cells.get(cellId);
         cell.setOriginalValue(value);
     }
 
+    @Override
     public String getSheetName(){
         return this.sheetName;
     }
 
+    @Override
     public Map<String, Cell> getCells(){
         return this.cells;
     }
 
+    @Override
     public int getNumOfCellsUpdated(){
         return this.numOfCellsUpdated;
     }
-
-
 }

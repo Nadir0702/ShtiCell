@@ -18,11 +18,6 @@ public class ReturnableImpl implements Returnable {
     }
 
     @Override
-    public Object getValue() {
-        return this.value;
-    }
-
-    @Override
     public <T> T tryConvertTo(Class<T> type) {
         if (cellType.isAssignableFrom(type)) {
             return type.cast(this.value);

@@ -16,7 +16,7 @@ public class CellImpl implements Cell {
     private final List<Cell> influencingOn;
 
     public CellImpl(int row, int col, String originalValue, Returnable effectiveValue, int version, List<Cell> dependingOn, List<Cell> influencingOn) {
-        this.cellId = Cell.createCellId(row, col);
+        this.cellId = "Cell.createCellId(row, col)";
         this.row = row;
         this.column = col;
         this.originalValue = originalValue;

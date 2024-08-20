@@ -1,18 +1,23 @@
 package logic;
 
+import component.api.Sheet;
+import dto.SheetDTO;
+
 public class EngineImpl implements Engine{
+    private Sheet sheet = null;
+
     @Override
     public boolean LoadData(String path) {
         return false;
     }
 
     @Override
-    public void showSheet() {
-
+    public SheetDTO getSheetAsDTO() {
+        return new SheetDTO(this.sheet);
     }
 
     @Override
-    public void showSingleCellData(String cellID) {
+    public void getSingleCellData(String cellID) {
 
     }
 

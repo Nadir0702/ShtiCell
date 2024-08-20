@@ -15,7 +15,5 @@ public interface Cell {
     List<Cell> getDependentCells();
     List<Cell> getInfluencedCells();
 
-    static String createCellId(int row, int column) {
-        return row + ":" + column;
-    }
+    //static String createCellId(int row, int column) { return row + ":" + column; }
 }

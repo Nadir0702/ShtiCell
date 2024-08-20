@@ -1,9 +1,11 @@
 package logic;
 
+import dto.SheetDTO;
+
 public interface Engine {
     boolean LoadData(String path);
-    void showSheet();
-    void showSingleCellData(String cellID);
+    SheetDTO getSheetAsDTO();
+    void getSingleCellData(String cellID);
     void updateSingleCellData(String cellID);
     void showVersions();
 }
