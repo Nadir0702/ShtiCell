@@ -1,8 +1,9 @@
 package logic.function.system;
 
+import component.api.CellType;
 import logic.function.Function;
 import logic.function.UnariFunction;
-import logic.function.returnable.Returnable;
+import logic.function.returnable.api.Returnable;
 
 public class Ref extends UnariFunction {
     private final String name = "REF";
@@ -13,16 +14,18 @@ public class Ref extends UnariFunction {
 
     @Override
     protected Returnable calculate(Returnable argument) {
+
         return null;
     }
 
     @Override
-    protected boolean validateArgumentTypes(Returnable argument) {
-        return false;
+    public String getFunctionName() {
+        return this.name;
     }
 
     @Override
-    public String getFunctionName() {
-        return "";
+    public CellType getReturnType() {
+        this.getArgument().getReturnType();
+        return null;
     }
 }

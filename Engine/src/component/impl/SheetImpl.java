@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SheetImpl implements Sheet {
-    private String sheetName;
+    private final String sheetName;
     private Layout layout;
     private Map<String, Cell> cells;
     private int version;
@@ -48,11 +48,16 @@ public class SheetImpl implements Sheet {
 
     public SheetImpl() {
         this.cells = new HashMap<String, Cell>();
+        this.version = 1;
+        this.numOfCellsUpdated = 0;
+        this.layout = new Layout(0, 0, 0, 0);
+        this.sheetName = "Sheet";
+
     }
 
     @Override
     public int getVersion() {
-        return 0;
+        return this.version;
     }
 
     @Override
@@ -65,4 +70,18 @@ public class SheetImpl implements Sheet {
         Cell cell = this.cells.get(Cell.createCellId(row, col));
         cell.setOriginalValue(value);
     }
+
+    public String getSheetName(){
+        return this.sheetName;
+    }
+
+    public Map<String, Cell> getCells(){
+        return this.cells;
+    }
+
+    public int getNumOfCellsUpdated(){
+        return this.numOfCellsUpdated;
+    }
+
+
 }

@@ -1,9 +1,8 @@
 package component.impl;
 
 import component.api.Cell;
-import logic.function.Function;
 import logic.function.parser.FunctionParser;
-import logic.function.returnable.Returnable;
+import logic.function.returnable.api.Returnable;
 import java.util.List;
 
 public class CellImpl implements Cell {
@@ -62,7 +61,7 @@ public class CellImpl implements Cell {
     }
 
     @Override
-    public int version() {
+    public int getVersion() {
         return this.version;
     }
 

@@ -5,11 +5,10 @@ import logic.function.Function;
 import logic.function.math.Abs;
 import logic.function.math.Minus;
 import logic.function.math.Plus;
-import logic.function.returnable.MyBoolean;
-import logic.function.returnable.MyNumber;
-import logic.function.returnable.MyString;
 import logic.function.string.Concat;
 import logic.function.string.Sub;
+import logic.function.system.Identity;
+import logic.function.system.Ref;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,11 +25,11 @@ public enum FunctionParser {
 
             String value = arguments.getFirst().trim();
             if (isBoolean(value)) {
-                return new MyBoolean(Boolean.parseBoolean(value));
+                return new Identity(Boolean.parseBoolean(value), CellType.BOOLEAN);
             } else if (isNumber(value)) {
-                return new MyNumber(Double.parseDouble(value));
+                return new Identity(Double.parseDouble(value), CellType.NUMERIC);
             } else {
-                return new MyString(value);
+                return new Identity(value, CellType.STRING);
             }
         }
 
@@ -144,13 +143,30 @@ public enum FunctionParser {
                     !secondArgument.getReturnType().equals(CellType.NUMERIC) ||
                     !thirdArgument.getReturnType().equals(CellType.NUMERIC)) {
                 throw new IllegalArgumentException("Invalid argument types for SUB function." +
-                        " Expected STRING, NUMERIC and NUMERIC, but got " + firstArgument.getFunctionName() +
-                        ", " + secondArgument.getFunctionName() + " and " + thirdArgument.getReturnType());
+                        " Expected STRING, NUMERIC and NUMERIC, but got " + firstArgument.getReturnType() +
+                        ", " + secondArgument.getReturnType() + " and " + thirdArgument.getReturnType());
             }
 
             return new Sub(firstArgument, secondArgument, thirdArgument);
         }
+    },
+    REF{
+        @Override
+        public Function parse(List<String> arguments) {
+            if (arguments.size() != 1) {
+                throw new IllegalArgumentException("Invalid number of arguments for REF function." +
+                        " Expected 1, but got " + arguments.size());
+            }
 
+            Function argument = parseFunction(arguments.getFirst().trim());
+
+            if (!argument.getReturnType().equals(CellType.STRING)) {
+                throw new IllegalArgumentException("Invalid argument types for REF function." +
+                        " Expected Cell ID, but got " + argument.getFunctionName());
+            }
+
+            return new Ref(argument);
+        }
     };
 
     abstract public Function parse(List<String> arguments);

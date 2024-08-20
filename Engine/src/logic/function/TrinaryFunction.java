@@ -1,6 +1,6 @@
 package logic.function;
 
-import logic.function.returnable.Returnable;
+import logic.function.returnable.api.Returnable;
 
 abstract public class TrinaryFunction implements Function {
     private Function argument1;
@@ -24,6 +24,4 @@ abstract public class TrinaryFunction implements Function {
     }
 
     abstract protected Returnable calculate(Returnable argument1, Returnable argument2, Returnable argument3);
-
-    abstract protected boolean validateArgumentsTypes(Returnable argument1, Returnable argument2, Returnable argument3);
 }

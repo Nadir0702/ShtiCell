@@ -1,9 +1,11 @@
 package logic.function.math;
 
+import component.api.CellType;
 import logic.function.BinaryFunction;
 import logic.function.Function;
-import logic.function.returnable.MyNumber;
-import logic.function.returnable.Returnable;
+import logic.function.returnable.impl.ErrorValue;
+import logic.function.returnable.api.Returnable;
+import logic.function.returnable.impl.ReturnableImpl;
 
 public class Minus extends BinaryFunction {
     private final String name = "MINUS";
@@ -14,18 +16,22 @@ public class Minus extends BinaryFunction {
 
     @Override
     protected Returnable calculate(Returnable argument1, Returnable argument2) {
-        return validateArgumentsTypes(argument1, argument2) ?
-                new MyNumber((double)argument1.getValue() - (double)argument2.getValue()) :
-                new MyNumber(Double.NaN);
-    }
-
-    @Override
-    protected boolean validateArgumentsTypes(Returnable argument1, Returnable argument2) {
-        return argument1 instanceof MyNumber && argument2 instanceof MyNumber;
+        try {
+            return new ReturnableImpl(
+                    argument1.tryConvertTo(Double.class) - argument2.tryConvertTo(Double.class),
+                    CellType.NUMERIC);
+        } catch (ClassCastException e) {
+            return ErrorValue.NAN;
+        }
     }
 
     @Override
     public String getFunctionName() {
         return this.name;
+    }
+
+    @Override
+    public CellType getReturnType() {
+        return CellType.NUMERIC;
     }
 }

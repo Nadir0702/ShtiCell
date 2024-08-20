@@ -1,6 +1,6 @@
 package logic.function;
 
-import logic.function.returnable.Returnable;
+import logic.function.returnable.api.Returnable;
 
 public abstract class BinaryFunction implements Function {
     private Function argument1;
@@ -22,6 +22,4 @@ public abstract class BinaryFunction implements Function {
     }
 
     abstract protected Returnable calculate(Returnable argument1, Returnable argument2);
-
-    abstract protected boolean validateArgumentsTypes(Returnable argument1, Returnable argument2);
 }
