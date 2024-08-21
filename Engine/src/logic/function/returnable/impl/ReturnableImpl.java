@@ -13,6 +13,11 @@ public class ReturnableImpl implements Returnable {
     }
 
     @Override
+    public Object getValue() {
+        return this.value;
+    }
+
+    @Override
     public CellType getCellType() {
         return this.cellType;
     }

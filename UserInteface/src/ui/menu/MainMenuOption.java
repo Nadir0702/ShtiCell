@@ -2,6 +2,7 @@ package ui.menu;
 
 import dto.SheetDTO;
 import logic.Engine;
+import ui.output.ConsolePrinter;
 
 import javax.print.attribute.standard.MediaSize;
 
@@ -65,6 +66,7 @@ public enum MainMenuOption {
         @Override
         public void executeOption(Engine engine) {
             SheetDTO sheetDTO = engine.getSheetAsDTO();
+            ConsolePrinter.printSheet(sheetDTO);
         }
 
         @Override
@@ -141,10 +143,10 @@ public enum MainMenuOption {
             System.out.println("Cannot enter an empty cell ID");
             isValid = false;
         }else if (!Character.isUpperCase(cellID.charAt(0))) {
-            System.out.println("Please enter column as upper case letter.");
+            System.out.println("Please enter column as upper case letter only.");
             isValid = false;
         }else if (!cellID.substring(1).matches("\\d+")) {
-            System.out.println("Please enter row as number");
+            System.out.println("Please enter row as number only");
             isValid = false;
         }
 

@@ -13,23 +13,35 @@ public class CellDTO {
     private final int version;
     private final List<String> dependingOn;
     private final List<String> influencingOn;
+    private final boolean isActive;
+
 
     public CellDTO(Cell cell) {
-        this.cellId = cell.getCellId();
-        this.originalValue = cell.getOriginalValue();
-        this.effectiveValue = cell.getEffectiveValue();
-        this.version = cell.getVersion();
-        this.dependingOn = new ArrayList<>();
-        this.influencingOn = new ArrayList<>();
+        if (cell != null) {
+            this.cellId = cell.getCellId();
+            this.originalValue = cell.getOriginalValue();
+            this.effectiveValue = cell.getEffectiveValue();
+            this.version = cell.getVersion();
+            this.dependingOn = new ArrayList<>();
+            this.influencingOn = new ArrayList<>();
+            this.isActive = true;
 
-        for (Cell dependantCell : cell.getDependentCells()){
-            this.dependingOn.add(dependantCell.getCellId());
+            for (Cell dependantCell : cell.getDependentCells()) {
+                this.dependingOn.add(dependantCell.getCellId());
+            }
+
+            for (Cell influencedCell : cell.getInfluencedCells()) {
+                this.dependingOn.add(influencedCell.getCellId());
+            }
+        } else {
+            this.cellId = null;
+            this.originalValue = "";
+            this.effectiveValue = null;
+            this.version = 0;
+            this.dependingOn = null;
+            this.influencingOn = null;
+            this.isActive = false;
         }
-
-        for (Cell influencedCell : cell.getInfluencedCells()){
-            this.dependingOn.add(influencedCell.getCellId());
-        }
-
     }
 
     public String getCellId() {
