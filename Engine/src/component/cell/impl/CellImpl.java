@@ -1,11 +1,13 @@
-package component.impl;
+package component.cell.impl;
 
-import component.api.Cell;
+import component.cell.api.Cell;
+import component.sheet.api.ReadonlySheet;
 import logic.function.parser.FunctionParser;
 import logic.function.returnable.api.Returnable;
 import java.util.List;
 
 public class CellImpl implements Cell {
+    private final ReadonlySheet sheet;
     private final String cellId;
     private int row;
     private int column;
@@ -15,8 +17,8 @@ public class CellImpl implements Cell {
     private final List<Cell> dependingOn;
     private final List<Cell> influencingOn;
 
-    public CellImpl(int row, int col, String originalValue, Returnable effectiveValue, int version, List<Cell> dependingOn, List<Cell> influencingOn) {
-        this.cellId = "Cell.createCellId(row, col)";
+    public CellImpl(String cellID, int row, int col, String originalValue, Returnable effectiveValue, int version, List<Cell> dependingOn, List<Cell> influencingOn, ReadonlySheet sheet) {
+        this.cellId = cellID;
         this.row = row;
         this.column = col;
         this.originalValue = originalValue;
@@ -24,10 +26,11 @@ public class CellImpl implements Cell {
         this.version = version;
         this.dependingOn = dependingOn;
         this.influencingOn = influencingOn;
+        this.sheet = sheet;
     }
 
     private void calculateEffectiveValue() {
-        this.effectiveValue = FunctionParser.parseFunction(this.originalValue).invoke();
+        this.effectiveValue = FunctionParser.parseFunction(this.originalValue).invoke(this.sheet);
     }
 
     @Override

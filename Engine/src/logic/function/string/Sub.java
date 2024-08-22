@@ -1,6 +1,6 @@
 package logic.function.string;
 
-import component.api.CellType;
+import component.cell.api.CellType;
 import logic.function.Function;
 import logic.function.TrinaryFunction;
 import logic.function.returnable.api.Returnable;

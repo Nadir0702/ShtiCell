@@ -1,5 +1,6 @@
 package logic.function;
 
+import component.sheet.api.ReadonlySheet;
 import logic.function.returnable.api.Returnable;
 
 abstract public class TrinaryFunction implements Function {
@@ -14,8 +15,8 @@ abstract public class TrinaryFunction implements Function {
     }
 
     @Override
-    public Returnable invoke() {
-        return calculate(this.argument1.invoke(), this.argument2.invoke(), this.argument3.invoke());
+    public Returnable invoke(ReadonlySheet sheet) {
+        return calculate(this.argument1.invoke(sheet), this.argument2.invoke(sheet), this.argument3.invoke(sheet));
     }
 
     @Override

@@ -1,6 +1,6 @@
 package logic.function.math;
 
-import component.api.CellType;
+import component.cell.api.CellType;
 import logic.function.BinaryFunction;
 import logic.function.Function;
 import logic.function.returnable.impl.ErrorValue;

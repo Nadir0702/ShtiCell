@@ -1,6 +1,6 @@
 package logic.function.returnable.api;
 
-import component.api.CellType;
+import component.cell.api.CellType;
 
 public interface Returnable {
     CellType getCellType();

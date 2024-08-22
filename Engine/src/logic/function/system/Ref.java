@@ -1,21 +1,17 @@
 package logic.function.system;
 
-import component.api.CellType;
+import component.cell.api.CellType;
+import component.sheet.api.ReadonlySheet;
 import logic.function.Function;
-import logic.function.UnariFunction;
 import logic.function.returnable.api.Returnable;
+import logic.function.returnable.impl.ReturnableImpl;
 
-public class Ref extends UnariFunction {
+public class Ref implements Function {
     private final String name = "REF";
+    private String CellID;
 
-    public Ref(Function argument) {
-        super(argument);
-    }
-
-    @Override
-    protected Returnable calculate(Returnable argument) {
-
-        return null;
+    public Ref(String cellID) {
+        this.CellID = cellID;
     }
 
     @Override
@@ -24,8 +20,12 @@ public class Ref extends UnariFunction {
     }
 
     @Override
+    public Returnable invoke(ReadonlySheet sheet) {
+        return sheet.getCell(this.CellID).getEffectiveValue();
+    }
+
+    @Override
     public CellType getReturnType() {
-        this.getArgument().getReturnType();
-        return null;
+        return CellType.UNKNOWN;
     }
 }

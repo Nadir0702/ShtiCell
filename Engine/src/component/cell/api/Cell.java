@@ -1,4 +1,4 @@
-package component.api;
+package component.cell.api;
 
 import logic.function.returnable.api.Returnable;
 

@@ -4,15 +4,13 @@ import dto.SheetDTO;
 import logic.Engine;
 import ui.output.ConsolePrinter;
 
-import javax.print.attribute.standard.MediaSize;
-
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
+import static component.sheet.api.Sheet.isValidCellID;
 import static java.lang.System.exit;
-import static java.lang.System.setOut;
 
 public enum MainMenuOption {
     INVALID_CHOICE{
@@ -136,22 +134,7 @@ public enum MainMenuOption {
         return cellID;
     }
 
-    private static boolean isValidCellID(String cellID) {
-        boolean isValid = true;
 
-        if (cellID.isBlank()) {
-            System.out.println("Cannot enter an empty cell ID");
-            isValid = false;
-        }else if (!Character.isUpperCase(cellID.charAt(0))) {
-            System.out.println("Please enter column as upper case letter only.");
-            isValid = false;
-        }else if (!cellID.substring(1).matches("\\d+")) {
-            System.out.println("Please enter row as number only");
-            isValid = false;
-        }
-
-        return isValid;
-    }
 
     public abstract void executeOption(Engine engine);
 }

@@ -1,6 +1,6 @@
 package logic.function.returnable.impl;
 
-import component.api.CellType;
+import component.cell.api.CellType;
 import logic.function.returnable.api.Returnable;
 
 public enum ErrorValue implements Returnable {
