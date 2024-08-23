@@ -1,5 +1,7 @@
 package component.sheet.api;
 
-public interface UpdatableSheet {
-    void setCell(String cellId, String value);
+import java.io.Serializable;
+
+public interface UpdatableSheet extends Serializable {
+    Sheet updateCellValueAndCalculate(String cellId, String value);
 }

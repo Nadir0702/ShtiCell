@@ -2,7 +2,9 @@ package logic.function.returnable.api;
 
 import component.cell.api.CellType;
 
-public interface Returnable {
+import java.io.Serializable;
+
+public interface Returnable extends Serializable {
     CellType getCellType();
     Object getValue();
     <T> T tryConvertTo(Class<T> type);

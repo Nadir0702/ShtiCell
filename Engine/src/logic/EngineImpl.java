@@ -31,7 +31,7 @@ public class EngineImpl implements Engine{
 
     @Override
     public void updateSingleCellData(String cellID) {
-
+        this.sheet = this.sheet.updateCellValueAndCalculate(cellID, "helloWorld");
     }
 
     @Override

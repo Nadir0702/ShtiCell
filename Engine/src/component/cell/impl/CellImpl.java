@@ -4,6 +4,8 @@ import component.cell.api.Cell;
 import component.sheet.api.ReadonlySheet;
 import logic.function.parser.FunctionParser;
 import logic.function.returnable.api.Returnable;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class CellImpl implements Cell {
@@ -17,20 +19,27 @@ public class CellImpl implements Cell {
     private final List<Cell> dependingOn;
     private final List<Cell> influencingOn;
 
-    public CellImpl(String cellID, int row, int col, String originalValue, Returnable effectiveValue, int version, List<Cell> dependingOn, List<Cell> influencingOn, ReadonlySheet sheet) {
+    public CellImpl(String cellID, String originalValue, int version, ReadonlySheet sheet) {
         this.cellId = cellID;
-        this.row = row;
-        this.column = col;
+//        this.row = row;
+//        this.column = col;
         this.originalValue = originalValue;
-        this.effectiveValue = effectiveValue;
         this.version = version;
-        this.dependingOn = dependingOn;
-        this.influencingOn = influencingOn;
+        this.dependingOn = new ArrayList<>();
+        this.influencingOn = new ArrayList<>();
         this.sheet = sheet;
     }
 
-    private void calculateEffectiveValue() {
-        this.effectiveValue = FunctionParser.parseFunction(this.originalValue).invoke(this.sheet);
+    @Override
+    public boolean calculateEffectiveValue() {
+        Returnable newEffectiveValue = FunctionParser.parseFunction(this.originalValue).invoke(this.sheet);
+
+        if (newEffectiveValue.equals(effectiveValue)) {
+            return false;
+        } else {
+            this.effectiveValue = newEffectiveValue;
+            return true;
+        }
     }
 
     @Override
@@ -76,5 +85,10 @@ public class CellImpl implements Cell {
     @Override
     public List<Cell> getInfluencedCells() {
         return this.influencingOn;
+    }
+
+    @Override
+    public void updateVersion(int newVersion) {
+        this.version = newVersion;
     }
 }

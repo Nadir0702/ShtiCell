@@ -7,6 +7,6 @@ import logic.function.returnable.api.Returnable;
 public interface Function {
 
     String getFunctionName();
-    Returnable invoke(ReadonlySheet returnable);
+    Returnable invoke(ReadonlySheet sheet);
     CellType getReturnType();
 }

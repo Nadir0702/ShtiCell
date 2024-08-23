@@ -1,6 +1,6 @@
 package component.sheet.api;
 
-public interface Sheet extends ReadonlySheet, UpdatableSheet {
+public interface Sheet extends ReadonlySheet, UpdatableSheet{
     static boolean isValidCellID(String cellID) {
         boolean isValid = true;
 
