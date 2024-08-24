@@ -1,5 +1,6 @@
 package ui.menu;
 
+import component.sheet.api.Sheet;
 import dto.SheetDTO;
 import logic.Engine;
 import ui.output.ConsolePrinter;
@@ -8,6 +9,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
+import java.util.function.Predicate;
 
 import static component.sheet.api.Sheet.isValidCellID;
 import static java.lang.System.exit;
@@ -22,35 +24,11 @@ public enum MainMenuOption {
     LOAD_XML_FILE{
         @Override
         public void executeOption(Engine engine) {
-            String path = getFilePathFromUser();
+            String path = ConsolePrinter.getInputFromUser("Please Enter the full path of the file you wish to load:", MainMenuOption::isValidPathFormat);
             if (engine.LoadData(path)) {
                 System.out.println("File Loaded Successfully");
             } else {
                 System.out.println("Error: Couldn't load file.");
-            }
-        }
-
-        private String getFilePathFromUser() {
-            Scanner scanner = new Scanner(System.in);
-
-            System.out.println("Please Enter the full path of the file you wish to load:");
-            String path = scanner.nextLine();
-
-            while( !isValidPathFormat(path)){
-                System.out.println("Please Enter the valid path of the file you wish to load:");
-                path = scanner.nextLine();
-            }
-
-            return path;
-        }
-
-        private boolean isValidPathFormat(String filePath) {
-            try {
-                Path path = Paths.get(filePath);
-                return true; // Path is valid if no exception is thrown
-            } catch (InvalidPathException e) {
-                System.out.println("The File Path is invalid.");
-                return false; // Path is invalid
             }
         }
 
@@ -75,7 +53,7 @@ public enum MainMenuOption {
     SHOW_SINGLE_CELL{
         @Override
         public void executeOption(Engine engine) {
-            String cellID = getCellIDFromUser();
+            String cellID = ConsolePrinter.getInputFromUser("Please Enter the cell ID(for example A4):", Sheet::isValidCellID);
             engine.getSingleCellData(cellID);
         }
 
@@ -87,7 +65,7 @@ public enum MainMenuOption {
     UPDATE_SINGLE_CELL{
         @Override
         public void executeOption(Engine engine) {
-            String cellID = getCellIDFromUser();
+            String cellID = ConsolePrinter.getInputFromUser("Please Enter the cell ID(for example A4):", Sheet::isValidCellID);
             engine.updateSingleCellData(cellID, "hello");
 
         }
@@ -120,20 +98,16 @@ public enum MainMenuOption {
         }
     };
 
-    private static String getCellIDFromUser() {
-        Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Please Enter the cell ID(for example A4):");
-        String cellID = scanner.nextLine();
-
-        while (!isValidCellID(cellID)){
-            System.out.println("Please Enter the valid cell ID(for example A4):");
-            cellID = scanner.nextLine();
+    public  static boolean isValidPathFormat(String filePath) {
+        try {
+            Path path = Paths.get(filePath);
+            return true; // Path is valid if no exception is thrown
+        } catch (InvalidPathException e) {
+            System.out.println("The File Path is invalid.");
+            return false; // Path is invalid
         }
-
-        return cellID;
     }
-
 
 
     public abstract void executeOption(Engine engine);

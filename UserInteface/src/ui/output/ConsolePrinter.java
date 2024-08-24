@@ -5,14 +5,31 @@ import logic.function.returnable.api.Returnable;
 import ui.menu.MainMenuOption;
 
 import java.util.Map;
+import java.util.Scanner;
+import java.util.function.Predicate;
 
 public class ConsolePrinter {
     public static void printMainMenu() {
+        System.out.println("Please Choose The Option Number out of the Following Options:");
         for (MainMenuOption option : MainMenuOption.values()) {
             if(MainMenuOption.INVALID_CHOICE != option) {
                 System.out.println(option.ordinal() + ") " + option);
             }
         }
+    }
+
+    public static String getInputFromUser(String messageToUser, Predicate<String> inputValidationMethod) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println(messageToUser);
+        String input = scanner.nextLine();
+
+        while (!inputValidationMethod.test(input)){
+            System.out.println(messageToUser);
+            input = scanner.nextLine();
+        }
+
+        return input;
     }
 
     public static void printSheet(SheetDTO sheet) {
