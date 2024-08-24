@@ -1,5 +1,6 @@
 package component.sheet.impl;
 
+import com.sun.tools.xjc.reader.gbind.ElementSet;
 import component.cell.api.Cell;
 import component.cell.impl.CellImpl;
 import component.sheet.api.Sheet;
@@ -61,7 +62,7 @@ public class SheetImpl implements Sheet {
             return this.cells.get(cellId);
         }
         throw new IllegalArgumentException("The sheet size is " + this.layout.getRow() + " rows and " +
-                this.layout.getColumn() + " columns, The entered cell ID (" + cellId + ") is out of bounds.");
+                this.layout.getColumn() + " columns, The Cell or Referenced Cell " + cellId + " is out of bounds.");
     }
 
     private boolean cellInLayout(String cellId) {
@@ -84,15 +85,11 @@ public class SheetImpl implements Sheet {
     }
 
     @Override
-    public Sheet updateCellValueAndCalculate(String cellId, String value) {
-        SheetImpl newSheetVersion = copySheet();
-        Cell newCell = new CellImpl(cellId, value, newSheetVersion.getVersion() + 1, newSheetVersion);
-        newSheetVersion.cells.put(cellId, newCell);
+    public Sheet updateSheet(String cellId, String value, SheetImpl newSheetVersion) {
 
         try {
             List<Cell> cellsThatHaveChanged =
-                    newSheetVersion
-                            .orderCellsForCalculation()
+                    TopologicalOrder.SORT.topologicalSort(newSheetVersion.getCells())
                             .stream()
                             .filter(Cell::calculateEffectiveValue)
                             .toList();
@@ -103,10 +100,10 @@ public class SheetImpl implements Sheet {
             this.numOfCellsUpdated = cellsThatHaveChanged.size();
             SheetDTO newSheetVersionDTO = new SheetDTO(newSheetVersion);
 
-
             return newSheetVersion;
 
         } catch (Exception e) {
+            // might need to throw custom-made exception
             // deal with the runtime error that was discovered as part of invocation
             return this;
         }
@@ -116,11 +113,8 @@ public class SheetImpl implements Sheet {
          return ++this.version;
     }
 
-    private List<Cell> orderCellsForCalculation() {
-        return TopologicalOrder.SORT.topologicalSort(this.getCells());
-    }
-
-    private SheetImpl copySheet() {
+    @Override
+    public SheetImpl copySheet() {
 
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();

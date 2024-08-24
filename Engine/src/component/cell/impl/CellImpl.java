@@ -2,11 +2,18 @@ package component.cell.impl;
 
 import component.cell.api.Cell;
 import component.sheet.api.ReadonlySheet;
+import component.sheet.api.Sheet;
+import component.sheet.impl.SheetImpl;
 import logic.function.parser.FunctionParser;
+import logic.function.parser.RefParser;
 import logic.function.returnable.api.Returnable;
+import logic.function.returnable.impl.ReturnableImpl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
+import static component.sheet.api.Sheet.isValidCellID;
 
 public class CellImpl implements Cell {
     private final ReadonlySheet sheet;
@@ -28,6 +35,22 @@ public class CellImpl implements Cell {
         this.dependingOn = new ArrayList<>();
         this.influencingOn = new ArrayList<>();
         this.sheet = sheet;
+
+        RefParser.PARSE.extractRefs(originalValue).stream()
+                .filter(Sheet::isValidCellID)
+                .forEach(this::setDependantAndInfluencedCells);
+    }
+
+    private void setDependantAndInfluencedCells(String dependantCellID) {
+        Cell dependantCell = this.sheet.getCell(dependantCellID);
+
+        if (dependantCell == null) {
+            dependantCell = new CellImpl(dependantCellID, "", this.version, this.sheet);
+            this.sheet.getCells().put(dependantCellID, dependantCell);
+        }
+
+        this.dependingOn.add(dependantCell);
+        dependantCell.getInfluencedCells().add(this);
     }
 
     @Override
@@ -41,6 +64,17 @@ public class CellImpl implements Cell {
             return true;
         }
     }
+
+//    public Sheet updateCell() {
+//        SheetImpl newSheetVersion = sheet.copySheet();
+//        Cell updatedCell = newSheetVersion.getCell(cellId);
+//        if (updatedCell != null) {
+//            updatedCell.setOriginalValue(value);
+//        } else {
+//            updatedCell = new CellImpl(cellId, value, newSheetVersion.getVersion() + 1, newSheetVersion);
+//            newSheetVersion.cells.put(cellId, updatedCell);
+//        }
+//    }
 
     @Override
     public int getRow() {

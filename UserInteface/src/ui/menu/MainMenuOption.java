@@ -88,7 +88,7 @@ public enum MainMenuOption {
         @Override
         public void executeOption(Engine engine) {
             String cellID = getCellIDFromUser();
-            engine.updateSingleCellData(cellID);
+            engine.updateSingleCellData(cellID, "hello");
 
         }
 

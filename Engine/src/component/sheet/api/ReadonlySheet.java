@@ -12,6 +12,8 @@ public interface ReadonlySheet {
     String getSheetName();
     Map<String, Cell> getCells();
     int getNumOfCellsUpdated();
+    SheetImpl copySheet();
+
 
 
 }

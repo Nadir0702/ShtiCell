@@ -198,7 +198,12 @@ public enum FunctionParser {
             return FunctionParser.valueOf(functionName).parse(topLevelParts);
         }
 
-        return FunctionParser.IDENTITY.parse(List.of(input.trim()));
+        try{
+            return FunctionParser.IDENTITY.parse(List.of(input.trim()));
+        } catch (NullPointerException e){
+            throw new NullPointerException("Cannot reference an empty Cell");
+        }
+
     }
 
     private static List<String> parseMainParts(String input) {

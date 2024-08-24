@@ -1,5 +1,7 @@
 package logic;
 
+import component.cell.api.Cell;
+import component.cell.impl.CellImpl;
 import component.sheet.api.Sheet;
 import component.sheet.impl.SheetImpl;
 import dto.CellDTO;
@@ -28,10 +30,21 @@ public class EngineImpl implements Engine{
         return new CellDTO(this.sheet.getCell(cellID));
     }
 
-
     @Override
-    public void updateSingleCellData(String cellID) {
-        this.sheet = this.sheet.updateCellValueAndCalculate(cellID, "helloWorld");
+    public void updateSingleCellData(String cellID, String value) {
+        SheetImpl newSheetVersion = this.sheet.copySheet();
+        updateCell(cellID, value, newSheetVersion);
+        this.sheet = this.sheet.updateSheet(cellID, value, newSheetVersion);
+    }
+
+    private void updateCell(String cellID, String value, Sheet newSheetVersion) {
+        Cell cellToUpdate = newSheetVersion.getCell(cellID);
+        if (cellToUpdate != null) {
+            cellToUpdate.setOriginalValue(value);
+        } else {
+            cellToUpdate = new CellImpl(cellID, value, newSheetVersion.getVersion() + 1, newSheetVersion);
+            newSheetVersion.getCells().put(cellID, cellToUpdate);
+        }
     }
 
     @Override
