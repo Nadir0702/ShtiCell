@@ -3,17 +3,12 @@ package component.cell.impl;
 import component.cell.api.Cell;
 import component.sheet.api.ReadonlySheet;
 import component.sheet.api.Sheet;
-import component.sheet.impl.SheetImpl;
 import logic.function.parser.FunctionParser;
 import logic.function.parser.RefParser;
 import logic.function.returnable.api.Returnable;
-import logic.function.returnable.impl.ReturnableImpl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-
-import static component.sheet.api.Sheet.isValidCellID;
 
 public class CellImpl implements Cell {
     private final ReadonlySheet sheet;
@@ -36,10 +31,9 @@ public class CellImpl implements Cell {
         this.influencingOn = new ArrayList<>();
         this.sheet = sheet;
 
-        RefParser.PARSE.extractRefs(originalValue).stream()
-                .filter(Sheet::isValidCellID)
-                .forEach(this::setDependantAndInfluencedCells);
+        this.setDependencies();
     }
+
 
     private void setDependantAndInfluencedCells(String dependantCellID) {
         Cell dependantCell = this.sheet.getCell(dependantCellID);
@@ -51,6 +45,12 @@ public class CellImpl implements Cell {
 
         this.dependingOn.add(dependantCell);
         dependantCell.getInfluencedCells().add(this);
+    }
+
+    private void setDependencies(){
+        RefParser.PARSE.extractRefs(this.originalValue).stream()
+                .filter(Sheet::isValidCellID)
+                .forEach(this::setDependantAndInfluencedCells);
     }
 
     @Override
@@ -65,31 +65,17 @@ public class CellImpl implements Cell {
         }
     }
 
-//    public Sheet updateCell() {
-//        SheetImpl newSheetVersion = sheet.copySheet();
-//        Cell updatedCell = newSheetVersion.getCell(cellId);
-//        if (updatedCell != null) {
-//            updatedCell.setOriginalValue(value);
-//        } else {
-//            updatedCell = new CellImpl(cellId, value, newSheetVersion.getVersion() + 1, newSheetVersion);
-//            newSheetVersion.cells.put(cellId, updatedCell);
-//        }
-//    }
-
     @Override
-    public int getRow() {
-        return this.row;
-    }
+    public void setOriginalValue(String value) {
+        this.originalValue = value;
 
-    @Override
-    public int getColumn() {
-        return this.column;
-    }
+        for(Cell cell : this.dependingOn){
+            cell.getInfluencedCells().remove(this);
+        }
 
-    @Override
-    public void setOriginalValue(String Value) {
-        this.originalValue = Value;
-    }
+        this.dependingOn.clear();
+        this.influencingOn.clear();
+}
 
     @Override
     public String getCellId() {

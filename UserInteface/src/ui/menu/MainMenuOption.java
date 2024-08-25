@@ -1,6 +1,7 @@
 package ui.menu;
 
 import component.sheet.api.Sheet;
+import dto.CellDTO;
 import dto.SheetDTO;
 import logic.Engine;
 import ui.output.ConsolePrinter;
@@ -54,7 +55,12 @@ public enum MainMenuOption {
         @Override
         public void executeOption(Engine engine) {
             String cellID = ConsolePrinter.getInputFromUser("Please Enter the cell ID(for example A4):", Sheet::isValidCellID);
-            engine.getSingleCellData(cellID);
+            CellDTO cellDTO = engine.getSingleCellData(cellID);
+            if (cellDTO.isActive()) {
+                ConsolePrinter.printCell(cellDTO);
+            } else {
+                System.out.println("The cell " + cellID + " has no value yet.");
+            }
         }
 
         @Override
@@ -66,8 +72,15 @@ public enum MainMenuOption {
         @Override
         public void executeOption(Engine engine) {
             String cellID = ConsolePrinter.getInputFromUser("Please Enter the cell ID(for example A4):", Sheet::isValidCellID);
-            engine.updateSingleCellData(cellID, "hello");
+            CellDTO cellDTO = engine.getSingleCellData(cellID);
+            if (cellDTO.isActive()) {
+                ConsolePrinter.printSimplifiedCell(cellDTO);
+            } else {
+                System.out.println("The cell " + cellID + " has no value yet.");
+            }
 
+            String newOriginalValue = ConsolePrinter.getOriginalValueFromUser(cellID);
+            engine.updateSingleCellData(cellID, newOriginalValue);
         }
 
         @Override
@@ -98,8 +111,7 @@ public enum MainMenuOption {
         }
     };
 
-
-    public  static boolean isValidPathFormat(String filePath) {
+    public static boolean isValidPathFormat(String filePath) {
         try {
             Path path = Paths.get(filePath);
             return true; // Path is valid if no exception is thrown

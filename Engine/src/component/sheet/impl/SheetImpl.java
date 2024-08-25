@@ -86,7 +86,6 @@ public class SheetImpl implements Sheet {
 
     @Override
     public Sheet updateSheet(String cellId, String value, SheetImpl newSheetVersion) {
-
         try {
             List<Cell> cellsThatHaveChanged =
                     TopologicalOrder.SORT.topologicalSort(newSheetVersion.getCells())

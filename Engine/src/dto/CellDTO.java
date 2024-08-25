@@ -44,6 +44,10 @@ public class CellDTO {
         }
     }
 
+    public boolean isActive() {
+        return this.isActive;
+    }
+
     public String getCellId() {
         return cellId;
     }
