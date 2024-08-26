@@ -3,7 +3,7 @@ package logic.function.math;
 import component.cell.api.CellType;
 import logic.function.Function;
 import logic.function.UnariFunction;
-import logic.function.returnable.impl.ErrorValue;
+import logic.function.returnable.impl.SpecialValues;
 import logic.function.returnable.api.Returnable;
 import logic.function.returnable.impl.ReturnableImpl;
 
@@ -19,7 +19,7 @@ public class Abs extends UnariFunction {
         try {
             return new ReturnableImpl(Math.abs(argument.tryConvertTo(Double.class)), argument.getCellType());
         } catch (ClassCastException e) {
-            return ErrorValue.NAN;
+            return SpecialValues.NAN;
         }
     }
 

@@ -6,13 +6,12 @@ import dto.SheetDTO;
 import logic.Engine;
 import ui.output.ConsolePrinter;
 
+import java.io.FileNotFoundException;
+import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Scanner;
-import java.util.function.Predicate;
 
-import static component.sheet.api.Sheet.isValidCellID;
 import static java.lang.System.exit;
 
 public enum MainMenuOption {
@@ -25,12 +24,32 @@ public enum MainMenuOption {
     LOAD_XML_FILE{
         @Override
         public void executeOption(Engine engine) {
-            String path = ConsolePrinter.getInputFromUser("Please Enter the full path of the file you wish to load:", MainMenuOption::isValidPathFormat);
-            if (engine.LoadData(path)) {
+            try {
+                String path = ConsolePrinter.getInputFromUser("Please Enter the full path of the file you wish to load:", this::isValidPathFormat);
+                engine.LoadData(path);
                 System.out.println("File Loaded Successfully");
-            } else {
-                System.out.println("Error: Couldn't load file.");
+            } catch (RuntimeException e) {
+                System.out.println("Error Loading File:\n" + e.getMessage() + "\n");
             }
+        }
+
+        public boolean isValidPathFormat(String filePath) {
+            Path path = Paths.get(filePath);
+            boolean isValid = true;
+            int suffixIndex;
+
+            if (!Files.exists(path)) {
+                System.out.println("The File " + filePath + " does not exist.");
+                isValid = false;
+            } else if ((suffixIndex = path.getFileName().toString().lastIndexOf(".")) == -1){
+                System.out.println("The file " + filePath + " is not a valid XML file");
+                isValid = false;
+            } else if (path.getFileName().toString().substring(suffixIndex).equals("xml")){
+                System.out.println("The file " + filePath + " is not a valid XML file");
+                isValid = false;
+            }
+
+            return isValid;
         }
 
         @Override
@@ -42,8 +61,7 @@ public enum MainMenuOption {
     SHOW_SHEET{
         @Override
         public void executeOption(Engine engine) {
-            SheetDTO sheetDTO = engine.getSheetAsDTO();
-            ConsolePrinter.printSheet(sheetDTO);
+            ConsolePrinter.printSheet(engine.getSheetAsDTO());
         }
 
         @Override
@@ -54,13 +72,18 @@ public enum MainMenuOption {
     SHOW_SINGLE_CELL{
         @Override
         public void executeOption(Engine engine) {
-            String cellID = ConsolePrinter.getInputFromUser("Please Enter the cell ID(for example A4):", Sheet::isValidCellID);
-            CellDTO cellDTO = engine.getSingleCellData(cellID);
-            if (cellDTO.isActive()) {
-                ConsolePrinter.printCell(cellDTO);
-            } else {
-                System.out.println("The cell " + cellID + " has no value yet.");
+            try {
+                String cellID = ConsolePrinter.getInputFromUser("Please Enter the cell ID(for example A4):", Sheet::isValidCellID);
+                CellDTO cellDTO = engine.getSingleCellData(cellID);
+                if (cellDTO.isActive()) {
+                    ConsolePrinter.printCell(cellDTO);
+                } else {
+                    System.out.println("The cell " + cellID + " has no value yet.");
+                }
+            } catch (RuntimeException e) {
+                System.out.println("Error Finding Cell:\n" + e.getMessage() + "\n");
             }
+
         }
 
         @Override
@@ -71,16 +94,22 @@ public enum MainMenuOption {
     UPDATE_SINGLE_CELL{
         @Override
         public void executeOption(Engine engine) {
-            String cellID = ConsolePrinter.getInputFromUser("Please Enter the cell ID(for example A4):", Sheet::isValidCellID);
-            CellDTO cellDTO = engine.getSingleCellData(cellID);
-            if (cellDTO.isActive()) {
-                ConsolePrinter.printSimplifiedCell(cellDTO);
-            } else {
-                System.out.println("The cell " + cellID + " has no value yet.");
-            }
+            try {
+                String cellID = ConsolePrinter.getInputFromUser("Please Enter the cell ID(for example A4):", Sheet::isValidCellID);
+                CellDTO cellDTO = engine.getSingleCellData(cellID);
 
-            String newOriginalValue = ConsolePrinter.getOriginalValueFromUser(cellID);
-            engine.updateSingleCellData(cellID, newOriginalValue);
+                if (cellDTO.isActive()) {
+                    ConsolePrinter.printSimplifiedCell(cellDTO);
+                } else {
+                    System.out.println("The cell " + cellID + " has no value yet.");
+                }
+
+                String newOriginalValue = ConsolePrinter.getOriginalValueFromUser(cellID);
+                engine.updateSingleCellData(cellID, newOriginalValue);
+                SHOW_SHEET.executeOption(engine);
+            } catch (RuntimeException e) {
+                System.out.println("Error Updating Cell:\n" + e.getMessage() + "\n");
+            }
         }
 
         @Override
@@ -110,17 +139,6 @@ public enum MainMenuOption {
             return "Exit Shticell";
         }
     };
-
-    public static boolean isValidPathFormat(String filePath) {
-        try {
-            Path path = Paths.get(filePath);
-            return true; // Path is valid if no exception is thrown
-        } catch (InvalidPathException e) {
-            System.out.println("The File Path is invalid.");
-            return false; // Path is invalid
-        }
-    }
-
 
     public abstract void executeOption(Engine engine);
 }

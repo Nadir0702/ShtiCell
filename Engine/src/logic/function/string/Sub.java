@@ -4,7 +4,7 @@ import component.cell.api.CellType;
 import logic.function.Function;
 import logic.function.TrinaryFunction;
 import logic.function.returnable.api.Returnable;
-import logic.function.returnable.impl.ErrorValue;
+import logic.function.returnable.impl.SpecialValues;
 import logic.function.returnable.impl.ReturnableImpl;
 
 public class Sub extends TrinaryFunction {
@@ -24,10 +24,10 @@ public class Sub extends TrinaryFunction {
 
             return validateIndices(original, startIndex, endIndex) ?
                     new ReturnableImpl(original.substring((int)startIndex, (int)endIndex), CellType.STRING) :
-                    ErrorValue.UNDEFINED;
+                    SpecialValues.UNDEFINED;
 
         } catch (ClassCastException e) {
-            return ErrorValue.UNDEFINED;
+            return SpecialValues.UNDEFINED;
         }
     }
 

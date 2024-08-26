@@ -3,7 +3,7 @@ package logic.function.math;
 import component.cell.api.CellType;
 import logic.function.BinaryFunction;
 import logic.function.Function;
-import logic.function.returnable.impl.ErrorValue;
+import logic.function.returnable.impl.SpecialValues;
 import logic.function.returnable.api.Returnable;
 import logic.function.returnable.impl.ReturnableImpl;
 
@@ -21,7 +21,7 @@ public class Times extends BinaryFunction {
                     argument1.tryConvertTo(Double.class) * argument2.tryConvertTo(Double.class),
                     CellType.NUMERIC);
         } catch (ClassCastException e) {
-            return ErrorValue.NAN;
+            return SpecialValues.NAN;
         }
     }
 

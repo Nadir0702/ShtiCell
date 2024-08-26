@@ -1,13 +1,13 @@
 package component.cell.api;
 
-import logic.function.returnable.impl.ErrorValue;
+import logic.function.returnable.impl.SpecialValues;
 
 public enum CellType {
     NUMERIC(Double.class),
     STRING(String.class),
     BOOLEAN(Boolean.class),
     UNKNOWN(Void.class),
-    NO_VALUE(ErrorValue.class);
+    NO_VALUE(SpecialValues.class);
 
     private Class<?> type;
 

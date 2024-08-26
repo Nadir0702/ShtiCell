@@ -4,6 +4,8 @@ import component.cell.api.CellType;
 import component.sheet.api.ReadonlySheet;
 import logic.function.Function;
 import logic.function.returnable.api.Returnable;
+import logic.function.returnable.impl.ReturnableImpl;
+import logic.function.returnable.impl.SpecialValues;
 
 public class Ref implements Function {
     private final String name = "REF";
@@ -20,7 +22,9 @@ public class Ref implements Function {
 
     @Override
     public Returnable invoke(ReadonlySheet sheet) {
-        return sheet.getCell(this.CellID).getEffectiveValue();
+        return sheet.getCell(this.CellID).getEffectiveValue().getCellType().equals(CellType.NO_VALUE) ?
+                SpecialValues.UNDEFINED :
+                sheet.getCell(this.CellID).getEffectiveValue();
     }
 
     @Override

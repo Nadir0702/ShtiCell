@@ -3,7 +3,7 @@ package logic.function.returnable.impl;
 import component.cell.api.CellType;
 import logic.function.returnable.api.Returnable;
 
-public enum ErrorValue implements Returnable {
+public enum SpecialValues implements Returnable {
     NAN{
         @Override
         public Object getValue() {
@@ -14,6 +14,12 @@ public enum ErrorValue implements Returnable {
         @Override
         public Object getValue() {
             return "!UNDEFINED!";
+        }
+    },
+    EMPTY{
+        @Override
+        public Object getValue() {
+            return "";
         }
     };
 

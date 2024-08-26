@@ -8,7 +8,7 @@ import java.util.List;
 public interface Cell extends Serializable {
     String getCellId();
     String getOriginalValue();
-    void setOriginalValue(String Value);
+    void setOriginalValue(String Value, int newVersion);
     Returnable getEffectiveValue();
     boolean calculateEffectiveValue();
     int getVersion();

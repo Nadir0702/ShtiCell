@@ -10,14 +10,44 @@ import java.util.Map;
 
 public class SheetDTO {
     private final String sheetName;
-    private final SheetImpl.Layout layout;
+    private final SheetDTO.LayoutDTO layout;
     private final Map<String, Returnable> cells;
     private final int version;
     private final int numOfCellsUpdated;
 
+    public class LayoutDTO {
+        private final int row;
+        private final int column;
+        private final int rowHeight;
+        private final int columnWidth;
+
+        public LayoutDTO(SheetImpl.Layout layout) {
+            this.row = layout.getRow();
+            this.column = layout.getColumn();
+            this.rowHeight = layout.getRowHeight();
+            this.columnWidth = layout.getColumnWidth();
+        }
+
+        public int getRow() {
+            return row;
+        }
+
+        public int getColumn() {
+            return column;
+        }
+
+        public int getRowHeight() {
+            return rowHeight;
+        }
+
+        public int getColumnWidth() {
+            return columnWidth;
+        }
+    }
+
     public SheetDTO(Sheet sheet) {
         this.sheetName = sheet.getSheetName();
-        this.layout = sheet.getLayout();
+        this.layout = new LayoutDTO(sheet.getLayout());
         this.version = sheet.getVersion();
         this.numOfCellsUpdated = sheet.getNumOfCellsUpdated();
         this.cells = new HashMap<>();
@@ -31,7 +61,7 @@ public class SheetDTO {
         return sheetName;
     }
 
-    public SheetImpl.Layout getLayout() {
+    public SheetDTO.LayoutDTO getLayout() {
         return layout;
     }
 

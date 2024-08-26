@@ -13,8 +13,6 @@ import java.util.List;
 public class CellImpl implements Cell {
     private final ReadonlySheet sheet;
     private final String cellId;
-    private int row;
-    private int column;
     private String originalValue;
     private Returnable effectiveValue;
     private int version;
@@ -22,9 +20,7 @@ public class CellImpl implements Cell {
     private final List<Cell> influencingOn;
 
     public CellImpl(String cellID, String originalValue, int version, ReadonlySheet sheet) {
-        this.cellId = cellID;
-//        this.row = row;
-//        this.column = col;
+        this.cellId = Character.toUpperCase(cellID.charAt(0)) + cellID.substring(1);
         this.originalValue = originalValue;
         this.version = version;
         this.dependingOn = new ArrayList<>();
@@ -34,13 +30,12 @@ public class CellImpl implements Cell {
         this.setDependencies();
     }
 
-
     private void setDependantAndInfluencedCells(String dependantCellID) {
         Cell dependantCell = this.sheet.getCell(dependantCellID);
 
         if (dependantCell == null) {
             dependantCell = new CellImpl(dependantCellID, "", this.version, this.sheet);
-            this.sheet.getCells().put(dependantCellID, dependantCell);
+            this.sheet.getCells().put(dependantCell.getCellId(), dependantCell);
         }
 
         this.dependingOn.add(dependantCell);
@@ -66,7 +61,7 @@ public class CellImpl implements Cell {
     }
 
     @Override
-    public void setOriginalValue(String value) {
+    public void setOriginalValue(String value, int newVersion) {
         this.originalValue = value;
 
         for(Cell cell : this.dependingOn){
@@ -74,8 +69,12 @@ public class CellImpl implements Cell {
         }
 
         this.dependingOn.clear();
-        this.influencingOn.clear();
-}
+        this.setDependencies();
+
+        if (value.equals(this.originalValue)) {
+            this.version = newVersion;
+        }
+    }
 
     @Override
     public String getCellId() {

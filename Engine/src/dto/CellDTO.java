@@ -31,7 +31,7 @@ public class CellDTO {
             }
 
             for (Cell influencedCell : cell.getInfluencedCells()) {
-                this.dependingOn.add(influencedCell.getCellId());
+                this.influencingOn.add(influencedCell.getCellId());
             }
         } else {
             this.cellId = null;

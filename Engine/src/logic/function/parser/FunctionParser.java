@@ -3,9 +3,8 @@ package logic.function.parser;
 import component.cell.api.CellType;
 import component.sheet.api.Sheet;
 import logic.function.Function;
-import logic.function.math.Abs;
-import logic.function.math.Minus;
-import logic.function.math.Plus;
+import logic.function.math.*;
+import logic.function.returnable.impl.SpecialValues;
 import logic.function.string.Concat;
 import logic.function.string.Sub;
 import logic.function.system.Identity;
@@ -25,7 +24,9 @@ public enum FunctionParser {
             }
 
             String value = arguments.getFirst().trim();
-            if (isBoolean(value)) {
+            if (value.isEmpty()) {
+                return new Identity(value, CellType.NO_VALUE);
+            } else if (isBoolean(value)) {
                 return new Identity(Boolean.parseBoolean(value), CellType.BOOLEAN);
             } else if (isNumber(value)) {
                 return new Identity(Double.parseDouble(value), CellType.NUMERIC);
@@ -51,7 +52,7 @@ public enum FunctionParser {
         @Override
         public Function parse(List<String> arguments) {
             if (arguments.size() != 1) {
-                throw new IllegalArgumentException("Invalid number of arguments for PLUS function." +
+                throw new IllegalArgumentException("Invalid number of arguments for ABS function." +
                         " Expected 1, but got " + arguments.size());
             }
 
@@ -60,11 +61,83 @@ public enum FunctionParser {
             CellType type = argument.getReturnType();
 
             if (!type.equals(CellType.NUMERIC) && !type.equals(CellType.UNKNOWN)) {
-                throw new IllegalArgumentException("Invalid argument types for PLUS function." +
+                throw new IllegalArgumentException("Invalid argument types for ABS function." +
                         " Expected NUMERIC, but got " + argument.getReturnType());
             }
 
             return new Abs(argument);
+        }
+    },
+    DIVIDE{
+        @Override
+        public Function parse(List<String> arguments) {
+            if (arguments.size() != 2) {
+                throw new IllegalArgumentException("Invalid number of arguments for DIVIDE function." +
+                        " Expected 2, but got " + arguments.size());
+            }
+
+            Function firstArgument = parseFunction(arguments.getFirst().trim());
+            Function secondArgument = parseFunction(arguments.getLast().trim());
+
+            CellType firstArgType = firstArgument.getReturnType();
+            CellType secondArgType = secondArgument.getReturnType();
+
+            if ((!firstArgType.equals(CellType.NUMERIC) && !firstArgType.equals(CellType.UNKNOWN)) ||
+                    (!secondArgType.equals(CellType.NUMERIC) && !secondArgType.equals(CellType.UNKNOWN))) {
+                throw new IllegalArgumentException("Invalid argument types for DIVIDE function." +
+                        " Expected NUMERIC, but got " + firstArgument.getReturnType() +
+                        " and " + secondArgument.getReturnType());
+            }
+
+            return new Divide(firstArgument, secondArgument);
+        }
+    },
+    MINUS{
+        @Override
+        public Function parse(List<String> arguments) {
+            if (arguments.size() != 2) {
+                throw new IllegalArgumentException("Invalid number of arguments for MINUS function." +
+                        " Expected 2, but got " + arguments.size());
+            }
+
+            Function firstArgument = parseFunction(arguments.getFirst().trim());
+            Function secondArgument = parseFunction(arguments.getLast().trim());
+
+            CellType firstArgType = firstArgument.getReturnType();
+            CellType secondArgType = secondArgument.getReturnType();
+
+            if ((!firstArgType.equals(CellType.NUMERIC) && !firstArgType.equals(CellType.UNKNOWN)) ||
+                    (!secondArgType.equals(CellType.NUMERIC) && !secondArgType.equals(CellType.UNKNOWN))) {
+                throw new IllegalArgumentException("Invalid argument types for MINUS function." +
+                        " Expected NUMERIC, but got " + firstArgument.getReturnType() +
+                        " and " + secondArgument.getReturnType());
+            }
+
+            return new Minus(firstArgument, secondArgument);
+        }
+    },
+    MOD{
+        @Override
+        public Function parse(List<String> arguments) {
+            if (arguments.size() != 2) {
+                throw new IllegalArgumentException("Invalid number of arguments for MOD function." +
+                        " Expected 2, but got " + arguments.size());
+            }
+
+            Function firstArgument = parseFunction(arguments.getFirst().trim());
+            Function secondArgument = parseFunction(arguments.getLast().trim());
+
+            CellType firstArgType = firstArgument.getReturnType();
+            CellType secondArgType = secondArgument.getReturnType();
+
+            if ((!firstArgType.equals(CellType.NUMERIC) && !firstArgType.equals(CellType.UNKNOWN)) ||
+                    (!secondArgType.equals(CellType.NUMERIC) && !secondArgType.equals(CellType.UNKNOWN))) {
+                throw new IllegalArgumentException("Invalid argument types for MOD function." +
+                        " Expected NUMERIC, but got " + firstArgument.getReturnType() +
+                        " and " + secondArgument.getReturnType());
+            }
+
+            return new Mod(firstArgument, secondArgument);
         }
     },
     PLUS{
@@ -91,11 +164,11 @@ public enum FunctionParser {
             return new Plus(firstArgument, secondArgument);
         }
     },
-    MINUS{
+    POW{
         @Override
         public Function parse(List<String> arguments) {
             if (arguments.size() != 2) {
-                throw new IllegalArgumentException("Invalid number of arguments for MINUS function." +
+                throw new IllegalArgumentException("Invalid number of arguments for POW function." +
                         " Expected 2, but got " + arguments.size());
             }
 
@@ -107,12 +180,36 @@ public enum FunctionParser {
 
             if ((!firstArgType.equals(CellType.NUMERIC) && !firstArgType.equals(CellType.UNKNOWN)) ||
                     (!secondArgType.equals(CellType.NUMERIC) && !secondArgType.equals(CellType.UNKNOWN))) {
-                throw new IllegalArgumentException("Invalid argument types for MINUS function." +
+                throw new IllegalArgumentException("Invalid argument types for POW function." +
                         " Expected NUMERIC, but got " + firstArgument.getReturnType() +
                         " and " + secondArgument.getReturnType());
             }
 
-            return new Minus(firstArgument, secondArgument);
+            return new Pow(firstArgument, secondArgument);
+        }
+    },
+    TIMES{
+        @Override
+        public Function parse(List<String> arguments) {
+            if (arguments.size() != 2) {
+                throw new IllegalArgumentException("Invalid number of arguments for TIMES function." +
+                        " Expected 2, but got " + arguments.size());
+            }
+
+            Function firstArgument = parseFunction(arguments.getFirst().trim());
+            Function secondArgument = parseFunction(arguments.getLast().trim());
+
+            CellType firstArgType = firstArgument.getReturnType();
+            CellType secondArgType = secondArgument.getReturnType();
+
+            if ((!firstArgType.equals(CellType.NUMERIC) && !firstArgType.equals(CellType.UNKNOWN)) ||
+                    (!secondArgType.equals(CellType.NUMERIC) && !secondArgType.equals(CellType.UNKNOWN))) {
+                throw new IllegalArgumentException("Invalid argument types for TIMES function." +
+                        " Expected NUMERIC, but got " + firstArgument.getReturnType() +
+                        " and " + secondArgument.getReturnType());
+            }
+
+            return new Times(firstArgument, secondArgument);
         }
     },
     CONCAT{
@@ -175,7 +272,7 @@ public enum FunctionParser {
             }
 
             String target = arguments.getFirst().trim();
-            if (Sheet.isValidCellID(target)) {
+            if (!Sheet.isValidCellID(target)) {
                 throw new IllegalArgumentException("Invalid argument for REF function." +
                         " Expected a valid cell ID, but got " + target);
             }
@@ -189,7 +286,7 @@ public enum FunctionParser {
     public static Function parseFunction(String input){
         if(input.startsWith("{") && input.endsWith("}")){
 
-            String functionContent = input.substring(1, input.length()-1);
+            String functionContent = input.substring(1, input.length() - 1);
             List<String> topLevelParts = parseMainParts(functionContent);
 
             String functionName = topLevelParts.getFirst().trim().toUpperCase();

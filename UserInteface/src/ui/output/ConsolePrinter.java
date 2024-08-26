@@ -5,6 +5,9 @@ import dto.SheetDTO;
 import logic.function.returnable.api.Returnable;
 import ui.menu.MainMenuOption;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.function.Predicate;
@@ -67,11 +70,28 @@ public class ConsolePrinter {
                     cellValue = activeCells.get(cellKey).getValue().toString();
                 }
 
-                System.out.print(padRight(cellValue, colWidth) + "|");
+                if (cellValue.length() > colWidth) {
+                    cellValue = cellValue.substring(0, colWidth);
+                }
+
+                cellValue = numberFormatter(cellValue);
+
+                System.out.print(centerText(cellValue, colWidth) + "|");
             }
             System.out.println();
         }
         System.out.println();
+    }
+
+    private static String numberFormatter(String input) {
+        try{
+            double  number = Double.parseDouble(input);
+            DecimalFormat formatter = new DecimalFormat("#,###.##");
+            formatter.setRoundingMode(RoundingMode.DOWN);
+            return formatter.format(number);
+        } catch (Exception ignored) {
+            return input;
+        }
     }
 
     // Helper method to center text within a given width
@@ -101,7 +121,8 @@ public class ConsolePrinter {
     public static void printSimplifiedCell(CellDTO cellDTO){
         System.out.println("Cell ID: " + cellDTO.getCellId());
         System.out.println("Original Value: " + cellDTO.getOriginalValue());
-        System.out.println("Effective Value: " + cellDTO.getEffectiveValue());
+        System.out.println("Effective Value: "
+                + numberFormatter(cellDTO.getEffectiveValue().getValue().toString()));
     }
 
     public static void printCell(CellDTO cellDTO) {
@@ -117,7 +138,7 @@ public class ConsolePrinter {
             System.out.println(" None");
         }
 
-        System.out.println("Dependents: ");
+        System.out.println("Influencing: ");
         if (cellDTO.getInfluencingOn() != null && !cellDTO.getInfluencingOn().isEmpty()) {
             for (String dep : cellDTO.getInfluencingOn()) {
                 System.out.println(" - " + dep);

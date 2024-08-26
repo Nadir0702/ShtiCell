@@ -3,7 +3,7 @@ package logic.function.math;
 import component.cell.api.CellType;
 import logic.function.BinaryFunction;
 import logic.function.Function;
-import logic.function.returnable.impl.ErrorValue;
+import logic.function.returnable.impl.SpecialValues;
 import logic.function.returnable.api.Returnable;
 import logic.function.returnable.impl.ReturnableImpl;
 
@@ -18,12 +18,12 @@ public class Divide extends BinaryFunction {
     protected Returnable calculate(Returnable argument1, Returnable argument2) {
         try {
             return argument2.tryConvertTo(Double.class) == 0 ?
-                    ErrorValue.NAN :
+                    SpecialValues.NAN :
                     new ReturnableImpl(
                         argument1.tryConvertTo(Double.class) / argument2.tryConvertTo(Double.class),
                         CellType.NUMERIC);
         } catch (ClassCastException e) {
-            return ErrorValue.NAN;
+            return SpecialValues.NAN;
         }
     }
 
