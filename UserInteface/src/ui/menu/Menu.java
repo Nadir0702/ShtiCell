@@ -2,7 +2,7 @@ package ui.menu;
 
 import logic.Engine;
 import logic.EngineImpl;
-import ui.output.ConsolePrinter;
+import ui.io.ConsoleUtils;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -14,7 +14,7 @@ public class Menu {
         Engine engine = new EngineImpl();
 
         do {
-            ConsolePrinter.printMainMenu();
+            ConsoleUtils.printMainMenu();
             this.chosenItem = this.getMainMenuChoiceFromUser();
             this.chosenItem.executeOption(engine);
         } while(true);
@@ -28,7 +28,7 @@ public class Menu {
             input = scanner.nextInt();
         }
         catch (InputMismatchException e) {
-            System.out.println("Error: input entered was not a number.");
+            System.out.println("Error: input entered was not a whole number.");
         }
 
         return input > 0 && input < MainMenuOption.values().length ?

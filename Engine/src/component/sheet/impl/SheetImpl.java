@@ -3,7 +3,6 @@ package component.sheet.impl;
 import component.cell.api.Cell;
 import component.sheet.api.Sheet;
 import component.sheet.topological.order.TopologicalOrder;
-import dto.SheetDTO;
 import jaxb.generated.STLSheet;
 
 import java.io.*;
@@ -108,8 +107,7 @@ public class SheetImpl implements Sheet {
         // successful calculation. update sheet and relevant cells version
         int newVersion = newSheetVersion.increaseVersion();
         cellsThatHaveChanged.forEach(cell -> cell.updateVersion(newVersion));
-        this.numOfCellsUpdated = cellsThatHaveChanged.size();
-        SheetDTO newSheetVersionDTO = new SheetDTO(newSheetVersion);
+        newSheetVersion.numOfCellsUpdated = cellsThatHaveChanged.size();
 
         return newSheetVersion;
     }

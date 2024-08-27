@@ -4,7 +4,6 @@ import component.cell.api.CellType;
 import component.sheet.api.ReadonlySheet;
 import logic.function.Function;
 import logic.function.returnable.api.Returnable;
-import logic.function.returnable.impl.ReturnableImpl;
 import logic.function.returnable.impl.SpecialValues;
 
 public class Ref implements Function {

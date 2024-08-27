@@ -4,7 +4,6 @@ import component.cell.api.CellType;
 import component.sheet.api.Sheet;
 import logic.function.Function;
 import logic.function.math.*;
-import logic.function.returnable.impl.SpecialValues;
 import logic.function.string.Concat;
 import logic.function.string.Sub;
 import logic.function.system.Identity;
@@ -23,7 +22,7 @@ public enum FunctionParser {
                         " Expected 1, but got " + arguments.size());
             }
 
-            String value = arguments.getFirst().trim();
+            String value = arguments.getFirst();
             if (value.isEmpty()) {
                 return new Identity(value, CellType.NO_VALUE);
             } else if (isBoolean(value)) {
@@ -42,7 +41,7 @@ public enum FunctionParser {
         private boolean isNumber(String value) {
             try {
                 Double.parseDouble(value);
-                return true;
+                return value.equals(value.trim());
             } catch (NumberFormatException e) {
                 return false;
             }
@@ -56,7 +55,7 @@ public enum FunctionParser {
                         " Expected 1, but got " + arguments.size());
             }
 
-            Function argument = parseFunction(arguments.getFirst().trim());
+            Function argument = parseFunction(arguments.getFirst());
 
             CellType type = argument.getReturnType();
 
@@ -76,8 +75,8 @@ public enum FunctionParser {
                         " Expected 2, but got " + arguments.size());
             }
 
-            Function firstArgument = parseFunction(arguments.getFirst().trim());
-            Function secondArgument = parseFunction(arguments.getLast().trim());
+            Function firstArgument = parseFunction(arguments.getFirst());
+            Function secondArgument = parseFunction(arguments.getLast());
 
             CellType firstArgType = firstArgument.getReturnType();
             CellType secondArgType = secondArgument.getReturnType();
@@ -100,8 +99,8 @@ public enum FunctionParser {
                         " Expected 2, but got " + arguments.size());
             }
 
-            Function firstArgument = parseFunction(arguments.getFirst().trim());
-            Function secondArgument = parseFunction(arguments.getLast().trim());
+            Function firstArgument = parseFunction(arguments.getFirst());
+            Function secondArgument = parseFunction(arguments.getLast());
 
             CellType firstArgType = firstArgument.getReturnType();
             CellType secondArgType = secondArgument.getReturnType();
@@ -124,8 +123,8 @@ public enum FunctionParser {
                         " Expected 2, but got " + arguments.size());
             }
 
-            Function firstArgument = parseFunction(arguments.getFirst().trim());
-            Function secondArgument = parseFunction(arguments.getLast().trim());
+            Function firstArgument = parseFunction(arguments.getFirst());
+            Function secondArgument = parseFunction(arguments.getLast());
 
             CellType firstArgType = firstArgument.getReturnType();
             CellType secondArgType = secondArgument.getReturnType();
@@ -148,8 +147,8 @@ public enum FunctionParser {
                         " Expected 2, but got " + arguments.size());
             }
 
-            Function firstArgument = parseFunction(arguments.getFirst().trim());
-            Function secondArgument = parseFunction(arguments.getLast().trim());
+            Function firstArgument = parseFunction(arguments.getFirst());
+            Function secondArgument = parseFunction(arguments.getLast());
 
             CellType firstArgType = firstArgument.getReturnType();
             CellType secondArgType = secondArgument.getReturnType();
@@ -172,8 +171,8 @@ public enum FunctionParser {
                         " Expected 2, but got " + arguments.size());
             }
 
-            Function firstArgument = parseFunction(arguments.getFirst().trim());
-            Function secondArgument = parseFunction(arguments.getLast().trim());
+            Function firstArgument = parseFunction(arguments.getFirst());
+            Function secondArgument = parseFunction(arguments.getLast());
 
             CellType firstArgType = firstArgument.getReturnType();
             CellType secondArgType = secondArgument.getReturnType();
@@ -196,8 +195,8 @@ public enum FunctionParser {
                         " Expected 2, but got " + arguments.size());
             }
 
-            Function firstArgument = parseFunction(arguments.getFirst().trim());
-            Function secondArgument = parseFunction(arguments.getLast().trim());
+            Function firstArgument = parseFunction(arguments.getFirst());
+            Function secondArgument = parseFunction(arguments.getLast());
 
             CellType firstArgType = firstArgument.getReturnType();
             CellType secondArgType = secondArgument.getReturnType();
@@ -220,8 +219,8 @@ public enum FunctionParser {
                         " Expected 2, but got " + arguments.size());
             }
 
-            Function firstArgument = parseFunction(arguments.getFirst().trim());
-            Function secondArgument = parseFunction(arguments.getLast().trim());
+            Function firstArgument = parseFunction(arguments.getFirst());
+            Function secondArgument = parseFunction(arguments.getLast());
 
             CellType firstArgType = firstArgument.getReturnType();
             CellType secondArgType = secondArgument.getReturnType();
@@ -244,9 +243,9 @@ public enum FunctionParser {
                         " Expected 3, but got " + arguments.size());
             }
 
-            Function firstArgument = parseFunction(arguments.getFirst().trim());
-            Function secondArgument = parseFunction(arguments.getLast().trim());
-            Function thirdArgument = parseFunction(arguments.getLast().trim());
+            Function firstArgument = parseFunction(arguments.getFirst());
+            Function secondArgument = parseFunction(arguments.get(1));
+            Function thirdArgument = parseFunction(arguments.getLast());
 
             CellType firstArgType = firstArgument.getReturnType();
             CellType secondArgType = secondArgument.getReturnType();
@@ -271,7 +270,7 @@ public enum FunctionParser {
                         " Expected 1, but got " + arguments.size());
             }
 
-            String target = arguments.getFirst().trim();
+            String target = arguments.getFirst();
             if (!Sheet.isValidCellID(target)) {
                 throw new IllegalArgumentException("Invalid argument for REF function." +
                         " Expected a valid cell ID, but got " + target);
@@ -295,12 +294,7 @@ public enum FunctionParser {
             return FunctionParser.valueOf(functionName).parse(topLevelParts);
         }
 
-        try{
-            return FunctionParser.IDENTITY.parse(List.of(input.trim()));
-        } catch (NullPointerException e){
-            throw new NullPointerException("Cannot reference an empty Cell");
-        }
-
+        return FunctionParser.IDENTITY.parse(List.of(input));
     }
 
     private static List<String> parseMainParts(String input) {
@@ -317,7 +311,7 @@ public enum FunctionParser {
 
             if (c == ',' && stack.isEmpty()) {
                 // If we are at a comma and the stack is empty, it's a separator for top-level parts
-                parts.add(buffer.toString().trim());
+                parts.add(buffer.toString());
                 buffer.setLength(0); // Clear the buffer for the next part
             } else {
                 buffer.append(c);
@@ -326,7 +320,7 @@ public enum FunctionParser {
 
         // Add the last part
         if (!buffer.isEmpty()) {
-            parts.add(buffer.toString().trim());
+            parts.add(buffer.toString());
         }
 
         return parts;

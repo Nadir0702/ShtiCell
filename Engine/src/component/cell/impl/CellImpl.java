@@ -27,7 +27,15 @@ public class CellImpl implements Cell {
         this.influencingOn = new ArrayList<>();
         this.sheet = sheet;
 
+        this.getInfluencingCellsFromDummy();
         this.setDependencies();
+    }
+
+    private void getInfluencingCellsFromDummy(){
+        Cell dummyCell = this.sheet.getCell(this.cellId);
+        if(dummyCell != null){
+            this.influencingOn.addAll(dummyCell.getInfluencedCells());
+        }
     }
 
     private void setDependantAndInfluencedCells(String dependantCellID) {

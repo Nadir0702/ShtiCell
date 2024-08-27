@@ -41,7 +41,7 @@ public class XMLToSheetConverterImpl implements XMLToSheetConverter {
         }
 
         Cell cell = new CellImpl(cellID, stlCell.getSTLOriginalValue(), 1, sheet);
-        sheet.getCells().put(cellID, cell);
+        sheet.getCells().put(cell.getCellId(), cell);
     }
 
     private String createCellID(int row, String col){
@@ -49,8 +49,7 @@ public class XMLToSheetConverterImpl implements XMLToSheetConverter {
     }
 
     private STLSheet deserializeFrom(InputStream in) throws JAXBException {
-        String JAXB_XML_PACKAGE_NAME = "jaxb.generated";
-        JAXBContext jc = JAXBContext.newInstance(JAXB_XML_PACKAGE_NAME);
+        JAXBContext jc = JAXBContext.newInstance("jaxb.generated");
         Unmarshaller u = jc.createUnmarshaller();
         return (STLSheet) u.unmarshal(in);
     }

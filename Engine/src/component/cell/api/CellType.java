@@ -9,7 +9,7 @@ public enum CellType {
     UNKNOWN(Void.class),
     NO_VALUE(SpecialValues.class);
 
-    private Class<?> type;
+    private final Class<?> type;
 
     CellType(Class<?> type) {
         this.type = type;

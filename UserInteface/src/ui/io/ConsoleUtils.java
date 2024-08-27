@@ -1,18 +1,19 @@
-package ui.output;
+package ui.io;
 
 import dto.CellDTO;
 import dto.SheetDTO;
+import dto.VersionChangesDTO;
 import logic.function.returnable.api.Returnable;
 import ui.menu.MainMenuOption;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.function.Predicate;
 
-public class ConsolePrinter {
+public class ConsoleUtils {
+
     public static void printMainMenu() {
         System.out.println("Please Choose The Option Number out of the Following Options:");
         for (MainMenuOption option : MainMenuOption.values()) {
@@ -22,18 +23,24 @@ public class ConsolePrinter {
         }
     }
 
-    public static String getInputFromUser(String messageToUser, Predicate<String> inputValidationMethod) {
+    public static String getInputFromUser(String messageToUser, String errorMessage, Predicate<String> inputValidationMethod) {
         Scanner scanner = new Scanner(System.in);
+        String input;
 
-        System.out.println(messageToUser);
-        String input = scanner.nextLine();
+        System.out.println(messageToUser + ", Or press Q to go back to the main menu:");
+        input = scanner.nextLine();
 
-        while (!inputValidationMethod.test(input)){
-            System.out.println(messageToUser);
+        while (!input.equalsIgnoreCase("Q") && !inputValidationMethod.test(input)) {
+            System.out.println(errorMessage.replace("#",input) + "\nPlease Try again:");
+            System.out.println(messageToUser + ", Or press Q to go back to the main menu:");
             input = scanner.nextLine();
         }
 
         return input;
+    }
+
+    public static void printSheetNotLoaded() {
+        System.out.println("Sheet Not Loaded, Please Load Sheet before trying any other option.");
     }
 
     public static void printSheet(SheetDTO sheet) {
@@ -70,11 +77,11 @@ public class ConsolePrinter {
                     cellValue = activeCells.get(cellKey).getValue().toString();
                 }
 
+                cellValue = numberFormatter(cellValue);
+
                 if (cellValue.length() > colWidth) {
                     cellValue = cellValue.substring(0, colWidth);
                 }
-
-                cellValue = numberFormatter(cellValue);
 
                 System.out.print(centerText(cellValue, colWidth) + "|");
             }
@@ -160,4 +167,18 @@ public class ConsolePrinter {
         Scanner scanner = new Scanner(System.in);
         return scanner.nextLine();
     }
+
+    public static void printVersionsTable(VersionChangesDTO versionChangesDTO) {
+        // Print table header
+        System.out.println("Version Number | Number of Changed Cells");
+        System.out.println("---------------|------------------------");
+
+        // Iterate over the map entries and print each version with the number of changes
+        int i = 1;
+        for (int numOfChanges : versionChangesDTO.getVersionChanges()) {
+            // Print each row in the table
+            System.out.printf("%14d | %22d%n", i++, numOfChanges);
+        }
+    }
+
 }
