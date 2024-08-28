@@ -12,4 +12,6 @@ public interface Engine {
     VersionChangesDTO showVersions();
     SheetDTO getSheetVersionAsDTO(int version);
     boolean isSheetLoaded();
+    void LoadFromFile(String path);
+    void SaveToFile(String path);
 }

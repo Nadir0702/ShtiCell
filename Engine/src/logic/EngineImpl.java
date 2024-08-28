@@ -14,6 +14,8 @@ import jaxb.converter.api.XMLToSheetConverter;
 import jaxb.converter.impl.XMLToSheetConverterImpl;
 
 import java.io.FileNotFoundException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class EngineImpl implements Engine{
     private Sheet sheet = null;
@@ -72,5 +74,15 @@ public class EngineImpl implements Engine{
     @Override
     public boolean isSheetLoaded() {
         return this.sheet != null;
+    }
+
+    @Override
+    public void LoadFromFile(String path) {
+
+    }
+
+    @Override
+    public void SaveToFile(String path) {
+        this.archive.saveToFile(path);
     }
 }
