@@ -1,7 +1,10 @@
 package logic.function;
 
-public abstract class BinaryFunction implements Math {
-    /*private Function argument1;
+import component.sheet.api.ReadonlySheet;
+import logic.function.returnable.api.Returnable;
+
+public abstract class BinaryFunction implements Function {
+    private Function argument1;
     private Function argument2;
 
     public BinaryFunction(Function argument1, Function argument2) {
@@ -10,8 +13,8 @@ public abstract class BinaryFunction implements Math {
     }
 
     @Override
-    public Object invoke() {
-        return (Object) calculate(this.argument1.invoke(), this.argument2.invoke());
+    public Returnable invoke(ReadonlySheet sheet) {
+        return calculate(this.argument1.invoke(sheet), this.argument2.invoke(sheet));
     }
 
     @Override
@@ -19,5 +22,5 @@ public abstract class BinaryFunction implements Math {
         return "{" + this.getFunctionName() + "," + this.argument1 + "," + this.argument2 + "}";
     }
 
-    abstract public Function calculate(Object argument1, Object argument2);*/
+    abstract protected Returnable calculate(Returnable argument1, Returnable argument2);
 }
