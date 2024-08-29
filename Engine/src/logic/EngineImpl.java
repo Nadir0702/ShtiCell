@@ -14,8 +14,6 @@ import jaxb.converter.api.XMLToSheetConverter;
 import jaxb.converter.impl.XMLToSheetConverterImpl;
 
 import java.io.FileNotFoundException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class EngineImpl implements Engine{
     private Sheet sheet = null;
@@ -68,7 +66,7 @@ public class EngineImpl implements Engine{
 
     @Override
     public SheetDTO getSheetVersionAsDTO(int version) {
-        return new SheetDTO(this.archive.retrieveFromArchive(version));
+        return new SheetDTO(this.archive.retrieveVersion(version));
     }
 
     @Override
@@ -78,7 +76,8 @@ public class EngineImpl implements Engine{
 
     @Override
     public void LoadFromFile(String path) {
-
+        this.archive = Archive.loadFromFile(path);
+        this.sheet = this.archive.retrieveLatestVersion();
     }
 
     @Override

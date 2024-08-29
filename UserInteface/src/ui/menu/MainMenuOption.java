@@ -29,7 +29,7 @@ public enum MainMenuOption {
                 String errorMessage = "The File # does not exist or not a valid xml file.";
                 String path = ConsoleUtils.getInputFromUser(messageToUser, errorMessage, this::isValidXMLPathFormat);
                 if (!path.equalsIgnoreCase("Q")) {
-                    engine.LoadData(path);
+                    engine.LoadData(path.trim());
                     System.out.println("File Loaded Successfully");
                 }
             } catch (RuntimeException e) {
@@ -168,7 +168,7 @@ public enum MainMenuOption {
                     String errorMessage = "The File Path # is not a valid File Path.";
                     String path = ConsoleUtils.getInputFromUser(messageToUser, errorMessage, this::isValidPathFormat);
                     if (!path.equalsIgnoreCase("Q")) {
-                        engine.SaveToFile(path);
+                        engine.SaveToFile(path.trim());
                         System.out.println("File saved Successfully");
                     }
                 } catch (RuntimeException e) {
@@ -196,20 +196,16 @@ public enum MainMenuOption {
     LOAD_FROM_FILE{
         @Override
         public void executeOption(Engine engine) {
-            if (engine.isSheetLoaded()){
-                try {
+            try {
                     String messageToUser = "Please Enter the full path for the file you wish to Load";
                     String errorMessage = "The File Path # is not valid File Path or the File doesnt exists.";
                     String path = ConsoleUtils.getInputFromUser(messageToUser, errorMessage, this::isValidPathFormat);
                     if (!path.equalsIgnoreCase("Q")) {
-                        engine.LoadFromFile(path);
+                        engine.LoadFromFile(path.trim());
                         System.out.println("File loaded Successfully");
                     }
-                } catch (RuntimeException e) {
-                    System.out.println("Error loading File:\n" + e.getMessage() + "\n");
-                }
-            } else {
-                ConsoleUtils.printSheetNotLoaded();
+            } catch (RuntimeException e) {
+                System.out.println("Error loading File:\n" + e.getMessage() + "\n");
             }
         }
 

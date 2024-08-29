@@ -1,5 +1,6 @@
 package ui.io;
 
+import component.cell.api.CellType;
 import dto.CellDTO;
 import dto.SheetDTO;
 import dto.VersionChangesDTO;
@@ -74,10 +75,10 @@ public class ConsoleUtils {
                 String cellValue = "";
 
                 if (activeCells.containsKey(cellKey)) {
-                    cellValue = activeCells.get(cellKey).getValue().toString();
+                    cellValue = effectiveValueFormatter(activeCells.get(cellKey));
                 }
 
-                cellValue = numberFormatter(cellValue);
+
 
                 if (cellValue.length() > colWidth) {
                     cellValue = cellValue.substring(0, colWidth);
@@ -90,15 +91,31 @@ public class ConsoleUtils {
         System.out.println();
     }
 
-    private static String numberFormatter(String input) {
+    private static String effectiveValueFormatter(Returnable effectiveValue){
+        CellType type = effectiveValue.getCellType();
+        String valueToPrint = effectiveValue.getValue().toString();
+        if (type.equals(CellType.BOOLEAN)) {
+            valueToPrint = booleanFormatter(valueToPrint);
+        } else if (type.equals(CellType.NUMERIC)) {
+            valueToPrint = numberFormatter(valueToPrint);
+        }
+
+        return valueToPrint;
+    }
+
+    private static String numberFormatter(String valueToPrint) {
         try{
-            double  number = Double.parseDouble(input);
+            double  number = Double.parseDouble(valueToPrint);
             DecimalFormat formatter = new DecimalFormat("#,###.##");
             formatter.setRoundingMode(RoundingMode.DOWN);
             return formatter.format(number);
         } catch (Exception ignored) {
-            return input;
+            return valueToPrint;
         }
+    }
+
+    public static String booleanFormatter(String valueToPrint) {
+        return valueToPrint.toUpperCase();
     }
 
     // Helper method to center text within a given width
@@ -128,9 +145,13 @@ public class ConsoleUtils {
     public static void printSimplifiedCell(CellDTO cellDTO){
         System.out.println("Cell ID: " + cellDTO.getCellId());
         System.out.println("Original Value: " + cellDTO.getOriginalValue());
-        System.out.println("Effective Value: "
-                + numberFormatter(cellDTO.getEffectiveValue().getValue().toString()));
+
+        String valueToPrint = effectiveValueFormatter(cellDTO.getEffectiveValue());
+
+        System.out.println("Effective Value: " + valueToPrint);
     }
+
+
 
     public static void printCell(CellDTO cellDTO) {
         printSimplifiedCell(cellDTO);
@@ -171,7 +192,7 @@ public class ConsoleUtils {
     public static void printVersionsTable(VersionChangesDTO versionChangesDTO) {
         // Print table header
         System.out.println("Version Number | Number of Changed Cells");
-        System.out.println("---------------|------------------------");
+        System.out.println("---------------|--------------------------");
 
         // Iterate over the map entries and print each version with the number of changes
         int i = 1;
@@ -179,6 +200,8 @@ public class ConsoleUtils {
             // Print each row in the table
             System.out.printf("%14d | %22d%n", i++, numOfChanges);
         }
+
+        System.out.println("\n");
     }
 
 }

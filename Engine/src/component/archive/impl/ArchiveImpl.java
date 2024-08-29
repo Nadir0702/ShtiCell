@@ -19,7 +19,7 @@ public class ArchiveImpl implements Archive {
     }
 
     @Override
-    public Sheet retrieveFromArchive(int version) {
+    public Sheet retrieveVersion(int version) {
         Sheet restoredSheet = this.storedSheets.get(version);
 
         if (restoredSheet == null) {
@@ -30,15 +30,18 @@ public class ArchiveImpl implements Archive {
     }
 
     @Override
+    public Sheet retrieveLatestVersion() {
+        return this.retrieveVersion(this.storedSheets.size());
+    }
+
+    @Override
     public List<Integer> getAllVersionsChangesList() {
         return this.changesPerVersion;
     }
 
     @Override
     public void saveToFile(String filePath) {
-        try (ObjectOutputStream out =
-                     new ObjectOutputStream(
-                             new FileOutputStream(filePath))) {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filePath))) {
             out.writeObject(this);
             out.flush();
         } catch (IOException e) {
