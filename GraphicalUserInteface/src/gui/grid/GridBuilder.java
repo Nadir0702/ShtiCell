@@ -1,20 +1,23 @@
 package gui.grid;
 
+import gui.cell.CellSubComponent;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 
 import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class GridBuilder {
     
+    private final List<CellSubComponent> cells;
     private final int numOfRows;
     private final int numOfCols;
     private final int rowHeight;
@@ -25,6 +28,7 @@ public class GridBuilder {
         this.numOfCols = col;
         this.rowHeight = rowHeight;
         this.columnWidth = colWidth;
+        this.cells = new ArrayList<>(numOfRows * numOfCols);
     }
     
     public ScrollPane build() throws IOException {
@@ -51,7 +55,13 @@ public class GridBuilder {
     private void buildCellsComponents(ObservableList<Node> children) throws IOException {
         for (int i = 1; i <= this.numOfRows; i++) {
             for (int j = 1; j <= this.numOfCols; j++) {
-                Parent cell = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/gui/resources/CellSubComponent.fxml")));
+                FXMLLoader loader = new FXMLLoader();
+                URL cellFXML = getClass().getResource("/gui/cell/CellSubComponent.fxml");
+                loader.setLocation(cellFXML);
+                Button cell = loader.load();
+                for(CellSubComponent currentCell: cells ) {
+                    currentCell = loader.getController();
+                }
                 GridPane.setColumnIndex(cell, j);
                 GridPane.setRowIndex(cell, i);
                 children.add(cell);

@@ -16,7 +16,7 @@ public class Main extends Application {
         GridBuilder gridBuilder = new GridBuilder(50, 20, 35, 110);
         BorderPane root = FXMLLoader.load(Objects.requireNonNull(Main.class.getResource("resources/MainAppView.fxml")));
         root.setCenter(gridBuilder.build());
-        Scene scene = new Scene(root, 800, 600);
+        Scene scene = new Scene(root, 1000, 600);
         stage.setTitle("Hello SASON");
         stage.getIcons().add(new Image(Objects.requireNonNull(Main.class.getResourceAsStream("resources/naruto-wallpaper-2560x1440.jpg"))));
         stage.setScene(scene);
