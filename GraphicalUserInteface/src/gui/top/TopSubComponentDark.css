@@ -1,0 +1,43 @@
+.titled-pane {
+    -fx-background-color: #222222; /* Dark background */
+}
+
+.vbox {
+    -fx-background-color: #333333; /* Dark background */
+}
+
+.top-titled-pane .title {
+    -fx-background-color: linear-gradient(to left, #444444 70%, #555555 100%);
+}
+
+.top-titled-pane .title:hover {
+    -fx-background-color: #666666;
+}
+
+.top-titled-pane .title .text {
+    -fx-fill: #ffffff;
+}
+
+.text-field:readonly {
+    -fx-background-color: #333333;
+    -fx-border-color: #555555;
+    -fx-text-fill: #aaaaaa;
+}
+
+.button {
+    -fx-text-fill: #ffffff;
+    -fx-background-color: #333333;
+    -fx-border-color: #555555;
+}
+.button:hover {
+    -fx-background-color: #444444;
+    -fx-text-fill: #ffffff;
+}
+
+.menu-button {
+    -fx-background-color: #333333;
+    -fx-border-color: #555555;
+}
+.menu-button:hover {
+    -fx-background-color: #444444;
+}

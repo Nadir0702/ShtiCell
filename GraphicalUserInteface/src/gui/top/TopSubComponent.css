@@ -109,10 +109,13 @@
 
 .menu-item {
     -fx-padding: 5px 20px 5px 10px ;
+    -fx-border-radius: 1px;
+    -fx-background-radius: 5px;
     -fx-background-color: #f5f5ff;
 }
 
 .menu-item:hover {
+
     -fx-background-color: #dbe4ff ;
 }
 

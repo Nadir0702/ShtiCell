@@ -2,44 +2,53 @@
     -fx-padding: 5px 10px;
     -fx-font-size: 12px; /* font size */
     -fx-font-weight: Bold;
-    -fx-background-color: #5c7cfa; /* Change background color on hover */
-    -fx-text-fill: #f5f5ff;
-    -fx-border-color: #5c7cfa; /* blue border color */
+    -fx-background-color: #444444;
+    -fx-text-fill: #ffffff; /* Light text for dark mode */
+    -fx-border-color: #666666;
     -fx-border-width: 3px; /* border thickness */
     -fx-cursor: hand; /* cursor style */
     -fx-border-radius: 12px; /* rounded border */
     -fx-background-radius: 12px;
 }
+
 .button:hover {
-    -fx-text-fill: #f5f5ff; /* text color */
-    -fx-background-color: #4c6ef5; /* background color */
-    -fx-border-color: #4c6ef5;
+    -fx-text-fill: #ffffff;
+    -fx-background-color: #555555;
+    -fx-border-color: #777777;
 }
 
 .button:pressed {
-    -fx-text-fill: #f5f5ff; /* text color */
-    -fx-background-color: #748ffc; /* background color */
-    -fx-border-color: #748ffc;
+    -fx-text-fill: #aaaaaa;
+    -fx-background-color: #666666;
+    -fx-border-color: #888888;
 }
 
 .label .text {
+    -fx-fill: white;
     -fx-font-family: Arial;
     -fx-font-weight: bold;
 }
 
 .hbox-action-line {
-    -fx-background-color: white;
+    -fx-background-color: #222222; /* Dark background */;
     -fx-background-radius: 15px ;
 }
 
 .text-field {
-    -fx-background-color: white;
+    -fx-background-color: #333333; /* Dark background */
     -fx-border-width: 0px;
-    -fx-border-color: #91a7ff;
+    -fx-border-color: #555555;
     -fx-border-radius: 5px;
     -fx-background-radius: 5px;
 }
 
+.text-field .text {
+    -fx-fill: white;
+}
+
 .separator:vertical .line {
+    -fx-border-width: 1px;
+    -fx-fill: transparent;
+    -fx-border-color: #464646;
     -fx-margin: 10px 5px 10px 5px;
 }

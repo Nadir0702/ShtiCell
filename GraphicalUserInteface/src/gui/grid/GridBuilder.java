@@ -1,23 +1,22 @@
 package gui.grid;
 
-import gui.cell.CellSubComponent;
+import component.sheet.api.Sheet;
+import gui.cell.CellSubComponentController;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class GridBuilder {
-    
-    private final List<CellSubComponent> cells;
+    private SheetGridController sheetGridController;
     private final int numOfRows;
     private final int numOfCols;
     private final int rowHeight;
@@ -28,11 +27,15 @@ public class GridBuilder {
         this.numOfCols = col;
         this.rowHeight = rowHeight;
         this.columnWidth = colWidth;
-        this.cells = new ArrayList<>(numOfRows * numOfCols);
+        this.sheetGridController = null;
+    }
+    
+    public SheetGridController getSheetGridController() {
+        return this.sheetGridController;
     }
     
     public ScrollPane build() throws IOException {
-        
+        this.sheetGridController = new SheetGridController();
         ScrollPane root = new ScrollPane();
         GridPane grid = new GridPane();
         
@@ -56,36 +59,41 @@ public class GridBuilder {
         for (int i = 1; i <= this.numOfRows; i++) {
             for (int j = 1; j <= this.numOfCols; j++) {
                 FXMLLoader loader = new FXMLLoader();
-                URL cellFXML = getClass().getResource("/gui/cell/CellSubComponent.fxml");
-                loader.setLocation(cellFXML);
-                Button cell = loader.load();
-                for(CellSubComponent currentCell: cells ) {
-                    currentCell = loader.getController();
-                }
+                URL url = getClass().getResource("/gui/cell/CellSubComponent.fxml");
+                loader.setLocation(url);
+                Label cell = loader.load();
                 GridPane.setColumnIndex(cell, j);
                 GridPane.setRowIndex(cell, i);
                 children.add(cell);
+                this.sheetGridController.addCellController(createCellID(i, j), loader.getController());
             }
         }
     }
     
+    private String createCellID(int row, int col) {
+        char column = (char) ('A' + col - 1);
+        return "" + column + row;
+    }
+    
     private void buildHeadersColumn(ObservableList<Node> children) {
         for (int i = 1; i <= this.numOfRows; i++) {
-            Button button = new Button(i < 10 ? "0" + i : i + "");
-            button.setMaxHeight(Double.MAX_VALUE);
-            button.setMaxWidth(Double.MAX_VALUE);
-            GridPane.setRowIndex(button, i);
-            children.add(button);
+            Button colHeader = new Button(i < 10 ? "0" + i : i + "");
+            colHeader.setMaxHeight(Double.MAX_VALUE);
+            colHeader.setMaxWidth(Double.MAX_VALUE);
+            GridPane.setRowIndex(colHeader, i);
+            children.add(colHeader);
+            this.sheetGridController.addColumnHeader(colHeader);
         }
     }
     
     private void buildHeadersRow(ObservableList<Node> children) {
         for (int i = 0; i < this.numOfCols; i++) {
-            Button button = new Button(Character.toString((char) i + 'A'));
-            button.setMaxHeight(Double.MAX_VALUE);
-            button.setMaxWidth(Double.MAX_VALUE);
-            GridPane.setColumnIndex(button, i + 1);
-            children.add(button);
+            Button rowHeader = new Button(Character.toString((char) i + 'A'));
+            rowHeader.setMaxHeight(Double.MAX_VALUE);
+            rowHeader.setMaxWidth(Double.MAX_VALUE);
+            GridPane.setColumnIndex(rowHeader, i + 1);
+            children.add(rowHeader);
+            this.sheetGridController.addRowHeader(rowHeader);
         }
     }
     
@@ -103,7 +111,7 @@ public class GridBuilder {
         scrollPane.setMaxWidth(Double.MAX_VALUE);
         scrollPane.setMinHeight(0);
         scrollPane.setMinWidth(0);
-        scrollPane.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/gui/resources/MainGridComponent.css")).toExternalForm());
+        scrollPane.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/gui/grid/MainGridComponent.css")).toExternalForm());
     }
     
     private void buildRowConstraints(GridPane grid) {
