@@ -38,7 +38,7 @@ public class EngineImpl implements Engine{
 
     @Override
     public CellDTO getSingleCellData(String cellID) {
-        return new CellDTO(this.sheet.getCell(cellID));
+        return new CellDTO(this.sheet.getCell(cellID), cellID);
     }
 
     @Override

@@ -1,5 +1,8 @@
 package gui.action.line;
 
+import dto.CellDTO;
+import gui.cell.ActionLineCellModel;
+import gui.cell.CellModel;
 import gui.cell.CellSubComponentController;
 import gui.main.view.MainViewController;
 import gui.top.TopSubComponentController;
@@ -15,38 +18,36 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
 public class ActionLineController {
-    private TopSubComponentController topSubComponentController;
     
     @FXML private Label cellIDLabel;
     @FXML private Label lastUpdatedCellValueVersionLabel;
     @FXML private TextField originalValueTextField;
     @FXML private Button updateValueButton;
     
-    private StringProperty originalValueProperty;
-    private BooleanProperty FileNotLoaded;
-    private StringProperty cellIDProperty;
+    private TopSubComponentController topSubComponentController;
     private MainViewController mainViewController;
+    private ActionLineCellModel actionLineCellModel;
+    private BooleanProperty FileNotLoaded;
     
     public ActionLineController() {
+        actionLineCellModel = new CellModel();
         FileNotLoaded = new SimpleBooleanProperty(true);
-        cellIDProperty = new SimpleStringProperty("Cell ID ");
-        originalValueProperty = new SimpleStringProperty();
+       
     }
     
     @FXML
     private void initialize() {
         updateValueButton.disableProperty().bind(Bindings.or(FileNotLoaded, originalValueTextField.textProperty().isEmpty()));
-        cellIDLabel.textProperty().bind(cellIDProperty);
-        originalValueTextField.textProperty().bind(originalValueProperty);
+        actionLineCellModel.bind(cellIDLabel.textProperty(), originalValueTextField.textProperty(), lastUpdatedCellValueVersionLabel.textProperty());
     }
     
     public void toggleFileLoadedProperty() {
-        FileNotLoaded.set(!FileNotLoaded.getValue());
+        FileNotLoaded.set(false);
     }
     
     @FXML
     private void onUpdateValuePressed(ActionEvent event) {
-        lastUpdatedCellValueVersionLabel.setText("next version");
+    
     }
     
     public void setTopSubComponentController(TopSubComponentController topSubComponentController) {
@@ -57,8 +58,9 @@ public class ActionLineController {
         this.mainViewController = mainViewController;
     }
     
-    public void showCellDetails(CellSubComponentController cellSubComponentController) {
-        cellIDProperty.set("Cell ID " + cellSubComponentController.cellIDProperty().get());
-        originalValueProperty.set(cellSubComponentController.getCellValueProperty().get());
+    public void showCellDetails(CellDTO cellDTO) {
+        this.actionLineCellModel.getCellIDProperty().set(cellDTO.getCellId());
+        this.actionLineCellModel.getOriginalValueProperty().set(cellDTO.getOriginalValue());
+        this.actionLineCellModel.getLastUpdatedVersionProperty().set(String.valueOf(cellDTO.getVersion()));
     }
 }

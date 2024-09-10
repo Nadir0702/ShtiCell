@@ -1,6 +1,5 @@
 package gui.grid;
 
-import component.sheet.api.Sheet;
 import gui.cell.CellSubComponentController;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -59,13 +58,16 @@ public class GridBuilder {
         for (int i = 1; i <= this.numOfRows; i++) {
             for (int j = 1; j <= this.numOfCols; j++) {
                 FXMLLoader loader = new FXMLLoader();
+                String cellID = createCellID(i, j);
                 URL url = getClass().getResource("/gui/cell/CellSubComponent.fxml");
                 loader.setLocation(url);
                 Label cell = loader.load();
+                CellSubComponentController cellController = loader.getController();
                 GridPane.setColumnIndex(cell, j);
                 GridPane.setRowIndex(cell, i);
                 children.add(cell);
-                this.sheetGridController.addCellController(createCellID(i, j), loader.getController());
+                cellController.cellIDProperty().set(cellID);
+                this.sheetGridController.addCellController(cellID, loader.getController());
             }
         }
     }
@@ -111,7 +113,7 @@ public class GridBuilder {
         scrollPane.setMaxWidth(Double.MAX_VALUE);
         scrollPane.setMinHeight(0);
         scrollPane.setMinWidth(0);
-        scrollPane.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/gui/grid/MainGridComponent.css")).toExternalForm());
+        scrollPane.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/gui/grid/style/MainGridComponent.css")).toExternalForm());
     }
     
     private void buildRowConstraints(GridPane grid) {

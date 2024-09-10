@@ -35,4 +35,12 @@ public class CellSubComponentController {
     public void setMainController(MainViewController mainViewController) {
         this.mainViewController = mainViewController;
     }
+    
+    public void deselect(String className) {
+        this.cellComponent.getStyleClass().remove(className);
+    }
+    
+    public void select(String className) {
+        this.cellComponent.getStyleClass().add(className);
+    }
 }

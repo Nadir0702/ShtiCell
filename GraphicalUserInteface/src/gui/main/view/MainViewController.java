@@ -1,5 +1,6 @@
 package gui.main.view;
 
+import dto.CellDTO;
 import dto.SheetDTO;
 import gui.action.line.ActionLineController;
 import gui.cell.CellSubComponentController;
@@ -51,7 +52,6 @@ public class MainViewController {
         this.cellSubComponentControllerMap = cellSubComponentControllerMap;
         this.cellSubComponentControllerMap.forEach((cellID, cellController) -> {
             cellController.setMainController(this);
-            cellController.cellIDProperty().set(cellID);
         });
     }
     
@@ -88,6 +88,8 @@ public class MainViewController {
     }
     
     public void showCellDetails(CellSubComponentController cellSubComponentController) {
-        this.actionLineController.showCellDetails(cellSubComponentController);
+        CellDTO cellDTO = this.engine.getSingleCellData(cellSubComponentController.cellIDProperty().get());
+        this.actionLineController.showCellDetails(cellDTO);
+        this.sheetGridController.showSelectedCellAndDependencies(cellDTO); // Maybe send cellController as parameter?
     }
 }

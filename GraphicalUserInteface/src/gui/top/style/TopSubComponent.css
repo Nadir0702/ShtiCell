@@ -108,6 +108,7 @@
 }
 
 .menu-item {
+    -fx-cursor: hand;
     -fx-padding: 5px 20px 5px 10px ;
     -fx-border-radius: 1px;
     -fx-background-radius: 5px;

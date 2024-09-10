@@ -16,7 +16,7 @@ public class CellDTO {
     private final boolean isActive;
 
 
-    public CellDTO(Cell cell) {
+    public CellDTO(Cell cell, String cellID) {
         if (cell != null) {
             this.cellId = cell.getCellId();
             this.originalValue = cell.getOriginalValue();
@@ -34,7 +34,7 @@ public class CellDTO {
                 this.influencingOn.add(influencedCell.getCellId());
             }
         } else {
-            this.cellId = null;
+            this.cellId = cellID;
             this.originalValue = "";
             this.effectiveValue = null;
             this.version = 0;

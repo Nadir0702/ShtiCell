@@ -17,9 +17,21 @@
     -fx-border-width: 2px;
 }
 
-#selected-cell {
+.selected-cell {
     -fx-background-color: #f5f5ff; /* Change background color on hover */
     -fx-border-color: #214fff; /* blue border color */
+    -fx-border-width: 2px;
+}
+
+.depending-cell {
+    -fx-background-color: #fff5f5; /* Change background color on hover */
+    -fx-border-color: #fa5252; /* blue border color */
+    -fx-border-width: 2px;
+}
+
+.influencing-cell {
+    -fx-background-color: #f4fce3; /* Change background color on hover */
+    -fx-border-color: #94d82d; /* blue border color */
     -fx-border-width: 2px;
 }
 
@@ -27,3 +39,4 @@
     -fx-focus-color: #4b55df;
     -fx-faint-focus-color: transparent;
 }
+

@@ -22,7 +22,7 @@ public class Main extends Application {
         
         Scene scene = new Scene(root, 1000, 600);
         stage.setTitle("ShtiCell v2.0");
-        stage.getIcons().add(new Image(Objects.requireNonNull(Main.class.getResourceAsStream("main/view/naruto-wallpaper-2560x1440.jpg"))));
+        stage.getIcons().add(new Image(Objects.requireNonNull(Main.class.getResourceAsStream("main/view/letter-s.png"))));
         stage.setScene(scene);
         controller.setPrimaryStage(stage);
         stage.show();
