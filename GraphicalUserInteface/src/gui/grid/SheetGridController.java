@@ -6,7 +6,6 @@ import gui.cell.CellSubComponentController;
 import gui.cell.DependenciesCellModel;
 import gui.main.view.MainViewController;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import logic.function.returnable.api.Returnable;
 
 import java.util.ArrayList;
@@ -16,9 +15,9 @@ import java.util.Map;
 
 public class SheetGridController {
 
-    private DependenciesCellModel dependenciesCellModel = new CellModel();
     private GridModel gridModel;
     private MainViewController mainViewController;
+    private DependenciesCellModel dependenciesCellModel = new CellModel();
     private final List<Button> columnHeaders = new ArrayList<>();
     private final List<Button> rowHeaders = new ArrayList<>();
     private final Map<String, CellSubComponentController> cellsControllers = new HashMap<>();

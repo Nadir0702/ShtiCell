@@ -26,10 +26,16 @@ public class CellModel implements ActionLineCellModel, DependenciesCellModel {
     
     
     @Override
-    public void bind(StringProperty cellIDProperty, StringProperty originalValueProperty, StringProperty lastUpdatedVersionProperty) {
+    public void bind(StringProperty cellIDProperty,
+                     StringProperty originalValueProperty,
+                     StringProperty lastUpdatedVersionProperty) {
+        
         cellIDProperty.bind(Bindings.concat("Cell ID ", this.cellIDProperty));
-        originalValueProperty.bind(this.originalValueProperty);
-        lastUpdatedVersionProperty.bind(Bindings.concat("Last Updated Version ", this.lastUpdatedVersionProperty));
+        
+        lastUpdatedVersionProperty.bind(
+                Bindings.concat("Last Updated Version ", this.lastUpdatedVersionProperty));
+        
+        this.bindOriginalValue(originalValueProperty);
     }
     
     @Override
@@ -45,6 +51,11 @@ public class CellModel implements ActionLineCellModel, DependenciesCellModel {
     @Override
     public StringProperty getLastUpdatedVersionProperty() {
         return this.lastUpdatedVersionProperty;
+    }
+    
+    @Override
+    public void bindOriginalValue(StringProperty originalValueProperty) {
+        originalValueProperty.bind(this.originalValueProperty);
     }
     
     @Override

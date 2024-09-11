@@ -1,8 +1,6 @@
 package gui.top;
 
-import com.sun.javafx.collections.ElementObservableListDecorator;
 import gui.action.line.ActionLineController;
-import gui.cell.CellSubComponentController;
 import gui.main.view.MainViewController;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
@@ -32,7 +30,7 @@ public class TopSubComponentController {
     public TopSubComponentController() {
         this.fileName = new SimpleStringProperty("path/to/your/xml/file/filName.xml");
         this.sheetName = new SimpleStringProperty("Sheet Name");
-        this.sheetVersion = new SimpleStringProperty("Version");
+        this.sheetVersion = new SimpleStringProperty("");
     }
     
     @FXML
@@ -42,7 +40,9 @@ public class TopSubComponentController {
         }
         
         this.filePathTextField.textProperty().bind(this.fileName);
-        this.sheetNameTitledPane.textProperty().bind(Bindings.concat(this.sheetName, " ", this.sheetVersion));
+        this.sheetNameTitledPane.textProperty().bind(this.sheetName);
+        this.currentVersionMenuButton.textProperty().bind(
+                Bindings.concat("Version ", this.sheetVersion));
     }
     
     @FXML
@@ -83,4 +83,7 @@ public class TopSubComponentController {
         this.sheetVersion.set(String.valueOf(sheetVersion));
     }
     
+    public void updateSheetVersion(int version) {
+        this.sheetVersion.set(String.valueOf(version));
+    }
 }

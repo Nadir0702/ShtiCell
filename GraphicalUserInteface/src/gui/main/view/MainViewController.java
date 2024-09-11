@@ -48,7 +48,9 @@ public class MainViewController {
         this.sheetGridController.setMainController(this);
     }
     
-    public void setCellSubComponentControllerMap(Map<String, CellSubComponentController> cellSubComponentControllerMap) {
+    public void setCellSubComponentControllerMap(
+            Map<String, CellSubComponentController> cellSubComponentControllerMap) {
+        
         this.cellSubComponentControllerMap = cellSubComponentControllerMap;
         this.cellSubComponentControllerMap.forEach((cellID, cellController) -> {
             cellController.setMainController(this);
@@ -79,6 +81,7 @@ public class MainViewController {
             this.sheetGridController.initializeGridModel(sheetDTO.getCells());
             
             this.actionLineController.toggleFileLoadedProperty();
+            this.actionLineController.resetCellModel();
             this.topSubComponentController.setSheetNameAndVersion(sheetDTO.getSheetName(), sheetDTO.getVersion());
             
         } catch (RuntimeException | IOException e) {
@@ -91,5 +94,20 @@ public class MainViewController {
         CellDTO cellDTO = this.engine.getSingleCellData(cellSubComponentController.cellIDProperty().get());
         this.actionLineController.showCellDetails(cellDTO);
         this.sheetGridController.showSelectedCellAndDependencies(cellDTO); // Maybe send cellController as parameter?
+    }
+    
+    public void updateCellValue(String cellToUpdate, String newValue) {
+        try {
+            this.engine.updateSingleCellData(cellToUpdate, newValue);
+            SheetDTO sheetDTO = this.engine.getSheetAsDTO();
+            CellDTO cellDTO = this.engine.getSingleCellData(cellToUpdate);
+            this.sheetGridController.updateGridModel(sheetDTO.getCells());
+            this.actionLineController.showCellDetails(cellDTO);
+            this.sheetGridController.showSelectedCellAndDependencies(cellDTO);
+            this.topSubComponentController.updateSheetVersion(sheetDTO.getVersion());
+        } catch (RuntimeException e) {
+            System.out.println("Error Updating Cell:\n" + e.getMessage() + "\n");
+            e.printStackTrace();
+        }
     }
 }

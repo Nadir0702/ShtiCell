@@ -9,4 +9,5 @@ public interface ActionLineCellModel {
     StringProperty getOriginalValueProperty();
     StringProperty getLastUpdatedVersionProperty();
     
+    void bindOriginalValue(StringProperty stringProperty);
 }

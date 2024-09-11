@@ -113,7 +113,10 @@ public class GridBuilder {
         scrollPane.setMaxWidth(Double.MAX_VALUE);
         scrollPane.setMinHeight(0);
         scrollPane.setMinWidth(0);
-        scrollPane.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/gui/grid/style/MainGridComponent.css")).toExternalForm());
+        scrollPane.getStylesheets().add(
+                Objects.requireNonNull(
+                        getClass().getResource(
+                                "/gui/grid/style/MainGridComponent.css")).toExternalForm());
     }
     
     private void buildRowConstraints(GridPane grid) {
