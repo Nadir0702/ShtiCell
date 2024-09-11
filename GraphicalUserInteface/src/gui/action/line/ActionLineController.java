@@ -41,12 +41,16 @@ public class ActionLineController {
     @FXML
     private void initialize() {
         this.updateValueButton.disableProperty().bind(
-                Bindings.or(this.FileNotLoaded,
-                            this.originalValueTextField.textProperty().isEmpty()));
+                Bindings.or(this.cellIDLabel.textProperty().isEqualTo("Cell ID "),
+                            Bindings.or(this.FileNotLoaded,
+                                        this.originalValueTextField.textProperty().isEmpty())));
+        
+        this.originalValueTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            this.originalValueTextField.setText(newValue);
+        });
         
         this.actionLineCellModel.bind(
                 this.cellIDLabel.textProperty(),
-                this.originalValueTextField.textProperty(),
                 this.lastUpdatedCellValueVersionLabel.textProperty());
         
     }
@@ -57,21 +61,9 @@ public class ActionLineController {
     
     @FXML
     private void onUpdateValuePressed(ActionEvent event) {
-        if (!this.originalValueTextField.textProperty().get().
-                equals(this.actionLineCellModel.getOriginalValueProperty().get())) {
-            
-            this.mainViewController.updateCellValue(
-                    this.actionLineCellModel.getCellIDProperty().get(),
-                    this.originalValueTextField.textProperty().get());
-        }
-        
-        this.actionLineCellModel.bindOriginalValue(this.originalValueTextField.textProperty());
-    }
-    
-    @FXML
-    void onOriginalValueTextClicked(MouseEvent event) {
-        this.originalValueTextField.textProperty().unbind();
-        
+        this.mainViewController.updateCellValue(
+                this.actionLineCellModel.getCellIDProperty().get(),
+                this.originalValueTextField.textProperty().get());
     }
     
     public void setTopSubComponentController(TopSubComponentController topSubComponentController) {
@@ -84,15 +76,14 @@ public class ActionLineController {
     
     public void showCellDetails(CellDTO cellDTO) {
         this.actionLineCellModel.getCellIDProperty().set(cellDTO.getCellId());
-        this.actionLineCellModel.getOriginalValueProperty().set(cellDTO.getOriginalValue());
-        this.actionLineCellModel.bindOriginalValue(this.originalValueTextField.textProperty());
+        this.originalValueTextField.setText(cellDTO.getOriginalValue());
         this.actionLineCellModel.getLastUpdatedVersionProperty().set(String.valueOf(cellDTO.getVersion()));
     }
     
     
     public void resetCellModel() {
         this.actionLineCellModel.getCellIDProperty().set("");
-        this.actionLineCellModel.getOriginalValueProperty().set("");
+        this.originalValueTextField.setText("");
         this.actionLineCellModel.getLastUpdatedVersionProperty().set("");
     }
 }

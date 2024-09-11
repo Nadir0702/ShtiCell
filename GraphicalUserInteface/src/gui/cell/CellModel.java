@@ -9,7 +9,6 @@ import java.util.List;
 
 public class CellModel implements ActionLineCellModel, DependenciesCellModel {
     private StringProperty cellIDProperty;
-    private StringProperty originalValueProperty;
     private StringProperty lastUpdatedVersionProperty;
     private StringProperty selectedCellProperty;
     private List<String> dependingOnList;
@@ -17,25 +16,19 @@ public class CellModel implements ActionLineCellModel, DependenciesCellModel {
     
     public CellModel() {
         this.cellIDProperty = new SimpleStringProperty("");
-        this.originalValueProperty = new SimpleStringProperty();
         this.lastUpdatedVersionProperty = new SimpleStringProperty("");
         this.selectedCellProperty = new SimpleStringProperty();
         this.dependingOnList = new ArrayList<>();
         this.influencingOnList = new ArrayList<>();
     }
     
-    
     @Override
-    public void bind(StringProperty cellIDProperty,
-                     StringProperty originalValueProperty,
-                     StringProperty lastUpdatedVersionProperty) {
+    public void bind(StringProperty cellIDProperty, StringProperty lastUpdatedVersionProperty) {
         
         cellIDProperty.bind(Bindings.concat("Cell ID ", this.cellIDProperty));
         
         lastUpdatedVersionProperty.bind(
                 Bindings.concat("Last Updated Version ", this.lastUpdatedVersionProperty));
-        
-        this.bindOriginalValue(originalValueProperty);
     }
     
     @Override
@@ -44,18 +37,8 @@ public class CellModel implements ActionLineCellModel, DependenciesCellModel {
     }
     
     @Override
-    public StringProperty getOriginalValueProperty() {
-        return this.originalValueProperty;
-    }
-    
-    @Override
     public StringProperty getLastUpdatedVersionProperty() {
         return this.lastUpdatedVersionProperty;
-    }
-    
-    @Override
-    public void bindOriginalValue(StringProperty originalValueProperty) {
-        originalValueProperty.bind(this.originalValueProperty);
     }
     
     @Override

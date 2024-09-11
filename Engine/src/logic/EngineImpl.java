@@ -43,6 +43,12 @@ public class EngineImpl implements Engine{
 
     @Override
     public void updateSingleCellData(String cellID, String value) {
+        Cell cellToUpdate = this.sheet.getCell(cellID);
+        
+        if (cellToUpdate != null && cellToUpdate.getOriginalValue().equals(value) ) {
+            return;
+        }
+        
         SheetImpl newSheetVersion = this.sheet.copySheet();
         updateCell(cellID, value, newSheetVersion);
         this.sheet = this.sheet.updateSheet(newSheetVersion);

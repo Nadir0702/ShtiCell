@@ -1,13 +1,9 @@
 package gui.cell;
 
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
 
 public interface ActionLineCellModel {
-    void bind(StringProperty cellIDProperty, StringProperty originalValueProperty, StringProperty lastUpdatedVersionProperty);
+    void bind(StringProperty cellIDProperty, StringProperty lastUpdatedVersionProperty);
     StringProperty getCellIDProperty();
-    StringProperty getOriginalValueProperty();
     StringProperty getLastUpdatedVersionProperty();
-    
-    void bindOriginalValue(StringProperty stringProperty);
 }

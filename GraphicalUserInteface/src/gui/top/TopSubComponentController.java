@@ -22,15 +22,15 @@ public class TopSubComponentController {
     @FXML private TitledPane sheetNameTitledPane;
     @FXML private MenuButton themeMenuButton;
     
-    private StringProperty fileName;
-    private StringProperty sheetName;
-    private StringProperty sheetVersion;
+    private StringProperty filePathProperty;
+    private StringProperty sheetNameProperty;
+    private StringProperty sheetVersionProperty;
     private MainViewController mainViewController;
     
     public TopSubComponentController() {
-        this.fileName = new SimpleStringProperty("path/to/your/xml/file/filName.xml");
-        this.sheetName = new SimpleStringProperty("Sheet Name");
-        this.sheetVersion = new SimpleStringProperty("");
+        this.filePathProperty = new SimpleStringProperty("path/to/your/xml/file/fileName.xml");
+        this.sheetNameProperty = new SimpleStringProperty("Sheet Name");
+        this.sheetVersionProperty = new SimpleStringProperty("");
     }
     
     @FXML
@@ -39,10 +39,10 @@ public class TopSubComponentController {
             this.actionLineController.setTopSubComponentController(this);
         }
         
-        this.filePathTextField.textProperty().bind(this.fileName);
-        this.sheetNameTitledPane.textProperty().bind(this.sheetName);
+        this.filePathTextField.textProperty().bind(this.filePathProperty);
+        this.sheetNameTitledPane.textProperty().bind(this.sheetNameProperty);
         this.currentVersionMenuButton.textProperty().bind(
-                Bindings.concat("Version ", this.sheetVersion));
+                Bindings.concat("Version ", this.sheetVersionProperty));
     }
     
     @FXML
@@ -57,7 +57,7 @@ public class TopSubComponentController {
         
         String absolutePath = selectedFile.getAbsolutePath();
         this.mainViewController.loadNewSheetFromXML(absolutePath);
-        this.fileName.set(absolutePath);
+        this.filePathProperty.set(absolutePath);
     }
     
     @FXML
@@ -79,11 +79,11 @@ public class TopSubComponentController {
     }
     
     public void setSheetNameAndVersion(String sheetName, int sheetVersion) {
-        this.sheetName.set(sheetName);
-        this.sheetVersion.set(String.valueOf(sheetVersion));
+        this.sheetNameProperty.set(sheetName);
+        this.sheetVersionProperty.set(String.valueOf(sheetVersion));
     }
     
     public void updateSheetVersion(int version) {
-        this.sheetVersion.set(String.valueOf(version));
+        this.sheetVersionProperty.set(String.valueOf(version));
     }
 }
