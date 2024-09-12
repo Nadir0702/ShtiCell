@@ -21,7 +21,9 @@ public class CellSubComponentController {
     
     @FXML
     void onCellPressed(MouseEvent event) {
-        this.mainViewController.showCellDetails(this);
+        if(mainViewController != null) {
+            this.mainViewController.showCellDetails(this);
+        }
     }
     
     public StringProperty cellIDProperty() {
@@ -42,5 +44,9 @@ public class CellSubComponentController {
     
     public void select(String className) {
         this.cellComponent.getStyleClass().add(className);
+    }
+    
+    public void addOldVersionStyleClass() {
+        this.cellComponent.getStyleClass().add("in-old-version");
     }
 }

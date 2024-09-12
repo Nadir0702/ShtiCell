@@ -5,6 +5,8 @@
     -fx-cursor: hand; /* cursor style */
 }
 
+
+
 .label .text {
     -fx-font-size: 12px; /* font size */
     -fx-font-weight: Bold;
@@ -15,6 +17,13 @@
     -fx-background-color: #f5f5ff; /* Change background color on hover */
     -fx-border-color: #91a7ff; /* blue border color */
     -fx-border-width: 2px;
+}
+
+.in-old-version:hover {
+    -fx-background-color: white; /* background color */
+    -fx-border-color: #bbbbbb; /* blue border color */
+    -fx-border-width: 1px; /* border thickness */
+    -fx-cursor: normal;
 }
 
 .selected-cell {

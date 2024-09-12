@@ -24,7 +24,7 @@ public class Main extends Application {
         stage.setTitle("ShtiCell v2.0");
         stage.getIcons().add(
                 new Image(Objects.requireNonNull(
-                        Main.class.getResourceAsStream("main/view/letter-s.png"))));
+                        Main.class.getResourceAsStream("/gui/main/view/letter-s.png"))));
         stage.setScene(scene);
         controller.setPrimaryStage(stage);
         stage.show();

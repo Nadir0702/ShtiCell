@@ -2,14 +2,19 @@ package gui.main.view;
 
 import dto.CellDTO;
 import dto.SheetDTO;
+import gui.Main;
 import gui.action.line.ActionLineController;
 import gui.cell.CellSubComponentController;
 import gui.grid.GridBuilder;
 import gui.grid.SheetGridController;
 import gui.top.TopSubComponentController;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import logic.Engine;
 import logic.EngineImpl;
@@ -17,6 +22,7 @@ import logic.EngineImpl;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 
 public class MainViewController {
     @FXML private TopSubComponentController topSubComponentController;
@@ -107,6 +113,50 @@ public class MainViewController {
             this.topSubComponentController.updateSheetVersion(sheetDTO.getVersion());
         } catch (RuntimeException e) {
             System.out.println("Error Updating Cell:\n" + e.getMessage() + "\n");
+            e.printStackTrace();
+        }
+    }
+    
+    public int getSheetVersions() {
+        return this.engine.isSheetLoaded() ? this.engine.showVersions().getVersionChanges().size() : 0;
+    }
+    
+    public void loadSheetVersion(int version) {
+        SheetDTO sheetDTO = this.engine.getSheetVersionAsDTO(version);
+        GridBuilder gridBuilder = new GridBuilder(
+                sheetDTO.getLayout().getRow(),
+                sheetDTO.getLayout().getColumn(),
+                sheetDTO.getLayout().getRowHeight(),
+                sheetDTO.getLayout().getColumnWidth());
+        
+        this.openGridPopup(gridBuilder, version, sheetDTO.getSheetName());
+        SheetGridController gridPopupController = gridBuilder.getSheetGridController();
+        gridPopupController.initializeGridModel(sheetDTO.getCells());
+        
+        gridPopupController.getCellsControllers().forEach((cellID, cellController) -> {
+            cellController.addOldVersionStyleClass();
+        });
+    }
+    
+    public void openGridPopup(GridBuilder gridBuilder, int version, String sheetName) {
+        try {
+            // Create a new Stage (pop-up window)
+            Stage popupStage = new Stage();
+            popupStage.setTitle(sheetName + " - version " + version);
+            
+            ScrollPane popupGrid = gridBuilder.build();
+            popupGrid.getStyleClass().add("grid-popup");
+            
+            // Create a new scene for the pop-up window
+            Scene popupScene = new Scene(popupGrid, 600, 400); // Set preferred width and height
+            popupStage.setScene(popupScene);
+            popupStage.getIcons().add(
+                    new Image(Objects.requireNonNull(
+                            Main.class.getResourceAsStream("/gui/main/view/letter-s.png"))));
+            
+            // Show the pop-up window
+            popupStage.show();
+        } catch (RuntimeException | IOException e) {
             e.printStackTrace();
         }
     }

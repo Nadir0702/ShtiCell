@@ -1,5 +1,6 @@
 package gui.grid;
 
+import component.cell.api.CellType;
 import dto.CellDTO;
 import gui.cell.CellModel;
 import gui.cell.CellSubComponentController;
@@ -8,6 +9,8 @@ import gui.main.view.MainViewController;
 import javafx.scene.control.Button;
 import logic.function.returnable.api.Returnable;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,9 +52,37 @@ public class SheetGridController {
     
     public void updateGridModel(Map<String, Returnable> cells) {
         cells.forEach((cellID, returnable) -> {
-            this.gridModel.getCellValueProperty(cellID).set(returnable.getValue().toString());
+            this.gridModel.getCellValueProperty(cellID).set(effectiveValueFormatter(returnable));
         });
     }
+    
+    private String effectiveValueFormatter(Returnable effectiveValue){
+        CellType type = effectiveValue.getCellType();
+        String valueToPrint = effectiveValue.getValue().toString();
+        if (type.equals(CellType.BOOLEAN)) {
+            valueToPrint = booleanFormatter(valueToPrint);
+        } else if (type.equals(CellType.NUMERIC)) {
+            valueToPrint = numberFormatter(valueToPrint);
+        }
+        
+        return valueToPrint;
+    }
+    
+    private String numberFormatter(String valueToPrint) {
+        try{
+            double  number = Double.parseDouble(valueToPrint);
+            DecimalFormat formatter = new DecimalFormat("#,###.##");
+            formatter.setRoundingMode(RoundingMode.DOWN);
+            return formatter.format(number);
+        } catch (Exception ignored) {
+            return valueToPrint;
+        }
+    }
+    
+    public String booleanFormatter(String valueToPrint) {
+        return valueToPrint.toUpperCase();
+    }
+    
     
     public void showSelectedCellAndDependencies(CellDTO cellDTO) {
         String previousSelected = this.dependenciesCellModel.getSelectedCellProperty().get();

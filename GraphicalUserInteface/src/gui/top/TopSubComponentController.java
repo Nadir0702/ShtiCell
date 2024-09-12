@@ -7,9 +7,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.MenuButton;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -30,7 +29,7 @@ public class TopSubComponentController {
     public TopSubComponentController() {
         this.filePathProperty = new SimpleStringProperty("path/to/your/xml/file/fileName.xml");
         this.sheetNameProperty = new SimpleStringProperty("Sheet Name");
-        this.sheetVersionProperty = new SimpleStringProperty("");
+        this.sheetVersionProperty = new SimpleStringProperty("-");
     }
     
     @FXML
@@ -61,12 +60,27 @@ public class TopSubComponentController {
     }
     
     @FXML
-    private void onThemeChanged(ActionEvent event) {
+    public void onVersionMenuClicked(MouseEvent mouseEvent) {
+        int numOfVersions = this.mainViewController.getSheetVersions();
+        int numOfMenuItems = this.currentVersionMenuButton.getItems().size();
+        
+        if (numOfVersions > numOfMenuItems) {
+            for (int i = numOfMenuItems; i < numOfVersions; i++) {
+                MenuItem menuItem = new MenuItem("Version " + (i + 1));
+                menuItem.setOnAction(this::onVersionChanged);
+                this.currentVersionMenuButton.getItems().add(menuItem);
+            }
+        }
+    }
     
+    private void onVersionChanged(ActionEvent mouseEvent) {
+        MenuItem menuItem = (MenuItem) mouseEvent.getSource();
+        this.mainViewController.loadSheetVersion(
+                Integer.parseInt(menuItem.getText().substring("Version ".length())));
     }
     
     @FXML
-    private void onVersionChanged(ActionEvent event) {
+    private void onThemeChanged(ActionEvent event) {
     
     }
     
@@ -81,6 +95,7 @@ public class TopSubComponentController {
     public void setSheetNameAndVersion(String sheetName, int sheetVersion) {
         this.sheetNameProperty.set(sheetName);
         this.sheetVersionProperty.set(String.valueOf(sheetVersion));
+        this.currentVersionMenuButton.getItems().clear();
     }
     
     public void updateSheetVersion(int version) {

@@ -44,8 +44,10 @@ public class EngineImpl implements Engine{
     @Override
     public void updateSingleCellData(String cellID, String value) {
         Cell cellToUpdate = this.sheet.getCell(cellID);
+        boolean isValueTheSame = cellToUpdate != null && cellToUpdate.getOriginalValue().equals(value);
+        boolean isUpdatingEmptyToEmpty = cellToUpdate == null && value.isEmpty();
         
-        if (cellToUpdate != null && cellToUpdate.getOriginalValue().equals(value) ) {
+        if (isValueTheSame || isUpdatingEmptyToEmpty) {
             return;
         }
         
