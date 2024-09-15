@@ -14,7 +14,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import logic.Engine;
 import logic.EngineImpl;
@@ -73,7 +72,7 @@ public class MainViewController {
     
     public void loadNewSheetFromXML(String absolutePath) {
         try {
-            this.engine.LoadData(absolutePath);
+            this.engine.loadData(absolutePath);
             SheetDTO sheetDTO = this.engine.getSheetAsDTO();
             GridBuilder gridBuilder = new GridBuilder(sheetDTO.getLayout().getRow(),
                                                       sheetDTO.getLayout().getColumn(),

@@ -15,4 +15,8 @@ public interface Cell extends Serializable {
     List<Cell> getDependentCells();
     List<Cell> getInfluencedCells();
     void updateVersion(int newVersion);
+    static String createCellID(int row, int col) {
+        char column = (char) ('A' + col - 1);
+        return "" + column + row;
+    }
 }

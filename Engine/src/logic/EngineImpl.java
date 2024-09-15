@@ -4,6 +4,7 @@ import component.archive.api.Archive;
 import component.archive.impl.ArchiveImpl;
 import component.cell.api.Cell;
 import component.cell.impl.CellImpl;
+import component.range.impl.RangeImpl;
 import component.sheet.api.Sheet;
 import component.sheet.impl.SheetImpl;
 import dto.CellDTO;
@@ -20,7 +21,7 @@ public class EngineImpl implements Engine{
     private Archive archive = null;
 
     @Override
-    public void LoadData(String path) {
+    public void loadData(String path) {
         try {
             XMLToSheetConverter converter = new XMLToSheetConverterImpl();
             this.sheet = converter.convert(path);
@@ -83,13 +84,18 @@ public class EngineImpl implements Engine{
     }
 
     @Override
-    public void LoadFromFile(String path) {
+    public void loadFromFile(String path) {
         this.archive = Archive.loadFromFile(path);
         this.sheet = this.archive.retrieveLatestVersion();
     }
 
     @Override
-    public void SaveToFile(String path) {
+    public void saveToFile(String path) {
         this.archive.saveToFile(path);
+    }
+    
+    @Override
+    public void addRange(String rangeName, String range) {
+        this.sheet.getRanges().put(rangeName, new RangeImpl(rangeName, range, this.sheet));
     }
 }

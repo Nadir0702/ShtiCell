@@ -29,7 +29,7 @@ public enum MainMenuOption {
                 String errorMessage = "The File # does not exist or not a valid xml file.";
                 String path = ConsoleUtils.getInputFromUser(messageToUser, errorMessage, this::isValidXMLPathFormat);
                 if (!path.equalsIgnoreCase("Q")) {
-                    engine.LoadData(path.trim());
+                    engine.loadData(path.trim());
                     System.out.println("File Loaded Successfully");
                 }
             } catch (RuntimeException e) {
@@ -168,7 +168,7 @@ public enum MainMenuOption {
                     String errorMessage = "The File Path # is not a valid File Path.";
                     String path = ConsoleUtils.getInputFromUser(messageToUser, errorMessage, this::isValidPathFormat);
                     if (!path.equalsIgnoreCase("Q")) {
-                        engine.SaveToFile(path.trim());
+                        engine.saveToFile(path.trim());
                         System.out.println("File saved Successfully");
                     }
                 } catch (RuntimeException e) {
@@ -201,7 +201,7 @@ public enum MainMenuOption {
                     String errorMessage = "The File Path # is not valid File Path or the File doesnt exists.";
                     String path = ConsoleUtils.getInputFromUser(messageToUser, errorMessage, this::isValidPathFormat);
                     if (!path.equalsIgnoreCase("Q")) {
-                        engine.LoadFromFile(path.trim());
+                        engine.loadFromFile(path.trim());
                         System.out.println("File loaded Successfully");
                     }
             } catch (RuntimeException e) {

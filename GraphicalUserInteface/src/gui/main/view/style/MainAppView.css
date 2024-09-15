@@ -1,3 +1,7 @@
-.main-border {
+.main-border-dark {
     -fx-background-color: white;
 }
+.main-border {
+    -fx-background-color: #252525;
+}
+

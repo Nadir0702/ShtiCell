@@ -1,6 +1,7 @@
 package component.sheet.impl;
 
 import component.cell.api.Cell;
+import component.range.api.Range;
 import component.sheet.api.Sheet;
 import component.sheet.topological.order.TopologicalOrder;
 import jaxb.generated.STLSheet;
@@ -13,6 +14,7 @@ public class SheetImpl implements Sheet {
     private final String sheetName;
     private final Layout layout;
     private final Map<String, Cell> cells;
+    private final Map<String, Range> ranges;
     private int version;
     private int numOfCellsUpdated;
 
@@ -53,10 +55,11 @@ public class SheetImpl implements Sheet {
             return columnWidth;
         }
     }
-
+    
     public SheetImpl(STLSheet stlSheet) {
         this.sheetName = stlSheet.getName();
-        this.cells = new HashMap<String, Cell>();
+        this.cells = new HashMap<>();
+        this.ranges = new HashMap<>();
         this.version = 0;
         this.numOfCellsUpdated = 0;
         this.layout = new Layout(stlSheet.getSTLLayout().getRows(),
@@ -64,7 +67,7 @@ public class SheetImpl implements Sheet {
                 stlSheet.getSTLLayout().getSTLSize().getRowsHeightUnits(),
                 stlSheet.getSTLLayout().getSTLSize().getColumnWidthUnits());
     }
-
+    
     @Override
     public Cell getCell(String cellId) {
         cellId = Character.toUpperCase(cellId.charAt(0)) + cellId.substring(1);
@@ -76,7 +79,7 @@ public class SheetImpl implements Sheet {
         throw new IllegalArgumentException("The sheet size is " + this.layout.getRow() + " rows and " +
                 this.layout.getColumn() + " columns, The Cell or Referenced Cell " + cellId + " is out of bounds.");
     }
-
+    
     @Override
     public boolean cellInLayout(String cellId) {
         int row = this.parseCellIdRow(cellId);
@@ -87,15 +90,15 @@ public class SheetImpl implements Sheet {
                 && column <= this.layout.getColumn()
                 && column >= 0;
     }
-
+    
     private int parseCellIdRow(String cellId) {
         return Integer.parseInt(cellId.substring(1)) - 1;
     }
-
+    
     private int parseCellIdColumn(String cellId) {
         return Character.toUpperCase(cellId.charAt(0)) - 'A';
     }
-
+    
     @Override
     public Sheet updateSheet(SheetImpl newSheetVersion) {
         List<Cell> cellsThatHaveChanged =
@@ -111,11 +114,11 @@ public class SheetImpl implements Sheet {
 
         return newSheetVersion;
     }
-
+    
     private int increaseVersion() {
          return ++this.version;
     }
-
+    
     @Override
     public SheetImpl copySheet() {
 
@@ -133,25 +136,30 @@ public class SheetImpl implements Sheet {
             throw new RuntimeException(e);
         }
     }
-
+    
     @Override
     public Layout getLayout() {
         return layout;
     }
-
+    
     @Override
     public int getVersion() {
         return this.version;
     }
-
+    
     @Override
     public String getSheetName(){
         return this.sheetName;
     }
-
+    
     @Override
     public Map<String, Cell> getCells(){
         return this.cells;
+    }
+    
+    @Override
+    public Map<String, Range> getRanges() {
+        return this.ranges;
     }
 
     @Override

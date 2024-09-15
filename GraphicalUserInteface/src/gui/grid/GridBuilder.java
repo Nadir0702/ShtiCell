@@ -1,5 +1,6 @@
 package gui.grid;
 
+import component.cell.api.Cell;
 import gui.cell.CellSubComponentController;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -58,7 +59,7 @@ public class GridBuilder {
         for (int i = 1; i <= this.numOfRows; i++) {
             for (int j = 1; j <= this.numOfCols; j++) {
                 FXMLLoader loader = new FXMLLoader();
-                String cellID = createCellID(i, j);
+                String cellID = Cell.createCellID(i, j);
                 URL url = getClass().getResource("/gui/cell/CellSubComponent.fxml");
                 loader.setLocation(url);
                 Label cell = loader.load();
@@ -70,11 +71,6 @@ public class GridBuilder {
                 this.sheetGridController.addCellController(cellID, loader.getController());
             }
         }
-    }
-    
-    private String createCellID(int row, int col) {
-        char column = (char) ('A' + col - 1);
-        return "" + column + row;
     }
     
     private void buildHeadersColumn(ObservableList<Node> children) {
@@ -116,7 +112,7 @@ public class GridBuilder {
         scrollPane.getStylesheets().add(
                 Objects.requireNonNull(
                         getClass().getResource(
-                                "/gui/grid/style/MainGridComponent.css")).toExternalForm());
+                                "/gui/grid/style/MainGridComponentDark.css")).toExternalForm());
     }
     
     private void buildRowConstraints(GridPane grid) {
