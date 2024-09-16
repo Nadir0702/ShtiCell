@@ -32,6 +32,6 @@ public enum SpecialValues implements Returnable {
 
     @Override
     public <T> T tryConvertTo(Class<T> type) {
-        throw new UnsupportedOperationException("Cannot convert to Anything to ERROR_VALUE");
+        throw new UnsupportedOperationException("Cannot convert Anything to ERROR_VALUE");
     }
 }

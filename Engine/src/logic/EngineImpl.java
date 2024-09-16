@@ -61,6 +61,7 @@ public class EngineImpl implements Engine{
     private void updateCell(String cellID, String value, Sheet newSheetVersion) {
         Cell cellToUpdate = newSheetVersion.getCell(cellID);
         if (cellToUpdate != null) {
+            cellToUpdate.getUsedRanges().forEach(range -> newSheetVersion.getRanges().get(range).reduceUsage());
             cellToUpdate.setOriginalValue(value, newSheetVersion.getVersion() + 1);
         } else {
             cellToUpdate = new CellImpl(cellID, value, newSheetVersion.getVersion(), newSheetVersion);
@@ -96,6 +97,15 @@ public class EngineImpl implements Engine{
     
     @Override
     public void addRange(String rangeName, String range) {
-        this.sheet.getRanges().put(rangeName, new RangeImpl(rangeName, range, this.sheet));
+        if(!this.sheet.getRanges().containsKey(rangeName)) {
+            this.sheet.getRanges().put(rangeName, new RangeImpl(rangeName, range, this.sheet));
+        } else {
+            throw new IllegalArgumentException("The Range " + rangeName + " already exists");
+        }
+    }
+    
+    @Override
+    public void removeRange(String rangeName) {
+        this.sheet.deleteRange(rangeName);
     }
 }

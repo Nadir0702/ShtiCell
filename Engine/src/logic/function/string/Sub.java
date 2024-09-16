@@ -26,7 +26,7 @@ public class Sub extends TrinaryFunction {
                     new ReturnableImpl(original.substring((int)startIndex, (int)endIndex), CellType.STRING) :
                     SpecialValues.UNDEFINED;
 
-        } catch (ClassCastException e) {
+        } catch (ClassCastException | UnsupportedOperationException e) {
             return SpecialValues.UNDEFINED;
         }
     }

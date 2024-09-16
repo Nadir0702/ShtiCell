@@ -12,10 +12,12 @@ import java.util.List;
 public class RangeImpl implements Range {
     private String name;
     private List<Cell> cells;
+    private int numOfUsages;
     
     
     public RangeImpl(String name, String range, ReadonlySheet sheet) {
         this.name = name;
+        this.numOfUsages = 0;
         String[] edges = range.split("\\.\\.");
         
         if(edges.length != 2) {
@@ -56,27 +58,38 @@ public class RangeImpl implements Range {
         return cells;
     }
     
-    private String reassembleCellID(int row, int col) {
-        return String.format("%d%d", row, col);
-    }
-    
     @Override
     public List<Cell> getRangeCells() {
-        return List.of();
+        return this.cells;
     }
     
     @Override
     public Cell getFrom() {
-        return null;
+        return this.cells.getFirst();
     }
     
     @Override
     public Cell getTo() {
-        return null;
+        return this.cells.getLast();
     }
     
     @Override
     public String getName() {
-        return "";
+        return this.name;
+    }
+    
+    @Override
+    public void addUsage() {
+        this.numOfUsages++;
+    }
+    
+    @Override
+    public void reduceUsage() {
+        this.numOfUsages--;
+    }
+    
+    @Override
+    public boolean isInUse() {
+        return this.numOfUsages > 0;
     }
 }

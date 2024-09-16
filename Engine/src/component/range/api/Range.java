@@ -9,5 +9,7 @@ public interface Range {
     Cell getFrom();
     Cell getTo();
     String getName();
-    
+    void addUsage();
+    void reduceUsage();
+    boolean isInUse();
 }

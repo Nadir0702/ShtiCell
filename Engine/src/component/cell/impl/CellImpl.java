@@ -1,14 +1,18 @@
 package component.cell.impl;
 
 import component.cell.api.Cell;
+import component.range.api.Range;
 import component.sheet.api.ReadonlySheet;
 import component.sheet.api.Sheet;
 import logic.function.parser.FunctionParser;
-import logic.function.parser.RefParser;
+import logic.function.parser.OriginalValueParser;
 import logic.function.returnable.api.Returnable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class CellImpl implements Cell {
     private final ReadonlySheet sheet;
@@ -51,9 +55,31 @@ public class CellImpl implements Cell {
     }
 
     private void setDependencies(){
-        RefParser.PARSE.extractRefs(this.originalValue).stream()
+        Set<String> dependencies = new HashSet<>(this.getRefDependencies());
+        dependencies.addAll(this.getRangesDependencies());
+        
+        dependencies.forEach(this::setDependantAndInfluencedCells);
+    }
+    
+    private Set<String> getRangesDependencies() {
+        Set<String> dependencies = new HashSet<>();
+        
+        this.getUsedRanges()
+                .stream()
+                .filter(this.sheet::isExistingRange)
+                .forEach((rangeName) -> {
+                    Range currentRange = this.sheet.getRanges().get(rangeName);
+                    currentRange.addUsage();
+                    currentRange.getRangeCells().forEach(cell -> dependencies.add(cell.getCellId()));
+                });
+        
+        return dependencies;
+    }
+    
+    private Set<String> getRefDependencies() {
+        return OriginalValueParser.REF.extract(this.originalValue).stream()
                 .filter(Sheet::isValidCellID)
-                .forEach(this::setDependantAndInfluencedCells);
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -71,17 +97,18 @@ public class CellImpl implements Cell {
     @Override
     public void setOriginalValue(String value, int newVersion) {
         this.originalValue = value;
-
-        for(Cell cell : this.dependingOn){
-            cell.getInfluencedCells().remove(this);
-        }
-
+        
+        this.dependingOn.forEach(cell -> cell.getInfluencedCells().remove(this));
+//        for(Cell cell : this.dependingOn){
+//            cell.getInfluencedCells().remove(this);
+//        }
+        
         this.dependingOn.clear();
         this.setDependencies();
-
-        if (value.equals(this.originalValue)) {
-            this.version = newVersion;
-        }
+        
+//        if (value.equals(this.originalValue)) {
+//        }
+        this.version = newVersion;
     }
 
     @Override
@@ -117,5 +144,12 @@ public class CellImpl implements Cell {
     @Override
     public void updateVersion(int newVersion) {
         this.version = newVersion;
+    }
+    
+    @Override
+    public Set<String> getUsedRanges() {
+        Set<String> usedRanges = OriginalValueParser.SUM.extract(this.originalValue);
+        usedRanges.addAll(OriginalValueParser.AVERAGE.extract(this.originalValue));
+        return usedRanges;
     }
 }

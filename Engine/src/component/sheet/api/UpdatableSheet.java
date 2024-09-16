@@ -6,4 +6,5 @@ import java.io.Serializable;
 
 public interface UpdatableSheet extends Serializable {
     Sheet updateSheet(SheetImpl newSheetVersion);
+    void deleteRange(String rangeName);
 }

@@ -4,6 +4,7 @@ import logic.function.returnable.api.Returnable;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 public interface Cell extends Serializable {
     String getCellId();
@@ -15,6 +16,8 @@ public interface Cell extends Serializable {
     List<Cell> getDependentCells();
     List<Cell> getInfluencedCells();
     void updateVersion(int newVersion);
+    Set<String> getUsedRanges();
+    
     static String createCellID(int row, int col) {
         char column = (char) ('A' + col - 1);
         return "" + column + row;

@@ -115,6 +115,15 @@ public class SheetImpl implements Sheet {
         return newSheetVersion;
     }
     
+    @Override
+    public void deleteRange(String rangeName) {
+        if (this.ranges.get(rangeName).isInUse()) {
+            throw new IllegalArgumentException("Cannot Delete Range " + rangeName + " while it is in use");
+        } else {
+            this.ranges.remove(rangeName);
+        }
+    }
+    
     private int increaseVersion() {
          return ++this.version;
     }
@@ -161,7 +170,12 @@ public class SheetImpl implements Sheet {
     public Map<String, Range> getRanges() {
         return this.ranges;
     }
-
+    
+    @Override
+    public boolean isExistingRange(String range) {
+        return this.getRanges().containsKey(range);
+    }
+    
     @Override
     public int getNumOfCellsUpdated(){
         return this.numOfCellsUpdated;

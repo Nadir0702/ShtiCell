@@ -22,7 +22,7 @@ public class Divide extends BinaryFunction {
                     new ReturnableImpl(
                         argument1.tryConvertTo(Double.class) / argument2.tryConvertTo(Double.class),
                         CellType.NUMERIC);
-        } catch (ClassCastException e) {
+        } catch (ClassCastException | UnsupportedOperationException e) {
             return SpecialValues.NAN;
         }
     }

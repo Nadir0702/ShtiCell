@@ -15,4 +15,5 @@ public interface Engine {
     void loadFromFile(String path);
     void saveToFile(String path);
     void addRange(String rangeName, String range);
+    void removeRange(String rangeName);
 }
