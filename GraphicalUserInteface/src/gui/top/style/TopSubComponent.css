@@ -150,10 +150,10 @@
 }
 
 .scroll-pane:fitToWidth:fitToHeight .scroll-bar:horizontal .decrement-button .decrement-arrow {
-    -fx-background-color: #f5f5ff;
+    -fx-background-color: #bac8ff;
 }
 
 .scroll-pane:fitToWidth:fitToHeight .scroll-bar:horizontal .increment-button .increment-arrow {
-    -fx-background-color: #f5f5ff;
+    -fx-background-color: #bac8ff;
 }
 

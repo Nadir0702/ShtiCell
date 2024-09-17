@@ -72,4 +72,9 @@ public class CellModel implements ActionLineCellModel, DependenciesCellModel {
     public void setSelectedCell(String cellId) {
         this.selectedCellProperty.set(cellId);
     }
+    
+    @Override
+    public boolean isSelectedCell(String cellId) {
+        return cellId.equals(this.selectedCellProperty.get());
+    }
 }

@@ -3,22 +3,16 @@ package gui.action.line;
 import dto.CellDTO;
 import gui.cell.ActionLineCellModel;
 import gui.cell.CellModel;
-import gui.cell.CellSubComponentController;
 import gui.main.view.MainViewController;
 import gui.top.TopSubComponentController;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
-
-import java.util.Objects;
 
 public class ActionLineController {
     
@@ -30,30 +24,26 @@ public class ActionLineController {
     private TopSubComponentController topSubComponentController;
     private MainViewController mainViewController;
     private ActionLineCellModel actionLineCellModel;
-    private BooleanProperty FileNotLoaded;
+    private BooleanProperty isFileLoadedProperty;
     
     public ActionLineController() {
         actionLineCellModel = new CellModel();
-        FileNotLoaded = new SimpleBooleanProperty(true);
+        isFileLoadedProperty = new SimpleBooleanProperty(true);
     }
     
     @FXML
     private void initialize() {
         this.updateValueButton.disableProperty().bind(
                 Bindings.or(this.cellIDLabel.textProperty().isEqualTo("Cell ID "),
-                            this.FileNotLoaded));
+                            this.isFileLoadedProperty));
         
         this.originalValueTextField.disableProperty().bind(
                 Bindings.or(this.cellIDLabel.textProperty().isEqualTo("Cell ID "),
-                        this.FileNotLoaded));
+                        this.isFileLoadedProperty));
         
         this.actionLineCellModel.bind(
                 this.cellIDLabel.textProperty(),
                 this.lastUpdatedCellValueVersionLabel.textProperty());
-    }
-    
-    public void toggleFileLoadedProperty() {
-        FileNotLoaded.set(false);
     }
     
     @FXML
@@ -82,5 +72,9 @@ public class ActionLineController {
         this.actionLineCellModel.getCellIDProperty().set("");
         this.originalValueTextField.setText("");
         this.actionLineCellModel.getLastUpdatedVersionProperty().set("");
+    }
+    
+    public void bindFileNotLoaded(BooleanProperty isFileLoaded) {
+        this.isFileLoadedProperty.bind(isFileLoaded);
     }
 }

@@ -1,5 +1,6 @@
 package logic.function.math;
 
+import component.cell.api.Cell;
 import component.cell.api.CellType;
 import component.range.api.Range;
 import component.sheet.api.ReadonlySheet;
@@ -30,7 +31,7 @@ public class Average implements Function {
             Range range = sheet.getRanges().get(this.rangeName);
             
             numOfElements += range.getRangeCells().stream()
-                    .filter((cell) -> cell.getEffectiveValue().getCellType().equals(CellType.NUMERIC))
+                    .filter(cell -> cell.getEffectiveValue().getCellType().equals(CellType.NUMERIC))
                     .count();
             
             if (numOfElements > 0) {
@@ -44,8 +45,7 @@ public class Average implements Function {
                 return SpecialValues.NAN;
             }
         } else {
-            throw new IllegalArgumentException(
-                    "Cannot calculate AVERAGE of non-existing range, " + this.rangeName);
+            return SpecialValues.NAN;
         }
     }
     

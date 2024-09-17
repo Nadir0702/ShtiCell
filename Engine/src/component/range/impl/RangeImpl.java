@@ -11,6 +11,8 @@ import java.util.List;
 
 public class RangeImpl implements Range {
     private String name;
+    private String from;
+    private String to;
     private List<Cell> cells;
     private int numOfUsages;
     
@@ -19,6 +21,8 @@ public class RangeImpl implements Range {
         this.name = name;
         this.numOfUsages = 0;
         String[] edges = range.split("\\.\\.");
+        this.from = edges[0];
+        this.to = edges[1];
         
         if(edges.length != 2) {
             throw new IllegalArgumentException("Range must have exactly two edges");
@@ -28,21 +32,27 @@ public class RangeImpl implements Range {
             throw new IllegalArgumentException("Range exceeds sheet boundaries");
         }
         
-        this.cells = this.createRange(edges[0], edges[1], sheet);
+        this.populateRange(sheet);
+        if (cells.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Top Left boundary " + this.from +
+                    " must be smaller or equal to Bottom Right Boundary " + this.to + " in column and row");
+        }
         
     }
     
-    private List<Cell> createRange(String from, String to, ReadonlySheet sheet) {
-        List<Cell> cells = new ArrayList<>();
-        int fromRow = Integer.parseInt(from.substring(1));
-        int toRow = Integer.parseInt(to.substring(1));
-        int fromCol = Integer.parseInt(from.substring(0, 1));
-        int toCol = Integer.parseInt(to.substring(0, 1));
+    @Override
+    public void populateRange(ReadonlySheet sheet) {
+        this.cells = new ArrayList<>();
+        int fromRow = Integer.parseInt(this.from.substring(1));
+        int toRow = Integer.parseInt(this.to.substring(1));
+        char fromCol = Character.toUpperCase(this.from.charAt(0));
+        char toCol = Character.toUpperCase(this.to.charAt(0));
         
         
         for (int row = fromRow; row <= toRow; row++) {
-            for (int col = fromCol; col <= toCol; col++) {
-                String currentCellId = Cell.createCellID(row, col);
+            for (char col = fromCol; col <= toCol; col++) {
+                String currentCellId ="" + col + row;
                 Cell currentCell = sheet.getCells().get(currentCellId);
                 
                 if (currentCell == null) {
@@ -54,8 +64,6 @@ public class RangeImpl implements Range {
                 
             }
         }
-        
-        return cells;
     }
     
     @Override
@@ -85,7 +93,9 @@ public class RangeImpl implements Range {
     
     @Override
     public void reduceUsage() {
-        this.numOfUsages--;
+        if(this.numOfUsages > 0) {
+            this.numOfUsages--;
+        }
     }
     
     @Override

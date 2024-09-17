@@ -6,6 +6,7 @@ import component.sheet.api.ReadonlySheet;
 import logic.function.Function;
 import logic.function.returnable.api.Returnable;
 import logic.function.returnable.impl.ReturnableImpl;
+import logic.function.returnable.impl.SpecialValues;
 
 public class Sum implements Function {
     private final String name = "SUM";
@@ -34,8 +35,7 @@ public class Sum implements Function {
             
             return new ReturnableImpl(sumResult, CellType.NUMERIC);
         } else {
-            throw new IllegalArgumentException(
-                    "Cannot calculate SUM of non-existing range, " + this.rangeName);
+            return SpecialValues.NAN;
         }
         
     }

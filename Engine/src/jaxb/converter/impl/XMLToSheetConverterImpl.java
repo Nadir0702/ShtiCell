@@ -2,6 +2,8 @@ package jaxb.converter.impl;
 
 import component.cell.api.Cell;
 import component.cell.impl.CellImpl;
+import component.range.api.Range;
+import component.range.impl.RangeImpl;
 import component.sheet.api.Sheet;
 import component.sheet.impl.SheetImpl;
 import jakarta.xml.bind.JAXBContext;
@@ -9,6 +11,7 @@ import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 import jaxb.converter.api.XMLToSheetConverter;
 import jaxb.generated.STLCell;
+import jaxb.generated.STLRange;
 import jaxb.generated.STLSheet;
 
 import java.io.FileInputStream;
@@ -25,10 +28,29 @@ public class XMLToSheetConverterImpl implements XMLToSheetConverter {
 
     private Sheet STLSheetToSheet(STLSheet stlSheet) {
         SheetImpl sheet = new SheetImpl(stlSheet);
+        stlSheet.getSTLRanges().getSTLRange().forEach(stlRange -> this.createNewRange(stlRange, sheet));
         stlSheet.getSTLCells().getSTLCell().forEach(stlCell -> this.createNewCell(stlCell, sheet));
+        sheet.getRanges().forEach((rangeName, range) -> range.populateRange(sheet));
         return sheet.updateSheet(sheet);
     }
-
+    
+    private void createNewRange(STLRange stlRange, SheetImpl sheet) {
+        String from = stlRange.getSTLBoundaries().getFrom();
+        String to = stlRange.getSTLBoundaries().getTo();
+        String rangeName = stlRange.getName();
+        String boundaries = from + ".." + to;
+        
+        if (!sheet.cellInLayout(from) || !sheet.cellInLayout(to)){
+            String format = String.format("""
+                    File contains Range exceeding Sheet layout.
+                    Sheet layout: %d rows, %d columns
+                    Range: %s""", sheet.getLayout().getRow(), sheet.getLayout().getColumn(), rangeName);
+            throw new IllegalArgumentException(format);
+        }
+        
+        sheet.createRange(rangeName, boundaries);
+    }
+    
     private void createNewCell(STLCell stlCell, Sheet sheet){
         String cellID = createCellID(stlCell.getRow(), stlCell.getColumn());
 

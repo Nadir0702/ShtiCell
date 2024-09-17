@@ -1,13 +1,18 @@
 package gui.main.view;
 
 import dto.CellDTO;
+import dto.RangeDTO;
+import dto.RangesDTO;
 import dto.SheetDTO;
 import gui.Main;
 import gui.action.line.ActionLineController;
 import gui.cell.CellSubComponentController;
 import gui.grid.GridBuilder;
 import gui.grid.SheetGridController;
+import gui.ranges.RangesController;
 import gui.top.TopSubComponentController;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
@@ -24,13 +29,20 @@ import java.util.Map;
 import java.util.Objects;
 
 public class MainViewController {
+    
     @FXML private TopSubComponentController topSubComponentController;
+    @FXML private RangesController rangesController;
     private ActionLineController actionLineController;
     private SheetGridController sheetGridController;
     private Map<String, CellSubComponentController> cellSubComponentControllerMap;
     
+    private BooleanProperty fileNotLoadedProperty;
     private Engine engine;
     private Stage primaryStage;
+    
+    public MainViewController() {
+        fileNotLoadedProperty = new SimpleBooleanProperty(true);
+    }
     
     @FXML
     public void initialize() {
@@ -41,6 +53,12 @@ public class MainViewController {
             this.setActionLineController(this.topSubComponentController.getActionLIneController());
         }
         
+        if (this.rangesController != null) {
+            this.rangesController.setMainController(this);
+        }
+        
+        this.actionLineController.bindFileNotLoaded(this.fileNotLoadedProperty);
+        this.rangesController.bindFileNotLoaded(this.fileNotLoadedProperty);
     }
     
     public void setActionLineController(ActionLineController actionLineController) {
@@ -74,6 +92,7 @@ public class MainViewController {
         try {
             this.engine.loadData(absolutePath);
             SheetDTO sheetDTO = this.engine.getSheetAsDTO();
+            RangesDTO rangesDto = this.engine.getAllRanges();
             GridBuilder gridBuilder = new GridBuilder(sheetDTO.getLayout().getRow(),
                                                       sheetDTO.getLayout().getColumn(),
                                                       sheetDTO.getLayout().getRowHeight(),
@@ -85,20 +104,29 @@ public class MainViewController {
             this.setCellSubComponentControllerMap(this.sheetGridController.getCellsControllers());
             this.sheetGridController.initializeGridModel(sheetDTO.getCells());
             
-            this.actionLineController.toggleFileLoadedProperty();
+            this.rangesController.initializeRangesModel(rangesDto);
+            
+            this.fileNotLoadedProperty.set(false);
             this.actionLineController.resetCellModel();
             this.topSubComponentController.setSheetNameAndVersion(sheetDTO.getSheetName(), sheetDTO.getVersion());
             
         } catch (RuntimeException | IOException e) {
             // Create error popup dialog
             System.out.println("Error Loading File:\n" + e.getMessage() + "\n");
+            e.printStackTrace();
         }
     }
     
     public void showCellDetails(CellSubComponentController cellSubComponentController) {
-        CellDTO cellDTO = this.engine.getSingleCellData(cellSubComponentController.cellIDProperty().get());
-        this.actionLineController.showCellDetails(cellDTO);
-        this.sheetGridController.showSelectedCellAndDependencies(cellDTO); // Maybe send cellController as parameter?
+        String selectedCellID = cellSubComponentController.cellIDProperty().get();
+        if (this.sheetGridController.isAlreadySelected(selectedCellID)) {
+            this.sheetGridController.resetCellModel(selectedCellID);
+            this.actionLineController.resetCellModel();
+        } else {
+            CellDTO cellDTO = this.engine.getSingleCellData(cellSubComponentController.cellIDProperty().get());
+            this.actionLineController.showCellDetails(cellDTO);
+            this.sheetGridController.showSelectedCellAndDependencies(cellDTO);
+        }
     }
     
     public void updateCellValue(String cellToUpdate, String newValue) {
@@ -151,12 +179,35 @@ public class MainViewController {
             popupStage.setScene(popupScene);
             popupStage.getIcons().add(
                     new Image(Objects.requireNonNull(
-                            Main.class.getResourceAsStream("/gui/main/view/letter-s.png"))));
+                            Main.class.getResourceAsStream("/gui/main/view/style/shticellLogo.png"))));
             
             // Show the pop-up window
             popupStage.show();
         } catch (RuntimeException | IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    public RangeDTO addNewRange(String rangeName, String from, String to) {
+        try {
+            return this.engine.addRange(rangeName, from + ".." + to);
+        } catch (RuntimeException e) {
+            this.rangesController.updateSaveErrorLabel(e.getMessage());
+            return null;
+        }
+    }
+    
+    public boolean deleteRange(RangeDTO rangeToDelete) {
+        try {
+            this.engine.removeRange(rangeToDelete.getName());
+            return true;
+        } catch (RuntimeException e) {
+            this.rangesController.updateDeleteErrorLabel(e.getMessage());
+            return false;
+        }
+    }
+    
+    public void toggleSelectedRange(RangeDTO selectedRange, RangeDTO previousSelectedRange) {
+        this.sheetGridController.toggleSelectedRange(selectedRange, previousSelectedRange);
     }
 }

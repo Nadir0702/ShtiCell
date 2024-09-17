@@ -96,7 +96,7 @@ public class GridBuilder {
     }
     
     private void buildGridPane(GridPane grid) {
-        grid.setAlignment(Pos.CENTER); // Set alignment to center
+        grid.setAlignment(Pos.TOP_LEFT); // Set alignment to center
         grid.setMaxHeight(Double.MAX_VALUE); // Set to use maximum available height
         grid.setMaxWidth(Double.MAX_VALUE);  // Set to use maximum available width
         grid.getStyleClass().add("sheet-grid-pane");
@@ -112,7 +112,7 @@ public class GridBuilder {
         scrollPane.getStylesheets().add(
                 Objects.requireNonNull(
                         getClass().getResource(
-                                "/gui/grid/style/MainGridComponentDark.css")).toExternalForm());
+                                "/gui/grid/style/MainGridComponent.css")).toExternalForm());
     }
     
     private void buildRowConstraints(GridPane grid) {
@@ -127,7 +127,7 @@ public class GridBuilder {
                 currentRow.setMinHeight(35);
                 currentRow.setPrefHeight(35);
             } else {
-                currentRow.setMaxHeight(Double.MAX_VALUE);
+                currentRow.setMaxHeight(this.rowHeight);
                 currentRow.setMinHeight(this.rowHeight);
                 currentRow.setPrefHeight(this.rowHeight);
             }
@@ -148,7 +148,7 @@ public class GridBuilder {
                 currentColumn.setMinWidth(35);
                 currentColumn.setPrefWidth(35);
             } else {
-                currentColumn.setMaxWidth(Double.MAX_VALUE);
+                currentColumn.setMaxWidth(this.columnWidth);
                 currentColumn.setMinWidth(this.columnWidth);
                 currentColumn.setPrefWidth(this.columnWidth);
             }

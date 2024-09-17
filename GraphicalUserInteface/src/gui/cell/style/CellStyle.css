@@ -44,6 +44,12 @@
     -fx-border-width: 2px;
 }
 
+.selected-range {
+    -fx-background-color: #fff9db; /* Change background color on hover */
+    -fx-border-color: #fab005; /* blue border color */
+    -fx-border-width: 2px;
+}
+
 :focused {
     -fx-focus-color: #4b55df;
     -fx-faint-focus-color: transparent;

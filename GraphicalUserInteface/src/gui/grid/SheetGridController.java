@@ -2,6 +2,7 @@ package gui.grid;
 
 import component.cell.api.CellType;
 import dto.CellDTO;
+import dto.RangeDTO;
 import gui.cell.CellModel;
 import gui.cell.CellSubComponentController;
 import gui.cell.DependenciesCellModel;
@@ -87,9 +88,66 @@ public class SheetGridController {
     public void showSelectedCellAndDependencies(CellDTO cellDTO) {
         String previousSelected = this.dependenciesCellModel.getSelectedCellProperty().get();
         
+        this.updateSelectedCell(cellDTO.getCellId(), previousSelected);
+        this.updateDependingOn(cellDTO);
+        this.updateInfluencingOn(cellDTO);
+    }
+    
+    private void updateInfluencingOn(CellDTO cellDTO) {
+        this.dependenciesCellModel.getInfluencingOn().forEach((currentInfluence) -> {
+            this.cellsControllers.get(currentInfluence).deselect("influencing-cell");
+        });
+        
+        if(cellDTO.getInfluencingOn() != null){
+            cellDTO.getInfluencingOn().forEach((currentInfluence) -> {
+                this.cellsControllers.get(currentInfluence).select("influencing-cell");
+            });
+            this.dependenciesCellModel.setInfluencingOn(cellDTO.getInfluencingOn());
+        }
+    }
+    
+    private void updateDependingOn(CellDTO cellDTO) {
+        this.dependenciesCellModel.getDependingOn().forEach((currentDependency) -> {
+            this.cellsControllers.get(currentDependency).deselect("depending-cell");
+        });
+        
+        if(cellDTO.getDependingOn() != null){
+            cellDTO.getDependingOn().forEach((currentDependingOn) -> {
+                this.cellsControllers.get(currentDependingOn).select("depending-cell");
+            });
+            this.dependenciesCellModel.setDependingOn(cellDTO.getDependingOn());
+        }
+    }
+    
+    private void updateSelectedCell(String CellID, String previousSelected) {
         if (previousSelected != null) {
             this.cellsControllers.get(previousSelected).deselect("selected-cell");
         }
+        this.cellsControllers.get(CellID).select("selected-cell");
+        this.dependenciesCellModel.setSelectedCell(CellID);
+    }
+    
+    public void toggleSelectedRange(RangeDTO selectedRange, RangeDTO previousSelectedRange) {
+        if (previousSelectedRange != null) {
+            previousSelectedRange.getCells().forEach((cellID) -> {
+                this.cellsControllers.get(cellID).deselect("selected-range");
+            });
+        }
+        
+        if (selectedRange != null) {
+            selectedRange.getCells().forEach((cellID) -> {
+                this.cellsControllers.get(cellID).select("selected-range");
+            });
+        }
+    }
+    
+    public boolean isAlreadySelected(String cellID) {
+        return this.dependenciesCellModel.isSelectedCell(cellID);
+    }
+    
+    public void resetCellModel(String selectedCellID) {
+        this.cellsControllers.get(selectedCellID).deselect("selected-cell");
+        this.dependenciesCellModel.setSelectedCell(null);
         
         this.dependenciesCellModel.getDependingOn().forEach((currentDependency) -> {
             this.cellsControllers.get(currentDependency).deselect("depending-cell");
@@ -98,23 +156,5 @@ public class SheetGridController {
         this.dependenciesCellModel.getInfluencingOn().forEach((currentInfluence) -> {
             this.cellsControllers.get(currentInfluence).deselect("influencing-cell");
         });
-        
-        this.cellsControllers.get(cellDTO.getCellId()).select("selected-cell");
-        this.dependenciesCellModel.setSelectedCell(cellDTO.getCellId());
-        
-        if(cellDTO.getDependingOn() != null){
-            cellDTO.getDependingOn().forEach((currentDependingOn) -> {
-                this.cellsControllers.get(currentDependingOn).select("depending-cell");
-            });
-            this.dependenciesCellModel.setDependingOn(cellDTO.getDependingOn());
-        }
-        
-        if(cellDTO.getInfluencingOn() != null){
-            cellDTO.getInfluencingOn().forEach((currentInfluence) -> {
-                this.cellsControllers.get(currentInfluence).select("influencing-cell");
-            });
-            this.dependenciesCellModel.setInfluencingOn(cellDTO.getInfluencingOn());
-        }
-        
     }
 }

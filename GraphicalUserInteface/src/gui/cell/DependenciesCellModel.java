@@ -11,5 +11,6 @@ public interface DependenciesCellModel {
     void setDependingOn(List<String> dependingOn);
     void setInfluencingOn(List<String> influencingOn);
     void setSelectedCell(String cellId);
+    boolean isSelectedCell(String cellId);
 }
 
