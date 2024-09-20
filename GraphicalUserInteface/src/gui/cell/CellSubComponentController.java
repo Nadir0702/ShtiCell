@@ -4,8 +4,10 @@ import gui.main.view.MainViewController;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 
 public class CellSubComponentController {
     
@@ -48,5 +50,37 @@ public class CellSubComponentController {
     
     public void addOldVersionStyleClass() {
         this.cellComponent.getStyleClass().add("in-old-version");
+    }
+    
+    public void setAlignment(String alignment) {
+        switch (alignment) {
+            case "left":
+                this.cellComponent.setAlignment(Pos.CENTER_LEFT);
+                break;
+            case "right":
+                this.cellComponent.setAlignment(Pos.CENTER_RIGHT);
+                break;
+            case "center":
+                this.cellComponent.setAlignment(Pos.CENTER);
+                break;
+            default:
+                break;
+        }
+    }
+    
+    public void setCellStyle(Color backgroundColor, Color textColor) {
+        this.cellComponent.setStyle(formatCellStyleString(backgroundColor, textColor));
+    }
+    
+    private String formatCellStyleString(Color backgroundColor, Color textColor) {
+        return String.format("%s: rgb(%d, %d, %d);\n%s: rgb(%d, %d, %d);",
+                "-fx-background-color",
+                (int) (backgroundColor.getRed() * 255),
+                (int) (backgroundColor.getGreen() * 255),
+                (int) (backgroundColor.getBlue() * 255),
+                "-fx-text-fill",
+                (int) (textColor.getRed() * 255),
+                (int) (textColor.getGreen() * 255),
+                (int) (textColor.getBlue() * 255));
     }
 }

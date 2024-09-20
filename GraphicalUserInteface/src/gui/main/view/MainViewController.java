@@ -7,6 +7,8 @@ import dto.SheetDTO;
 import gui.Main;
 import gui.action.line.ActionLineController;
 import gui.cell.CellSubComponentController;
+import gui.command.CommandsController;
+import gui.customization.CustomizationController;
 import gui.grid.GridBuilder;
 import gui.grid.SheetGridController;
 import gui.ranges.RangesController;
@@ -18,6 +20,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import logic.Engine;
@@ -25,12 +29,15 @@ import logic.EngineImpl;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 public class MainViewController {
     
     @FXML private TopSubComponentController topSubComponentController;
+    @FXML private CustomizationController customizationsController;
+    @FXML private CommandsController commandsController;
     @FXML private RangesController rangesController;
     private ActionLineController actionLineController;
     private SheetGridController sheetGridController;
@@ -41,7 +48,7 @@ public class MainViewController {
     private Stage primaryStage;
     
     public MainViewController() {
-        fileNotLoadedProperty = new SimpleBooleanProperty(true);
+        this.fileNotLoadedProperty = new SimpleBooleanProperty(true);
     }
     
     @FXML
@@ -57,8 +64,18 @@ public class MainViewController {
             this.rangesController.setMainController(this);
         }
         
+        if (this.customizationsController != null) {
+            this.customizationsController.setMainController(this);
+        }
+        
+        if (this.commandsController != null) {
+            this.commandsController.setMainController(this);
+        }
+        
         this.actionLineController.bindFileNotLoaded(this.fileNotLoadedProperty);
         this.rangesController.bindFileNotLoaded(this.fileNotLoadedProperty);
+        this.customizationsController.bindFileNotLoaded(this.fileNotLoadedProperty);
+        this.commandsController.bindFileNotLoaded(this.fileNotLoadedProperty);
     }
     
     public void setActionLineController(ActionLineController actionLineController) {
@@ -122,10 +139,12 @@ public class MainViewController {
         if (this.sheetGridController.isAlreadySelected(selectedCellID)) {
             this.sheetGridController.resetCellModel(selectedCellID);
             this.actionLineController.resetCellModel();
+            this.customizationsController.deselectCell();
         } else {
             CellDTO cellDTO = this.engine.getSingleCellData(cellSubComponentController.cellIDProperty().get());
             this.actionLineController.showCellDetails(cellDTO);
             this.sheetGridController.showSelectedCellAndDependencies(cellDTO);
+            this.customizationsController.setSelectedCell(cellDTO);
         }
     }
     
@@ -209,5 +228,69 @@ public class MainViewController {
     
     public void toggleSelectedRange(RangeDTO selectedRange, RangeDTO previousSelectedRange) {
         this.sheetGridController.toggleSelectedRange(selectedRange, previousSelectedRange);
+    }
+    
+    public void updateColumnWidth(Integer newColumnWidth, int columnToUpdate) {
+        GridPane gridPane = this.getSheetGrid();
+        gridPane.getColumnConstraints().get(columnToUpdate).setMinWidth(newColumnWidth);
+        gridPane.getColumnConstraints().get(columnToUpdate).setPrefWidth(newColumnWidth);
+        gridPane.getColumnConstraints().get(columnToUpdate).setMaxWidth(newColumnWidth);
+        
+    }
+    
+    public void updateRowHeight(Integer newRowHeight, int rowToUpdate) {
+        GridPane gridPane = this.getSheetGrid();
+        gridPane.getRowConstraints().get(rowToUpdate).setMinHeight(newRowHeight);
+        gridPane.getRowConstraints().get(rowToUpdate).setPrefHeight(newRowHeight);
+        gridPane.getRowConstraints().get(rowToUpdate).setMaxHeight(newRowHeight);
+    }
+    
+    private GridPane getSheetGrid() {
+        BorderPane root = (BorderPane) this.primaryStage.getScene().getRoot();
+        ScrollPane scrollPane = (ScrollPane) root.getCenter();
+        return (GridPane) scrollPane.getContent();
+    }
+    
+    
+    public void setSelectedColumn(String columnName) {
+        int columnIndex = (columnName.charAt(0) - 'A') + 1 ;
+        int currentPrefWidth = (int)this.getSheetGrid().getColumnConstraints().get(columnIndex).getPrefWidth();
+        this.customizationsController.setSelectedColumn(columnName, currentPrefWidth);
+    }
+    
+    public void setSelectedRow(String rowName) {
+        int rowIndex = Integer.parseInt(rowName);
+        int currentPrefHeight = (int)this.getSheetGrid().getRowConstraints().get(rowIndex).getPrefHeight();
+        this.customizationsController.setSelectedRow(rowIndex, currentPrefHeight);
+    }
+    
+    public void setColumnTextAlignment(String columnName, String alignment) {
+        this.cellSubComponentControllerMap.forEach((cellID, cellController) -> {
+            if (cellID.contains(columnName)) {
+                cellController.setAlignment(alignment);
+            }
+        });
+    }
+    
+    public void setCellStyle(String cellID, Color backgroundColor, Color textColor) {
+        this.cellSubComponentControllerMap.get(cellID).setCellStyle(backgroundColor, textColor);
+        this.engine.updateCellStyle(cellID, backgroundColor, textColor);
+    }
+    
+    public void sortRange(String rangeToSort, List<String> columnsToSortBy) {
+        SheetDTO sortedSheet = this.engine.sortRangeOfCells(rangeToSort, columnsToSortBy);
+        GridBuilder gridBuilder = new GridBuilder(
+                sortedSheet.getLayout().getRow(),
+                sortedSheet.getLayout().getColumn(),
+                sortedSheet.getLayout().getRowHeight(),
+                sortedSheet.getLayout().getColumnWidth());
+        
+        this.openGridPopup(gridBuilder, 10, sortedSheet.getSheetName());
+        SheetGridController gridPopupController = gridBuilder.getSheetGridController();
+        gridPopupController.initializeGridModel(sortedSheet.getCells());
+        
+        gridPopupController.getCellsControllers().forEach((cellID, cellController) -> {
+            cellController.addOldVersionStyleClass();
+        });
     }
 }

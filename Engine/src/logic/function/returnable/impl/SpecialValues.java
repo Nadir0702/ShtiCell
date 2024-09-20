@@ -21,6 +21,12 @@ public enum SpecialValues implements Returnable {
         public Object getValue() {
             return "";
         }
+    },
+    UNKNOWN{
+        @Override
+        public Object getValue() {
+            return "UNKNOWN";
+        }
     };
 
     @Override

@@ -50,6 +50,8 @@ public class GridBuilder {
         this.buildHeadersColumn(children);
         this.buildCellsComponents(children);
         
+        this.sheetGridController.initialize();
+        
         root.setContent(grid);
         
         return root;
@@ -75,23 +77,23 @@ public class GridBuilder {
     
     private void buildHeadersColumn(ObservableList<Node> children) {
         for (int i = 1; i <= this.numOfRows; i++) {
-            Button colHeader = new Button(i < 10 ? "0" + i : i + "");
-            colHeader.setMaxHeight(Double.MAX_VALUE);
-            colHeader.setMaxWidth(Double.MAX_VALUE);
-            GridPane.setRowIndex(colHeader, i);
-            children.add(colHeader);
-            this.sheetGridController.addColumnHeader(colHeader);
+            Button rowHeader = new Button(i < 10 ? "0" + i : i + "");
+            rowHeader.setMaxHeight(Double.MAX_VALUE);
+            rowHeader.setMaxWidth(Double.MAX_VALUE);
+            GridPane.setRowIndex(rowHeader, i);
+            children.add(rowHeader);
+            this.sheetGridController.addRowHeader(rowHeader);
         }
     }
     
     private void buildHeadersRow(ObservableList<Node> children) {
         for (int i = 0; i < this.numOfCols; i++) {
-            Button rowHeader = new Button(Character.toString((char) i + 'A'));
-            rowHeader.setMaxHeight(Double.MAX_VALUE);
-            rowHeader.setMaxWidth(Double.MAX_VALUE);
-            GridPane.setColumnIndex(rowHeader, i + 1);
-            children.add(rowHeader);
-            this.sheetGridController.addRowHeader(rowHeader);
+            Button colHeader = new Button(Character.toString((char) i + 'A'));
+            colHeader.setMaxHeight(Double.MAX_VALUE);
+            colHeader.setMaxWidth(Double.MAX_VALUE);
+            GridPane.setColumnIndex(colHeader, i + 1);
+            children.add(colHeader);
+            this.sheetGridController.addColumnHeader(colHeader);
         }
     }
     
@@ -144,9 +146,9 @@ public class GridBuilder {
             
             currentColumn.setHgrow(Priority.ALWAYS);
             if (i == 0) {
-                currentColumn.setMaxWidth(35);
-                currentColumn.setMinWidth(35);
-                currentColumn.setPrefWidth(35);
+                currentColumn.setMaxWidth(40);
+                currentColumn.setMinWidth(40);
+                currentColumn.setPrefWidth(40);
             } else {
                 currentColumn.setMaxWidth(this.columnWidth);
                 currentColumn.setMinWidth(this.columnWidth);

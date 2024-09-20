@@ -111,12 +111,11 @@
 /*------------------------ LIST VIEW ----------------*/
 .list-view:vertical{
     -fx-background-color: #f5f5ff;
-    /*-fx-border-radius: 5%;*/
     -fx-border-width: 2px ;
-    -fx-border-color: #91a7ff;
+    -fx-border-color: #f5f5ff;
 }
 
-.list-view:vertical .virtual-flow .clipped-container {
+.list-view:vertical .virtual-flow .clipped-container .sheet {
     -fx-background-color: red;
     -fx-border-radius: 5%;
     -fx-border-width: 2px ;

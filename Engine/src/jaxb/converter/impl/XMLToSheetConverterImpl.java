@@ -2,8 +2,6 @@ package jaxb.converter.impl;
 
 import component.cell.api.Cell;
 import component.cell.impl.CellImpl;
-import component.range.api.Range;
-import component.range.impl.RangeImpl;
 import component.sheet.api.Sheet;
 import component.sheet.impl.SheetImpl;
 import jakarta.xml.bind.JAXBContext;
@@ -31,7 +29,7 @@ public class XMLToSheetConverterImpl implements XMLToSheetConverter {
         stlSheet.getSTLRanges().getSTLRange().forEach(stlRange -> this.createNewRange(stlRange, sheet));
         stlSheet.getSTLCells().getSTLCell().forEach(stlCell -> this.createNewCell(stlCell, sheet));
         sheet.getRanges().forEach((rangeName, range) -> range.populateRange(sheet));
-        return sheet.updateSheet(sheet);
+        return sheet.updateSheet(sheet, true);
     }
     
     private void createNewRange(STLRange stlRange, SheetImpl sheet) {
@@ -44,7 +42,8 @@ public class XMLToSheetConverterImpl implements XMLToSheetConverter {
             String format = String.format("""
                     File contains Range exceeding Sheet layout.
                     Sheet layout: %d rows, %d columns
-                    Range: %s""", sheet.getLayout().getRow(), sheet.getLayout().getColumn(), rangeName);
+                    Range: %s %s""",
+                    sheet.getLayout().getRow(), sheet.getLayout().getColumn(), rangeName, boundaries);
             throw new IllegalArgumentException(format);
         }
         

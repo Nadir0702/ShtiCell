@@ -4,22 +4,22 @@ import component.cell.api.Cell;
 import component.range.api.Range;
 import component.sheet.api.ReadonlySheet;
 import component.sheet.api.Sheet;
+import javafx.scene.paint.Color;
 import logic.function.parser.FunctionParser;
 import logic.function.parser.OriginalValueParser;
 import logic.function.returnable.api.Returnable;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CellImpl implements Cell {
     private final ReadonlySheet sheet;
-    private final String cellId;
+    private String cellId;
     private String originalValue;
     private Returnable effectiveValue;
     private int version;
+    private SerializableColor backgroundColor;
+    private SerializableColor textColor;
     private final List<Cell> dependingOn;
     private final List<Cell> influencingOn;
 
@@ -27,9 +27,12 @@ public class CellImpl implements Cell {
         this.cellId = Character.toUpperCase(cellID.charAt(0)) + cellID.substring(1);
         this.originalValue = originalValue;
         this.version = version;
+        this.backgroundColor = new SerializableColor(Color.WHITE);
+        this.textColor = new SerializableColor(Color.BLACK);
         this.dependingOn = new ArrayList<>();
         this.influencingOn = new ArrayList<>();
         this.sheet = sheet;
+        
 
         this.getInfluencingCellsFromDummy();
         this.setDependencies();
@@ -99,15 +102,9 @@ public class CellImpl implements Cell {
         this.originalValue = value;
         
         this.dependingOn.forEach(cell -> cell.getInfluencedCells().remove(this));
-//        for(Cell cell : this.dependingOn){
-//            cell.getInfluencedCells().remove(this);
-//        }
-        
         this.dependingOn.clear();
         this.setDependencies();
         
-//        if (value.equals(this.originalValue)) {
-//        }
         this.version = newVersion;
     }
 
@@ -130,7 +127,17 @@ public class CellImpl implements Cell {
     public int getVersion() {
         return this.version;
     }
-
+    
+    @Override
+    public SerializableColor getBackgroundColor() {
+        return this.backgroundColor;
+    }
+    
+    @Override
+    public SerializableColor getTextColor() {
+        return this.textColor;
+    }
+    
     @Override
     public List<Cell> getDependentCells() {
         return this.dependingOn;
@@ -151,5 +158,34 @@ public class CellImpl implements Cell {
         Set<String> usedRanges = OriginalValueParser.SUM.extract(this.originalValue);
         usedRanges.addAll(OriginalValueParser.AVERAGE.extract(this.originalValue));
         return usedRanges;
+    }
+    
+    @Override
+    public void updateCellID(String newID) {
+        this.cellId = newID;
+    }
+    
+    @Override
+    public void setBackgroundColor(Color color) {
+        this.backgroundColor = new SerializableColor(color);
+    }
+    
+    @Override
+    public void setTextColor(Color color) {
+        this.textColor = new SerializableColor(color);
+        
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CellImpl cell = (CellImpl) o;
+        return version == cell.version && Objects.equals(sheet, cell.sheet) && Objects.equals(cellId, cell.cellId) && Objects.equals(originalValue, cell.originalValue) && Objects.equals(effectiveValue, cell.effectiveValue) && Objects.equals(backgroundColor, cell.backgroundColor) && Objects.equals(textColor, cell.textColor) && Objects.equals(dependingOn, cell.dependingOn) && Objects.equals(influencingOn, cell.influencingOn);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(sheet, cellId, originalValue, effectiveValue, version, backgroundColor, textColor, dependingOn, influencingOn);
     }
 }

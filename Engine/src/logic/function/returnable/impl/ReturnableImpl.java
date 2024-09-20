@@ -32,22 +32,17 @@ public class ReturnableImpl implements Returnable {
             throw new ClassCastException();
         }
     }
-
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         ReturnableImpl that = (ReturnableImpl) o;
-
-        if (cellType != that.cellType) return false;
-        return Objects.equals(value, that.value);
+        return Objects.equals(value, that.value) && cellType == that.cellType;
     }
-
+    
     @Override
     public int hashCode() {
-        int result = cellType != null ? cellType.hashCode() : 0;
-        result = 31 * result + (value != null ? value.hashCode() : 0);
-        return result;
+        return Objects.hash(value, cellType);
     }
 }

@@ -8,6 +8,7 @@ import component.sheet.api.Sheet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class RangeImpl implements Range {
     private String name;
@@ -101,5 +102,18 @@ public class RangeImpl implements Range {
     @Override
     public boolean isInUse() {
         return this.numOfUsages > 0;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RangeImpl range = (RangeImpl) o;
+        return numOfUsages == range.numOfUsages && Objects.equals(name, range.name) && Objects.equals(from, range.from) && Objects.equals(to, range.to) && Objects.equals(cells, range.cells);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, from, to, cells, numOfUsages);
     }
 }

@@ -22,9 +22,35 @@ public class SheetGridController {
     private GridModel gridModel;
     private MainViewController mainViewController;
     private DependenciesCellModel dependenciesCellModel = new CellModel();
+    private Button selectedColumn;
+    private Button selectedRow;
     private final List<Button> columnHeaders = new ArrayList<>();
     private final List<Button> rowHeaders = new ArrayList<>();
     private final Map<String, CellSubComponentController> cellsControllers = new HashMap<>();
+    
+    public void initialize() {
+        this.rowHeaders.forEach((button -> {
+            button.setOnAction(event -> {
+                this.mainViewController.setSelectedRow(button.getText());
+                if (this.selectedRow != null) {
+                    this.selectedRow.getStyleClass().remove("selected-row");
+                }
+                button.getStyleClass().add("selected-row");
+                this.selectedRow = button;
+            });
+        }));
+        
+        this.columnHeaders.forEach((button -> {
+            button.setOnAction(event -> {
+                this.mainViewController.setSelectedColumn(button.getText());
+                if (this.selectedColumn != null) {
+                    this.selectedColumn.getStyleClass().remove("selected-column");
+                }
+                button.getStyleClass().add("selected-column");
+                this.selectedColumn = button;
+            });
+        }));
+    }
     
     public void addColumnHeader(Button button) {
         this.columnHeaders.add(button);

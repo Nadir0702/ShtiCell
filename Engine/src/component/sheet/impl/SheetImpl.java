@@ -10,7 +10,6 @@ import jaxb.generated.STLSheet;
 import java.io.*;
 import java.util.*;
 
-
 public class SheetImpl implements Sheet {
     private final String sheetName;
     private final Layout layout;
@@ -18,7 +17,20 @@ public class SheetImpl implements Sheet {
     private final Map<String, Range> ranges;
     private int version;
     private int numOfCellsUpdated;
-
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SheetImpl sheet = (SheetImpl) o;
+        return version == sheet.version && numOfCellsUpdated == sheet.numOfCellsUpdated && Objects.equals(sheetName, sheet.sheetName) && Objects.equals(layout, sheet.layout) && Objects.equals(cells, sheet.cells) && Objects.equals(ranges, sheet.ranges);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(sheetName, layout, cells, ranges, version, numOfCellsUpdated);
+    }
+    
     public class Layout implements Serializable {
         private final static int MAX_NUM_OF_ROWS = 50;
         private final static int MAX_NUM_OF_COLUMNS = 20;
@@ -26,7 +38,20 @@ public class SheetImpl implements Sheet {
         private final int column;
         private final int rowHeight;
         private final int columnWidth;
-
+        
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Layout layout = (Layout) o;
+            return row == layout.row && column == layout.column && rowHeight == layout.rowHeight && columnWidth == layout.columnWidth;
+        }
+        
+        @Override
+        public int hashCode() {
+            return Objects.hash(row, column, rowHeight, columnWidth);
+        }
+        
         public Layout(int row, int column, int rowHeight, int columnWidth) {
             this.row = row;
             this.column = column;
@@ -101,14 +126,14 @@ public class SheetImpl implements Sheet {
     }
     
     @Override
-    public Sheet updateSheet(SheetImpl newSheetVersion) {
+    public Sheet updateSheet(SheetImpl newSheetVersion, boolean isOriginalValueChanged) {
         List<Cell> cellsThatHaveChanged =
                 TopologicalOrder.SORT.topologicalSort(newSheetVersion.getCells())
                         .stream()
                         .filter(Cell::calculateEffectiveValue)
                         .toList();
         
-        if (cellsThatHaveChanged.isEmpty()) {
+        if (cellsThatHaveChanged.isEmpty() && !isOriginalValueChanged) {
             return this;
         }
 

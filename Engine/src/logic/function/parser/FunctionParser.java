@@ -3,6 +3,7 @@ package logic.function.parser;
 import component.cell.api.CellType;
 import component.sheet.api.Sheet;
 import logic.function.Function;
+import logic.function.bool.*;
 import logic.function.math.*;
 import logic.function.string.Concat;
 import logic.function.string.Sub;
@@ -45,6 +46,158 @@ public enum FunctionParser {
             } catch (NumberFormatException e) {
                 return false;
             }
+        }
+    },
+    EQUAL{
+        @Override
+        public Function parse(List<String> arguments) {
+            if (arguments.size() != 2) {
+                throw new IllegalArgumentException("Invalid number of arguments for EQUAL function." +
+                        " Expected 2, but got " + arguments.size());
+            }
+            
+            Function firstArgument = parseFunction(arguments.getFirst());
+            Function secondArgument = parseFunction(arguments.getLast());
+            
+            return new Equal(firstArgument, secondArgument);
+        }
+    },
+    NOT{
+        @Override
+        public Function parse(List<String> arguments) {
+            if (arguments.size() != 1) {
+                throw new IllegalArgumentException("Invalid number of arguments for NOT function." +
+                        " Expected 1, but got " + arguments.size());
+            }
+            
+            Function argument = parseFunction(arguments.getFirst());
+            
+            CellType type = argument.getReturnType();
+            
+            if (!type.equals(CellType.BOOLEAN) && !type.equals(CellType.UNKNOWN)) {
+                throw new IllegalArgumentException("Invalid argument types for NOT function." +
+                        " Expected NUMERIC, but got " + argument.getReturnType());
+            }
+            
+            return new Not(argument);
+        }
+    },
+    BIGGER{
+        @Override
+        public Function parse(List<String> arguments) {
+            if (arguments.size() != 2) {
+                throw new IllegalArgumentException("Invalid number of arguments for BIGGER function." +
+                        " Expected 2, but got " + arguments.size());
+            }
+            
+            Function firstArgument = parseFunction(arguments.getFirst());
+            Function secondArgument = parseFunction(arguments.getLast());
+            
+            CellType firstArgType = firstArgument.getReturnType();
+            CellType secondArgType = secondArgument.getReturnType();
+            
+            if ((!firstArgType.equals(CellType.NUMERIC) && !firstArgType.equals(CellType.UNKNOWN)) ||
+                    (!secondArgType.equals(CellType.NUMERIC) && !secondArgType.equals(CellType.UNKNOWN))) {
+                throw new IllegalArgumentException("Invalid argument types for BIGGER function." +
+                        " Expected NUMERIC, but got " + firstArgument.getReturnType() +
+                        " and " + secondArgument.getReturnType());
+            }
+            
+            return new Bigger(firstArgument, secondArgument);
+        }
+    },
+    LESS{
+        @Override
+        public Function parse(List<String> arguments) {
+            if (arguments.size() != 2) {
+                throw new IllegalArgumentException("Invalid number of arguments for LESS function." +
+                        " Expected 2, but got " + arguments.size());
+            }
+            
+            Function firstArgument = parseFunction(arguments.getFirst());
+            Function secondArgument = parseFunction(arguments.getLast());
+            
+            CellType firstArgType = firstArgument.getReturnType();
+            CellType secondArgType = secondArgument.getReturnType();
+            
+            if ((!firstArgType.equals(CellType.NUMERIC) && !firstArgType.equals(CellType.UNKNOWN)) ||
+                    (!secondArgType.equals(CellType.NUMERIC) && !secondArgType.equals(CellType.UNKNOWN))) {
+                throw new IllegalArgumentException("Invalid argument types for LESS function." +
+                        " Expected NUMERIC, but got " + firstArgument.getReturnType() +
+                        " and " + secondArgument.getReturnType());
+            }
+            
+            return new Less(firstArgument, secondArgument);
+        }
+    },
+    OR{
+        @Override
+        public Function parse(List<String> arguments) {
+            if (arguments.size() != 2) {
+                throw new IllegalArgumentException("Invalid number of arguments for OR function." +
+                        " Expected 2, but got " + arguments.size());
+            }
+            
+            Function firstArgument = parseFunction(arguments.getFirst());
+            Function secondArgument = parseFunction(arguments.getLast());
+            
+            CellType firstArgType = firstArgument.getReturnType();
+            CellType secondArgType = secondArgument.getReturnType();
+            
+            if ((!firstArgType.equals(CellType.BOOLEAN) && !firstArgType.equals(CellType.UNKNOWN)) ||
+                    (!secondArgType.equals(CellType.BOOLEAN) && !secondArgType.equals(CellType.UNKNOWN))) {
+                throw new IllegalArgumentException("Invalid argument types for OR function." +
+                        " Expected BOOLEAN, but got " + firstArgument.getReturnType() +
+                        " and " + secondArgument.getReturnType());
+            }
+            
+            return new Or(firstArgument, secondArgument);
+        }
+    },
+    AND{
+        @Override
+        public Function parse(List<String> arguments) {
+            if (arguments.size() != 2) {
+                throw new IllegalArgumentException("Invalid number of arguments for AND function." +
+                        " Expected 2, but got " + arguments.size());
+            }
+            
+            Function firstArgument = parseFunction(arguments.getFirst());
+            Function secondArgument = parseFunction(arguments.getLast());
+            
+            CellType firstArgType = firstArgument.getReturnType();
+            CellType secondArgType = secondArgument.getReturnType();
+            
+            if ((!firstArgType.equals(CellType.BOOLEAN) && !firstArgType.equals(CellType.UNKNOWN)) ||
+                    (!secondArgType.equals(CellType.BOOLEAN) && !secondArgType.equals(CellType.UNKNOWN))) {
+                throw new IllegalArgumentException("Invalid argument types for AND function." +
+                        " Expected BOOLEAN, but got " + firstArgument.getReturnType() +
+                        " and " + secondArgument.getReturnType());
+            }
+            
+            return new And(firstArgument, secondArgument);
+        }
+    },
+    IF{
+        @Override
+        public Function parse(List<String> arguments) {
+            if (arguments.size() != 3) {
+                throw new IllegalArgumentException("Invalid number of arguments for IF function." +
+                        " Expected 3, but got " + arguments.size());
+            }
+            
+            Function firstArgument = parseFunction(arguments.getFirst());
+            Function secondArgument = parseFunction(arguments.get(1));
+            Function thirdArgument = parseFunction(arguments.getLast());
+            
+            CellType firstArgType = firstArgument.getReturnType();
+            
+            if ((!firstArgType.equals(CellType.BOOLEAN) && !firstArgType.equals(CellType.UNKNOWN))) {
+                throw new IllegalArgumentException("Invalid first argument type for IF function." +
+                        " Expected BOOLEAN, but got " + firstArgument.getReturnType());
+            }
+            
+            return new If(firstArgument, secondArgument, thirdArgument);
         }
     },
     ABS{
@@ -151,6 +304,30 @@ public enum FunctionParser {
             return new Mod(firstArgument, secondArgument);
         }
     },
+    PERCENT{
+        @Override
+        public Function parse(List<String> arguments) {
+            if (arguments.size() != 2) {
+                throw new IllegalArgumentException("Invalid number of arguments for PERCENT function." +
+                        " Expected 2, but got " + arguments.size());
+            }
+            
+            Function firstArgument = parseFunction(arguments.getFirst());
+            Function secondArgument = parseFunction(arguments.getLast());
+            
+            CellType firstArgType = firstArgument.getReturnType();
+            CellType secondArgType = secondArgument.getReturnType();
+            
+            if ((!firstArgType.equals(CellType.NUMERIC) && !firstArgType.equals(CellType.UNKNOWN)) ||
+                    (!secondArgType.equals(CellType.NUMERIC) && !secondArgType.equals(CellType.UNKNOWN))) {
+                throw new IllegalArgumentException("Invalid argument types for PERCENT function." +
+                        " Expected NUMERIC, but got " + firstArgument.getReturnType() +
+                        " and " + secondArgument.getReturnType());
+            }
+            
+            return new Percent(firstArgument, secondArgument);
+        }
+    },
     PLUS{
         @Override
         public Function parse(List<String> arguments) {
@@ -249,12 +426,12 @@ public enum FunctionParser {
             CellType firstArgType = firstArgument.getReturnType();
             CellType secondArgType = secondArgument.getReturnType();
 
-            if ((!firstArgType.equals(CellType.STRING) && !firstArgType.equals(CellType.UNKNOWN)) ||
-                    (!secondArgType.equals(CellType.STRING) && !secondArgType.equals(CellType.UNKNOWN))) {
-                throw new IllegalArgumentException("Invalid argument types for CONCAT function." +
-                        " Expected STRING, but got " + firstArgument.getReturnType() +
-                        " and " + secondArgument.getReturnType());
-            }
+//            if ((!firstArgType.equals(CellType.STRING) && !firstArgType.equals(CellType.UNKNOWN)) ||
+//                    (!secondArgType.equals(CellType.STRING) && !secondArgType.equals(CellType.UNKNOWN))) {
+//                throw new IllegalArgumentException("Invalid argument types for CONCAT function." +
+//                        " Expected STRING, but got " + firstArgument.getReturnType() +
+//                        " and " + secondArgument.getReturnType());
+//            }
 
             return new Concat(firstArgument, secondArgument);
         }
