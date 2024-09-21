@@ -37,16 +37,16 @@ public class RangesController {
     private StringProperty deleteRangeErrorProperty;
     
     public RangesController() {
-        isFileLoadedProperty = new SimpleBooleanProperty(true);
-        isSelectedRangeProperty = new SimpleBooleanProperty(false);
-        saveRangeErrorProperty = new SimpleStringProperty("");
-        deleteRangeErrorProperty = new SimpleStringProperty("");
+        this.isFileLoadedProperty = new SimpleBooleanProperty(true);
+        this.isSelectedRangeProperty = new SimpleBooleanProperty(false);
+        this.saveRangeErrorProperty = new SimpleStringProperty("");
+        this.deleteRangeErrorProperty = new SimpleStringProperty("");
     }
     
     @FXML
     private void initialize() {
-        this.newRangeErrorLabel.textProperty().bind(saveRangeErrorProperty);
-        this.deleteRangeErrorLabel.textProperty().bind(deleteRangeErrorProperty);
+        this.newRangeErrorLabel.textProperty().bind(this.saveRangeErrorProperty);
+        this.deleteRangeErrorLabel.textProperty().bind(this.deleteRangeErrorProperty);
         this.deleteRangeButton.disableProperty().bind(this.rangesListView.getSelectionModel().selectedItemProperty().isNull());
         
         this.saveRangeButton.disableProperty().bind(
@@ -109,6 +109,7 @@ public class RangesController {
         if (newRange != null) {
             this.saveRangeErrorProperty.set("");
             this.rangesModel.rangesProperty().add(newRange);
+            this.resetController();
         }
     }
     
@@ -127,5 +128,11 @@ public class RangesController {
     
     public void updateDeleteErrorLabel(String message) {
         this.deleteRangeErrorProperty.set(message);
+    }
+    
+    public void resetController() {
+        this.rangeNameTextField.textProperty().set("");
+        this.topRightBoundaryTextField.textProperty().set("");
+        this.bottomLeftBoundaryTextField.textProperty().set("");
     }
 }

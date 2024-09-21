@@ -29,7 +29,7 @@ public class ReturnableImpl implements Returnable {
         if (cellType.isAssignableFrom(type)) {
             return type.cast(this.value);
         } else {
-            throw new ClassCastException();
+            throw new ClassCastException("Cannot convert to " + type);
         }
     }
     

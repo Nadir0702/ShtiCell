@@ -125,6 +125,9 @@ public class MainViewController {
             
             this.fileNotLoadedProperty.set(false);
             this.actionLineController.resetCellModel();
+            this.rangesController.resetController();
+            this.customizationsController.resetController();
+            this.commandsController.resetController();
             this.topSubComponentController.setSheetNameAndVersion(sheetDTO.getSheetName(), sheetDTO.getVersion());
             
         } catch (RuntimeException | IOException e) {
@@ -169,26 +172,14 @@ public class MainViewController {
     
     public void loadSheetVersion(int version) {
         SheetDTO sheetDTO = this.engine.getSheetVersionAsDTO(version);
-        GridBuilder gridBuilder = new GridBuilder(
-                sheetDTO.getLayout().getRow(),
-                sheetDTO.getLayout().getColumn(),
-                sheetDTO.getLayout().getRowHeight(),
-                sheetDTO.getLayout().getColumnWidth());
-        
-        this.openGridPopup(gridBuilder, version, sheetDTO.getSheetName());
-        SheetGridController gridPopupController = gridBuilder.getSheetGridController();
-        gridPopupController.initializeGridModel(sheetDTO.getCells());
-        
-        gridPopupController.getCellsControllers().forEach((cellID, cellController) -> {
-            cellController.addOldVersionStyleClass();
-        });
+        createReadonlyGrid(sheetDTO, " - version " + version);
     }
     
-    public void openGridPopup(GridBuilder gridBuilder, int version, String sheetName) {
+    public void openGridPopup(GridBuilder gridBuilder, String title, String sheetName) {
         try {
             // Create a new Stage (pop-up window)
             Stage popupStage = new Stage();
-            popupStage.setTitle(sheetName + " - version " + version);
+            popupStage.setTitle(sheetName + title);
             
             ScrollPane popupGrid = gridBuilder.build();
             popupGrid.getStyleClass().add("grid-popup");
@@ -277,15 +268,28 @@ public class MainViewController {
         this.engine.updateCellStyle(cellID, backgroundColor, textColor);
     }
     
-    public void sortRange(String rangeToSort, List<String> columnsToSortBy) {
-        SheetDTO sortedSheet = this.engine.sortRangeOfCells(rangeToSort, columnsToSortBy);
+    public boolean sortRange(String rangeToSort, List<String> columnsToSortBy) {
+        try {
+            SheetDTO sortedSheet = this.engine.sortRangeOfCells(rangeToSort, columnsToSortBy);
+            createReadonlyGrid(sortedSheet, " - Sorted");
+            return true;
+        } catch (ClassCastException e) {
+            this.commandsController.updateSortErrorLabel("Cannot sort by non-numeric column");
+            return false;
+        } catch (RuntimeException e) {
+            this.commandsController.updateSortErrorLabel(e.getMessage());
+            return false;
+        }
+    }
+    
+    private void createReadonlyGrid(SheetDTO sortedSheet, String popupName) {
         GridBuilder gridBuilder = new GridBuilder(
                 sortedSheet.getLayout().getRow(),
                 sortedSheet.getLayout().getColumn(),
                 sortedSheet.getLayout().getRowHeight(),
                 sortedSheet.getLayout().getColumnWidth());
         
-        this.openGridPopup(gridBuilder, 10, sortedSheet.getSheetName());
+        this.openGridPopup(gridBuilder, popupName, sortedSheet.getSheetName());
         SheetGridController gridPopupController = gridBuilder.getSheetGridController();
         gridPopupController.initializeGridModel(sortedSheet.getCells());
         

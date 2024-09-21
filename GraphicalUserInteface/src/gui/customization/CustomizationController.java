@@ -94,14 +94,18 @@ public class CustomizationController {
         
         this.columnWidthSpinner.setValueFactory(columnValueFactory);
         this.columnWidthSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
-            int columnToUpdate = this.getColumnAsInt();
-            this.mainViewController.updateColumnWidth(newValue, columnToUpdate);
+            if (!this.columnNameProperty.get().isEmpty()) {
+                int columnToUpdate = this.getColumnAsInt();
+                this.mainViewController.updateColumnWidth(newValue, columnToUpdate);
+            }
         });
         
         this.rowHeightSpinner.setValueFactory(rowValueFactory);
         this.rowHeightSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
-            int rowToUpdate = this.getRowAsInt();
-            this.mainViewController.updateRowHeight(newValue, rowToUpdate);
+            if (!this.rowIndexLabel.textProperty().get().equals("Row ")) {
+                int rowToUpdate = this.getRowAsInt();
+                this.mainViewController.updateRowHeight(newValue, rowToUpdate);
+            }
         });
     }
     
@@ -173,5 +177,15 @@ public class CustomizationController {
     
     private int getRowAsInt(){
         return Integer.parseInt(this.rowIndexLabel.textProperty().get().substring(4));
+    }
+    
+    public void resetController() {
+        this.columnNameProperty.set("");
+        this.rowIndexLabel.textProperty().set("Row ");
+        this.selectedCellLabel.textProperty().set("");
+        this.backgroundColorPicker.setValue(Color.WHITE);
+        this.textColorPicker.setValue(Color.BLACK);
+        this.columnWidthSpinner.getValueFactory().setValue(0);
+        this.rowHeightSpinner.getValueFactory().setValue(0);
     }
 }

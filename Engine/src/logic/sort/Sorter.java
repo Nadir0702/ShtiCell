@@ -8,16 +8,35 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 public class Sorter {
-    private Range rangeToSort;
-    private List<String> columnsToSortBy;
-    private int topRow;
-    private int bottomRow;
+    private final String leftColumn;
+    private final String rightColumn;
+    private final Range rangeToSort;
+    private final List<String> columnsToSortBy;
+    private final int topRow;
+    private final int bottomRow;
     
     public Sorter(Range rangeToSort, List<String> columnsToSortBy) {
         this.rangeToSort = rangeToSort;
         this.columnsToSortBy = columnsToSortBy;
         this.bottomRow = Integer.parseInt(rangeToSort.getTo().getCellId().substring(1));
         this.topRow = Integer.parseInt(rangeToSort.getFrom().getCellId().substring(1));
+        this.leftColumn = this.rangeToSort.getFrom().getCellId().substring(0,1);
+        this.rightColumn = this.rangeToSort.getTo().getCellId().substring(0,1);
+        
+        if (columnsToSortBy.isEmpty()) {
+            throw new IllegalArgumentException("Cannot sort without columns");
+        }
+        
+        this.columnsToSortBy.forEach(column -> {
+            try {
+                if (column.isBlank()) {
+                    throw new IllegalArgumentException("Cannot sort by blank column");
+                }
+                Integer.parseInt(column);
+                throw new IllegalArgumentException("Expected Column between " + this.leftColumn +
+                        " and " + this.rightColumn + " but found " + column);
+            } catch (NumberFormatException ignored) {}
+        });
     }
     
     public Range sort() {
@@ -131,17 +150,33 @@ public class Sorter {
     }
     
     private List<Cell> getRowListFromRange(int rowIndex) {
-        return this.rangeToSort.getRangeCells()
+        List<Cell> row = this.rangeToSort.getRangeCells()
                 .stream()
                 .filter((cell -> cell.getCellId().contains(String.valueOf(rowIndex))))
                 .toList();
+        
+        if (row.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Expected Column between " + this.topRow + " and "
+                            + this.bottomRow + " but found " + rowIndex);
+        }
+        
+        return row;
     }
     
     private List<Cell> getColumnListFromRange(int ColIndex) {
-        return this.rangeToSort.getRangeCells()
+        List<Cell> column = this.rangeToSort.getRangeCells()
                 .stream()
-                .filter((cell -> cell.getCellId().contains(columnsToSortBy.get(ColIndex))))
+                .filter((cell -> cell.getCellId().contains(this.columnsToSortBy.get(ColIndex))))
                 .toList();
+        
+        if (column.isEmpty()) {
+            throw new IllegalArgumentException(
+                            "Expected Column between " + this.leftColumn + " and "
+                            + this.rightColumn + " but found " + this.columnsToSortBy.get(ColIndex));
+        }
+        
+        return column;
     }
 }
 

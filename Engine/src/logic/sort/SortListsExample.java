@@ -1,6 +1,7 @@
 package logic.sort;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -11,7 +12,7 @@ public class SortListsExample {
     public static void main(String[] args) {
         // Example: List of lists of MyObject
         List<List<MyObject>> listOfLists = new ArrayList<>();
-        
+        System.out.println(Arrays.stream("A;B;C;D".split(";")).toList());
         // Populate lists with MyObject
         List<MyObject> list1 = new ArrayList<>(List.of(new MyObject(3), new MyObject(3),new MyObject(3), new MyObject(2)));
         List<MyObject> list2 = new ArrayList<>(List.of(new MyObject(3), new MyObject(3), new MyObject(1), new MyObject(5)));
