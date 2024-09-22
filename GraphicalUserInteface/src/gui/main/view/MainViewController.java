@@ -1,9 +1,7 @@
 package gui.main.view;
 
-import dto.CellDTO;
-import dto.RangeDTO;
-import dto.RangesDTO;
-import dto.SheetDTO;
+import component.cell.api.CellType;
+import dto.*;
 import gui.Main;
 import gui.action.line.ActionLineController;
 import gui.cell.CellSubComponentController;
@@ -26,9 +24,13 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import logic.Engine;
 import logic.EngineImpl;
+import logic.function.returnable.api.Returnable;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -171,7 +173,7 @@ public class MainViewController {
     }
     
     public void loadSheetVersion(int version) {
-        SheetDTO sheetDTO = this.engine.getSheetVersionAsDTO(version);
+        ColoredSheetDTO sheetDTO = this.engine.getSheetVersionAsDTO(version);
         createReadonlyGrid(sheetDTO, " - version " + version);
     }
     
@@ -270,7 +272,7 @@ public class MainViewController {
     
     public boolean sortRange(String rangeToSort, List<String> columnsToSortBy) {
         try {
-            SheetDTO sortedSheet = this.engine.sortRangeOfCells(rangeToSort, columnsToSortBy);
+            ColoredSheetDTO sortedSheet = this.engine.sortRangeOfCells(rangeToSort, columnsToSortBy);
             createReadonlyGrid(sortedSheet, " - Sorted");
             return true;
         } catch (ClassCastException e) {
@@ -282,19 +284,77 @@ public class MainViewController {
         }
     }
     
-    private void createReadonlyGrid(SheetDTO sortedSheet, String popupName) {
-        GridBuilder gridBuilder = new GridBuilder(
-                sortedSheet.getLayout().getRow(),
-                sortedSheet.getLayout().getColumn(),
-                sortedSheet.getLayout().getRowHeight(),
-                sortedSheet.getLayout().getColumnWidth());
+    public boolean filterRange(String rangeToFilterBy, String columnToFilterBy, List<Integer> itemsToFilterBy) {
+        try {
+            ColoredSheetDTO filteredSheet = this.engine.filterRangeOfCells(rangeToFilterBy, columnToFilterBy, itemsToFilterBy);
+            createReadonlyGrid(filteredSheet, " - Filtered");
+            return true;
+        } catch (RuntimeException e) {
+            this.commandsController.updateFilterErrorLabel(e.getMessage());
+            return false;
+        }
         
-        this.openGridPopup(gridBuilder, popupName, sortedSheet.getSheetName());
+    }
+    
+    private void createReadonlyGrid(ColoredSheetDTO sheetToShow, String popupName) {
+        GridBuilder gridBuilder = new GridBuilder(
+                sheetToShow.getLayout().getRow(),
+                sheetToShow.getLayout().getColumn(),
+                sheetToShow.getLayout().getRowHeight(),
+                sheetToShow.getLayout().getColumnWidth());
+        
+        this.openGridPopup(gridBuilder, popupName, sheetToShow.getSheetName());
         SheetGridController gridPopupController = gridBuilder.getSheetGridController();
-        gridPopupController.initializeGridModel(sortedSheet.getCells());
+        gridPopupController.initializePopupGridModel(sheetToShow.getCells());
         
         gridPopupController.getCellsControllers().forEach((cellID, cellController) -> {
             cellController.addOldVersionStyleClass();
+            
+            ColoredCellDTO currentCell = sheetToShow.getCells().get(cellID);
+            if (currentCell != null) {
+                cellController.setCellStyle(currentCell.getBackgroundColor(), currentCell.getTextColor());
+            }
+            
         });
+    }
+    
+    public List<String> getColumnsOfRange(String rangeToFilter) {
+        try {
+            return this.engine.getColumnsListOfRange(rangeToFilter);
+        } catch (RuntimeException e) {
+            this.commandsController.updateFilterErrorLabel(e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+    
+    public List<Returnable> getUniqueItems(String columnToFilterBy, String rangeToFilter) {
+        return this.engine.getUniqueItemsToFilterBy(columnToFilterBy, rangeToFilter);
+    }
+    
+    public static String effectiveValueFormatter(Returnable effectiveValue){
+        CellType type = effectiveValue.getCellType();
+        String valueToPrint = effectiveValue.getValue().toString();
+        if (type.equals(CellType.BOOLEAN)) {
+            valueToPrint = booleanFormatter(valueToPrint);
+        } else if (type.equals(CellType.NUMERIC)) {
+            valueToPrint = numberFormatter(valueToPrint);
+        }
+        
+        return valueToPrint;
+    }
+    
+    private static String numberFormatter(String valueToPrint) {
+        try{
+            double  number = Double.parseDouble(valueToPrint);
+            DecimalFormat formatter = new DecimalFormat("#,###.##");
+            formatter.setRoundingMode(RoundingMode.DOWN);
+            return formatter.format(number);
+        } catch (Exception ignored) {
+            return valueToPrint;
+        }
+    }
+    
+    public static String booleanFormatter(String valueToPrint) {
+        return valueToPrint.toUpperCase();
     }
 }

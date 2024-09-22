@@ -186,6 +186,6 @@ public class CellImpl implements Cell {
     
     @Override
     public int hashCode() {
-        return Objects.hash(sheet, cellId, originalValue, effectiveValue, version, backgroundColor, textColor, dependingOn, influencingOn);
+        return Objects.hash(cellId, originalValue, effectiveValue, version, backgroundColor, textColor);
     }
 }

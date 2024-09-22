@@ -2,7 +2,6 @@ package gui.top;
 
 import gui.action.line.ActionLineController;
 import gui.main.view.MainViewController;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
@@ -16,7 +15,7 @@ import java.io.File;
 public class TopSubComponentController {
     
     @FXML private ActionLineController actionLineController;
-    @FXML private MenuButton currentVersionMenuButton;
+    @FXML private ChoiceBox<String> versionsChoiceBox;
     @FXML private TextField filePathTextField;
     @FXML private TitledPane sheetNameTitledPane;
     @FXML private MenuButton themeMenuButton;
@@ -37,11 +36,30 @@ public class TopSubComponentController {
         if (this.actionLineController != null) {
             this.actionLineController.setTopSubComponentController(this);
         }
+        this.versionsChoiceBox.getItems().add("Latest Version");
+        this.versionsChoiceBox.getSelectionModel().select("Latest Version");
+        this.sheetVersionProperty.addListener((observable, oldValue, newValue) -> {
+            this.versionsChoiceBox.getItems().add("Latest Version (" + this.sheetVersionProperty.get() + ")");
+            this.versionsChoiceBox.getSelectionModel().select("Latest Version (" + this.sheetVersionProperty.get() + ")");
+        });
+        
+        this.versionsChoiceBox.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                this.versionsChoiceBox.getItems().add("Latest Version (" + this.sheetVersionProperty.get() + ")");
+                this.versionsChoiceBox.getSelectionModel().select("Latest Version (" + this.sheetVersionProperty.get() + ")");
+            }
+        });
         
         this.filePathTextField.textProperty().bind(this.filePathProperty);
         this.sheetNameTitledPane.textProperty().bind(this.sheetNameProperty);
-        this.currentVersionMenuButton.textProperty().bind(
-                Bindings.concat("Version ", this.sheetVersionProperty));
+        this.versionsChoiceBox.getSelectionModel().selectedItemProperty()
+                .addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.contains("Latest")) {
+                this.mainViewController.loadSheetVersion(
+                        Integer.parseInt(this.versionsChoiceBox.getValue().substring(8)));
+            }
+        });
+        
     }
     
     @FXML
@@ -61,22 +79,15 @@ public class TopSubComponentController {
     
     @FXML
     public void onVersionMenuClicked(MouseEvent mouseEvent) {
+        mouseEvent.consume();
         int numOfVersions = this.mainViewController.getSheetVersions();
-        int numOfMenuItems = this.currentVersionMenuButton.getItems().size();
         
-        if (numOfVersions > numOfMenuItems) {
-            for (int i = numOfMenuItems; i < numOfVersions; i++) {
-                MenuItem menuItem = new MenuItem("Version " + (i + 1));
-                menuItem.setOnAction(this::onVersionChanged);
-                this.currentVersionMenuButton.getItems().add(menuItem);
-            }
+        this.versionsChoiceBox.getItems().clear();
+        for (int i = 1; i <= numOfVersions; i++) {
+            this.versionsChoiceBox.getItems().add("version " + i);
         }
-    }
-    
-    private void onVersionChanged(ActionEvent mouseEvent) {
-        MenuItem menuItem = (MenuItem) mouseEvent.getSource();
-        this.mainViewController.loadSheetVersion(
-                Integer.parseInt(menuItem.getText().substring("Version ".length())));
+        
+        this.versionsChoiceBox.show();
     }
     
     @FXML
@@ -95,7 +106,7 @@ public class TopSubComponentController {
     public void setSheetNameAndVersion(String sheetName, int sheetVersion) {
         this.sheetNameProperty.set(sheetName);
         this.sheetVersionProperty.set(String.valueOf(sheetVersion));
-        this.currentVersionMenuButton.getItems().clear();
+        this.versionsChoiceBox.getItems().clear();
     }
     
     public void updateSheetVersion(int version) {

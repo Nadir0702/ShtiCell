@@ -2,6 +2,7 @@ package gui.grid;
 
 import component.cell.api.CellType;
 import dto.CellDTO;
+import dto.ColoredCellDTO;
 import dto.RangeDTO;
 import gui.cell.CellModel;
 import gui.cell.CellSubComponentController;
@@ -17,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static gui.main.view.MainViewController.effectiveValueFormatter;
+
 public class SheetGridController {
 
     private GridModel gridModel;
@@ -31,23 +34,27 @@ public class SheetGridController {
     public void initialize() {
         this.rowHeaders.forEach((button -> {
             button.setOnAction(event -> {
-                this.mainViewController.setSelectedRow(button.getText());
-                if (this.selectedRow != null) {
-                    this.selectedRow.getStyleClass().remove("selected-row");
+                if (this.mainViewController != null) {
+                    this.mainViewController.setSelectedRow(button.getText());
+                    if (this.selectedRow != null) {
+                        this.selectedRow.getStyleClass().remove("selected-row");
+                    }
+                    button.getStyleClass().add("selected-row");
+                    this.selectedRow = button;
                 }
-                button.getStyleClass().add("selected-row");
-                this.selectedRow = button;
             });
         }));
         
         this.columnHeaders.forEach((button -> {
             button.setOnAction(event -> {
-                this.mainViewController.setSelectedColumn(button.getText());
-                if (this.selectedColumn != null) {
-                    this.selectedColumn.getStyleClass().remove("selected-column");
+                if (this.mainViewController != null) {
+                    this.mainViewController.setSelectedColumn(button.getText());
+                    if (this.selectedColumn != null) {
+                        this.selectedColumn.getStyleClass().remove("selected-column");
+                    }
+                    button.getStyleClass().add("selected-column");
+                    this.selectedColumn = button;
                 }
-                button.getStyleClass().add("selected-column");
-                this.selectedColumn = button;
             });
         }));
     }
@@ -83,33 +90,16 @@ public class SheetGridController {
         });
     }
     
-    private String effectiveValueFormatter(Returnable effectiveValue){
-        CellType type = effectiveValue.getCellType();
-        String valueToPrint = effectiveValue.getValue().toString();
-        if (type.equals(CellType.BOOLEAN)) {
-            valueToPrint = booleanFormatter(valueToPrint);
-        } else if (type.equals(CellType.NUMERIC)) {
-            valueToPrint = numberFormatter(valueToPrint);
-        }
-        
-        return valueToPrint;
+    public void initializePopupGridModel(Map<String, ColoredCellDTO> cells) {
+        this.gridModel = new GridModel(cellsControllers);
+        this.updatePopupGridModel(cells);
     }
     
-    private String numberFormatter(String valueToPrint) {
-        try{
-            double  number = Double.parseDouble(valueToPrint);
-            DecimalFormat formatter = new DecimalFormat("#,###.##");
-            formatter.setRoundingMode(RoundingMode.DOWN);
-            return formatter.format(number);
-        } catch (Exception ignored) {
-            return valueToPrint;
-        }
+    public void updatePopupGridModel(Map<String, ColoredCellDTO> cells) {
+        cells.forEach((cellID, cell) -> {
+            this.gridModel.getCellValueProperty(cellID).set(effectiveValueFormatter(cell.getEffectiveValue()));
+        });
     }
-    
-    public String booleanFormatter(String valueToPrint) {
-        return valueToPrint.toUpperCase();
-    }
-    
     
     public void showSelectedCellAndDependencies(CellDTO cellDTO) {
         String previousSelected = this.dependenciesCellModel.getSelectedCellProperty().get();

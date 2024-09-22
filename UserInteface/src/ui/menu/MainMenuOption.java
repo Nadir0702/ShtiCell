@@ -144,7 +144,7 @@ public enum MainMenuOption {
                             versionChangesDTO.getVersionChanges().size();
                     String version = ConsoleUtils.getInputFromUser(messageToUser, errorMessage, ArchiveImpl::isValidVersion);
                     if (!version.equalsIgnoreCase("Q")){
-                        ConsoleUtils.printSheet(engine.getSheetVersionAsDTO(Integer.parseInt(version)));
+//                        ConsoleUtils.printSheet(engine.getSheetVersionAsDTO(Integer.parseInt(version)));
                     }
                 } catch (RuntimeException e) {
                     System.out.println("Error Accessing Archive:\n" + e.getMessage() + "\n");

@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import static logic.filter.Filter.getCells;
+
 public class Sorter {
     private final String leftColumn;
     private final String rightColumn;
@@ -150,18 +152,7 @@ public class Sorter {
     }
     
     private List<Cell> getRowListFromRange(int rowIndex) {
-        List<Cell> row = this.rangeToSort.getRangeCells()
-                .stream()
-                .filter((cell -> cell.getCellId().contains(String.valueOf(rowIndex))))
-                .toList();
-        
-        if (row.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Expected Column between " + this.topRow + " and "
-                            + this.bottomRow + " but found " + rowIndex);
-        }
-        
-        return row;
+        return getCells(rowIndex, this.rangeToSort, this.topRow, this.bottomRow);
     }
     
     private List<Cell> getColumnListFromRange(int ColIndex) {

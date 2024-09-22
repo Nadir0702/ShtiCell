@@ -107,9 +107,8 @@ public class RangesController {
                 this.bottomLeftBoundaryTextField.getText());
         
         if (newRange != null) {
-            this.saveRangeErrorProperty.set("");
             this.rangesModel.rangesProperty().add(newRange);
-            this.resetController();
+            this.clearNewRangeFields();
         }
     }
     
@@ -131,8 +130,14 @@ public class RangesController {
     }
     
     public void resetController() {
+        this.clearNewRangeFields();
+        this.deleteRangeErrorProperty.set("");
+    }
+    
+    public void clearNewRangeFields() {
         this.rangeNameTextField.textProperty().set("");
         this.topRightBoundaryTextField.textProperty().set("");
         this.bottomLeftBoundaryTextField.textProperty().set("");
+        this.saveRangeErrorProperty.set("");
     }
 }

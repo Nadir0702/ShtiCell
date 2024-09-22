@@ -9,6 +9,7 @@ import component.sheet.api.Sheet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 public class RangeImpl implements Range {
     private String name;
@@ -102,6 +103,16 @@ public class RangeImpl implements Range {
     @Override
     public boolean isInUse() {
         return this.numOfUsages > 0;
+    }
+    
+    @Override
+    public List<String> getColumnsListOfRange() {
+        char leftColumn = this.getFrom().getCellId().substring(0,1).charAt(0);
+        char rightColumn = this.getTo().getCellId().substring(0,1).charAt(0);
+        
+        return IntStream.rangeClosed(leftColumn, rightColumn) // from 'b' to 'f'
+                .mapToObj(c -> String.valueOf((char) c)) // convert int to string
+                .toList();
     }
     
     @Override

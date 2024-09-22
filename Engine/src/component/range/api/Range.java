@@ -15,4 +15,5 @@ public interface Range extends Serializable {
     void addUsage();
     void reduceUsage();
     boolean isInUse();
+    List<String> getColumnsListOfRange();
 }

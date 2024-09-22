@@ -13,15 +13,17 @@ import jakarta.xml.bind.JAXBException;
 import javafx.scene.paint.Color;
 import jaxb.converter.api.XMLToSheetConverter;
 import jaxb.converter.impl.XMLToSheetConverterImpl;
+import logic.filter.Filter;
+import logic.function.returnable.api.Returnable;
 import logic.sort.Sorter;
 
 import java.io.FileNotFoundException;
-import java.util.List;
+import java.util.*;
 
 public class EngineImpl implements Engine{
     private Sheet sheet = null;
     private Archive archive = null;
-
+    
     @Override
     public void loadData(String path) {
         try {
@@ -85,8 +87,8 @@ public class EngineImpl implements Engine{
     }
 
     @Override
-    public SheetDTO getSheetVersionAsDTO(int version) {
-        return new SheetDTO(this.archive.retrieveVersion(version));
+    public ColoredSheetDTO getSheetVersionAsDTO(int version) {
+        return new ColoredSheetDTO(this.archive.retrieveVersion(version));
     }
 
     @Override
@@ -133,12 +135,54 @@ public class EngineImpl implements Engine{
     }
     
     @Override
-    public SheetDTO sortRangeOfCells(String range, List<String> columnsToSortBy) {
+    public ColoredSheetDTO sortRangeOfCells(String range, List<String> columnsToSortBy) {
         Sheet sortedSheet = this.sheet.copySheet();
         Sorter sorter = new Sorter(new RangeImpl("sort", range, sortedSheet), columnsToSortBy);
         
         sorter.sort().getRangeCells().forEach(cell -> sortedSheet.getCells().put(cell.getCellId(), cell));
         
-        return new SheetDTO(sortedSheet);
+        return new ColoredSheetDTO(sortedSheet);
+    }
+    
+    @Override
+    public List<String> getColumnsListOfRange(String range) {
+        Range rangeToFilter = new RangeImpl("range of columns", range, this.sheet.copySheet());
+        
+        return rangeToFilter.getColumnsListOfRange();
+    }
+    
+    @Override
+    public List<Returnable> getUniqueItemsToFilterBy(String column, String rangeName) {
+        Range range = new RangeImpl("range of unique items", rangeName, this.sheet.copySheet());
+        
+        return this.getUniqueItemsInColumn(column, range);
+    }
+    
+    private List<Returnable> getUniqueItemsInColumn(String column, Range range) {
+        List<Cell> itemsList = range.getRangeCells()
+                .stream()
+                .filter(cell -> cell.getCellId().contains(column))
+                .toList();
+        
+        Set<Returnable> itemsSet = new LinkedHashSet<>();
+        itemsList.forEach(cell -> itemsSet.add(cell.getEffectiveValue()));
+        
+        return new ArrayList<>(itemsSet);
+    }
+    
+    @Override
+    public ColoredSheetDTO filterRangeOfCells(String rangeToFilterBy, String columnToFilterBy, List<Integer> itemsToFilterBy) {
+        Sheet filteredSheet = this.sheet.copySheet();
+        Range rangeToFilter = new RangeImpl("range to filter", rangeToFilterBy, filteredSheet);
+        rangeToFilter.getRangeCells().forEach(cell -> filteredSheet.getCells().remove(cell.getCellId()));
+        Filter filter = new Filter(rangeToFilter);
+        List<Returnable> uniqueItemsList = this.getUniqueItemsInColumn(columnToFilterBy, rangeToFilter);
+        List<Returnable> filteredItemsList = new ArrayList<>();
+        for (int itemToFilterIndex : itemsToFilterBy) {
+            filteredItemsList.add(uniqueItemsList.get(itemToFilterIndex));
+        }
+        filter.filter(columnToFilterBy,filteredItemsList)
+                .getRangeCells().forEach(cell -> filteredSheet.getCells().put(cell.getCellId(), cell));
+        return new ColoredSheetDTO(filteredSheet);
     }
 }
