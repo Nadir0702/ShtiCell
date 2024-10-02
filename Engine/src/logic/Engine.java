@@ -4,6 +4,7 @@ import dto.*;
 import javafx.scene.paint.Color;
 import logic.function.returnable.api.Returnable;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -25,4 +26,6 @@ public interface Engine {
     ColoredSheetDTO filterRangeOfCells(String rangeToFilterBy, String columnToFilterBy, List<Integer> itemsToFilterBy);
     List<String> getColumnsListOfRange(String rangeToFilter);
     List<Returnable> getUniqueItemsToFilterBy(String columnToFilterBy, String rangeToFilter);
+
+    LinkedHashMap<Returnable, LinkedHashMap<Returnable, Returnable>> getGraphFromRange(String rangeToBuildGraphFrom);
 }

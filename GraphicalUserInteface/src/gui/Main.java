@@ -15,7 +15,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader();
-        URL url = getClass().getResource("main/view/MainAppView.fxml");
+        URL url = getClass().getResource("/gui/main/view/MainAppView.fxml");
         loader.setLocation(url);
         BorderPane root = loader.load(url.openStream());
         MainViewController controller = loader.getController();

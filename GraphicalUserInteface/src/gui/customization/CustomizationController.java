@@ -23,7 +23,7 @@ public class CustomizationController {
     @FXML private Label columnIndexLabel;
     @FXML private Label rowIndexLabel;
     @FXML private Label selectedCellLabel;
-    
+
     private MainViewController mainViewController;
     private BooleanProperty isFileLoadedProperty;
     private IntegerProperty columnWidthProperty;
@@ -188,4 +188,5 @@ public class CustomizationController {
         this.columnWidthSpinner.getValueFactory().setValue(0);
         this.rowHeightSpinner.getValueFactory().setValue(0);
     }
+
 }

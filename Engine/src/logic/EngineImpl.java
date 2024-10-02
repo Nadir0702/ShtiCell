@@ -15,6 +15,7 @@ import jaxb.converter.api.XMLToSheetConverter;
 import jaxb.converter.impl.XMLToSheetConverterImpl;
 import logic.filter.Filter;
 import logic.function.returnable.api.Returnable;
+import logic.graph.GraphSeriesBuilder;
 import logic.sort.Sorter;
 
 import java.io.FileNotFoundException;
@@ -157,7 +158,14 @@ public class EngineImpl implements Engine{
         
         return this.getUniqueItemsInColumn(column, range);
     }
-    
+
+    @Override
+    public LinkedHashMap<Returnable, LinkedHashMap<Returnable, Returnable>> getGraphFromRange(String rangeToBuildGraphFrom) {
+        GraphSeriesBuilder graphSeries = new GraphSeriesBuilder(new RangeImpl("range of graph", rangeToBuildGraphFrom, this.sheet.copySheet()));
+
+        return graphSeries.build();
+    }
+
     private List<Returnable> getUniqueItemsInColumn(String column, Range range) {
         List<Cell> itemsList = range.getRangeCells()
                 .stream()

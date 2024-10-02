@@ -11,10 +11,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.util.Duration;
 
 public class RangesController {
@@ -27,7 +24,7 @@ public class RangesController {
     @FXML private Label deleteRangeErrorLabel;
     @FXML private Label newRangeErrorLabel;
     @FXML private ListView<RangeDTO> rangesListView;
-    
+
     private MainViewController mainViewController;
     private RangesModel rangesModel;
     

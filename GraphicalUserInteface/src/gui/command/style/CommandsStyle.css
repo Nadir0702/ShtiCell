@@ -83,3 +83,21 @@
 .header .text{
     -fx-font-size: 14;
 }
+
+.choice-box,
+.menu-button:openvertically{
+    -fx-background-color: #f5f5ff;
+    -fx-border-color: white;
+    -fx-border-width: 3px;
+    -fx-border-radius: 20%;
+    -fx-cursor: hand;
+}
+
+.choice-box .label, .menu-button:openvertically .label{
+    -fx-text-fill: #91a7ff;
+}
+
+.choice-box .open-button .arrow,
+.menu-button:openvertically .arrow-button .arrow {
+    -fx-background-color: #91a7ff;
+}

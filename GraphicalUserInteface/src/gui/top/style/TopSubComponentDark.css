@@ -152,3 +152,8 @@
 .scroll-pane:fitToWidth:fitToHeight .scroll-bar:horizontal .increment-button .increment-arrow {
     -fx-background-color: #333333;
 }
+
+.choice-box,
+.menu-button:openvertically{
+    -fx-cursor: hand;
+}

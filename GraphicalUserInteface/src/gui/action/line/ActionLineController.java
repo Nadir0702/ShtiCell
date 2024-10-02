@@ -14,6 +14,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
+
 public class ActionLineController {
     
     @FXML private Label cellIDLabel;
@@ -77,4 +78,5 @@ public class ActionLineController {
     public void bindFileNotLoaded(BooleanProperty isFileLoaded) {
         this.isFileLoadedProperty.bind(isFileLoaded);
     }
+
 }

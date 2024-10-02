@@ -71,7 +71,8 @@
 }
 
 /* ------------- MENU BUTTON ---------------*/
-.menu-button {
+.menu-button,
+.choice-box{
     -fx-padding: 1px 3px;
     -fx-font-size: 14px;
     -fx-font-weight: Bold;
@@ -82,7 +83,7 @@
     -fx-background-radius: 10px;
 }
 
-.menu-button:hover {
+.menu-button:hover, .choice-box:hover {
     -fx-background-color: #dbe4ff;
 }
 
@@ -90,11 +91,12 @@
     -fx-background-color: #dbe4ff;
 }
 
-.menu-button:pressed {
+.menu-button:pressed, .choice-box:pressed{
     -fx-background-color: #bac8ff;
 }
 
-.menu-button .label {
+.menu-button .label,
+.choice-box .label{
     -fx-text-fill: #91a7ff;
 }
 
@@ -157,3 +159,17 @@
     -fx-background-color: #bac8ff;
 }
 
+
+.choice-box,
+.menu-button:openvertically{
+    -fx-cursor: hand;
+}
+
+.choice-box .open-button .arrow{
+    -fx-padding: 5px; /* Adjust padding to control the size */
+    -fx-background-color: #91a7ff; /* Set the color of the arrow */
+    -fx-min-width: 10px; /* Minimum width */
+    -fx-min-height: 7px; /* Minimum height */
+    -fx-max-width: 10px; /* Maximum width */
+    -fx-max-height: 7px; /* Maximum height */
+}
