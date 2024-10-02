@@ -18,7 +18,7 @@ public class Abs extends UnariFunction {
     protected Returnable calculate(Returnable argument) {
         try {
             return new ReturnableImpl(Math.abs(argument.tryConvertTo(Double.class)), argument.getCellType());
-        } catch (ClassCastException e) {
+        } catch (ClassCastException | UnsupportedOperationException e) {
             return SpecialValues.NAN;
         }
     }

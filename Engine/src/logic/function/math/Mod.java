@@ -20,7 +20,7 @@ public class Mod extends BinaryFunction {
             return new ReturnableImpl(
                     argument1.tryConvertTo(Double.class) % argument2.tryConvertTo(Double.class),
                     CellType.NUMERIC);
-        } catch (ClassCastException e) {
+        } catch (ClassCastException | UnsupportedOperationException e) {
             return SpecialValues.NAN;
         }
     }
