@@ -150,17 +150,17 @@ public class Sorter {
         
         return columnsToSort;
     }
-    
+
     private List<Cell> getRowListFromRange(int rowIndex) {
         return getCells(rowIndex, this.rangeToSort, this.topRow, this.bottomRow);
     }
-    
+
     private List<Cell> getColumnListFromRange(int ColIndex) {
         List<Cell> column = this.rangeToSort.getRangeCells()
                 .stream()
                 .filter((cell -> cell.getCellId().contains(this.columnsToSortBy.get(ColIndex))))
                 .toList();
-        
+
         if (column.isEmpty()) {
             throw new IllegalArgumentException(
                             "Expected Column between " + this.leftColumn + " and "

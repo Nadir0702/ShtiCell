@@ -1,6 +1,5 @@
 package gui.grid;
 
-import component.cell.api.CellType;
 import dto.CellDTO;
 import dto.ColoredCellDTO;
 import dto.RangeDTO;
@@ -11,8 +10,6 @@ import gui.main.view.MainViewController;
 import javafx.scene.control.Button;
 import logic.function.returnable.api.Returnable;
 
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

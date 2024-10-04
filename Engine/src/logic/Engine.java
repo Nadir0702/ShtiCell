@@ -6,7 +6,6 @@ import logic.function.returnable.api.Returnable;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
 
 public interface Engine {
     void loadData(String path);

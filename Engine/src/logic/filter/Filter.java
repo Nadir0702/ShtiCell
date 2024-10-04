@@ -23,19 +23,6 @@ public class Filter {
         this.topRow = Integer.parseInt(rangeToFilter.getFrom().getCellId().substring(1));
         this.leftColumn = this.rangeToFilter.getFrom().getCellId().substring(0,1);
         this.rightColumn = this.rangeToFilter.getTo().getCellId().substring(0,1);
-        
-        
-        
-//        this.itemsToFilter.forEach(item -> {
-//            try {
-//                if (item.isBlank()) {
-//                    throw new IllegalArgumentException("Cannot sort by blank column");
-//                }
-//                Integer.parseInt(item);
-//                throw new IllegalArgumentException("Expected Column between " + this.leftColumn +
-//                        " and " + this.rightColumn + " but found " + column);
-//            } catch (NumberFormatException ignored) {}
-//        });
     }
     
     public Range filter(String columnToFilterBy, List<Returnable> itemsToFilter) {
