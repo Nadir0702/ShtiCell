@@ -71,7 +71,7 @@ public class TopSubComponentController {
         }
         
         String absolutePath = selectedFile.getAbsolutePath();
-        this.mainViewController.loadNewSheetFromXML(absolutePath);
+//        this.mainViewController.loadNewSheetFromXML(absolutePath);
         this.filePathProperty.set(absolutePath);
     }
     

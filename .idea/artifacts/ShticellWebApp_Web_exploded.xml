@@ -6,6 +6,13 @@
       <element id="directory" name="WEB-INF">
         <element id="directory" name="classes">
           <element id="module-output" name="ShticellWebApp" />
+          <element id="module-output" name="Engine" />
+          <element id="module-output" name="ShticellDTO" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="angus-activation" />
+          <element id="library" level="project" name="Gson" />
+          <element id="library" level="project" name="javafx.base" />
         </element>
       </element>
     </root>

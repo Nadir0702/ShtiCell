@@ -80,7 +80,6 @@ public class RangesController {
                 pause.play();
             }
         });
-    
     }
     
     public void bindFileNotLoaded(BooleanProperty isFileLoaded) {

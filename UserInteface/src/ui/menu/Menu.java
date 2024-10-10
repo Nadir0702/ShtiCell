@@ -1,7 +1,7 @@
 package ui.menu;
 
-import logic.Engine;
-import logic.EngineImpl;
+import logic.engine.Engine;
+import logic.engine.EngineImpl;
 import ui.io.ConsoleUtils;
 
 import java.util.InputMismatchException;
@@ -11,7 +11,7 @@ public class Menu {
     private MainMenuOption chosenItem;
 
     public void runMenu(){
-        Engine engine = new EngineImpl();
+        Engine engine = new EngineImpl("engine");
 
         do {
             ConsoleUtils.printMainMenu();

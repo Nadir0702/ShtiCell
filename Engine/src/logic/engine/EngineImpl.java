@@ -1,4 +1,4 @@
-package logic;
+package logic.engine;
 
 import component.archive.api.Archive;
 import component.archive.impl.ArchiveImpl;
@@ -16,14 +16,28 @@ import jaxb.converter.impl.XMLToSheetConverterImpl;
 import logic.filter.Filter;
 import logic.function.returnable.api.Returnable;
 import logic.graph.GraphSeriesBuilder;
+import logic.permission.Permission;
 import logic.sort.Sorter;
 
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.*;
 
 public class EngineImpl implements Engine{
-    private Sheet sheet = null;
-    private Archive archive = null;
+    private final String owner;
+    private String name;
+    private Sheet sheet;
+    private Archive archive;
+    private Map<String, Permission> usersPermissions;
+    
+    public EngineImpl(String owner) {
+        this.owner = owner;
+        this.name = null;
+        this.sheet = null;
+        this.archive = null;
+        this.usersPermissions = new HashMap<>();
+        this.usersPermissions.put(this.owner, Permission.OWNER);
+    }
     
     @Override
     public void loadData(String path) {
@@ -36,7 +50,25 @@ public class EngineImpl implements Engine{
             throw new RuntimeException("Error loading data from file", e);
         }
     }
-
+    
+    @Override
+    public void loadDataFromStream(InputStream stream) {
+        try {
+            XMLToSheetConverter converter = new XMLToSheetConverterImpl();
+            this.sheet = converter.convertFromStream(stream);
+            this.archive = new ArchiveImpl();
+            this.archive.storeInArchive(this.sheet.copySheet());
+            this.name = this.sheet.getSheetName();
+        } catch (JAXBException | FileNotFoundException e ) {
+            throw new RuntimeException("Error loading data from file", e);
+        }
+    }
+    
+    @Override
+    public String getName() {
+        return this.name;
+    }
+    
     @Override
     public SheetDTO getSheetAsDTO() {
         return new SheetDTO(this.sheet);
@@ -158,7 +190,23 @@ public class EngineImpl implements Engine{
         
         return this.getUniqueItemsInColumn(column, range);
     }
-
+    
+    @Override
+    public SheetMetaDataDTO getSheetMetaData(String currentUserName) {
+        Permission permission = this.usersPermissions.get(currentUserName);
+        
+        if (permission == null) {
+            permission = Permission.NONE;
+        }
+        
+        return new SheetMetaDataDTO(
+                this.owner,
+                this.sheet.getSheetName(),
+                this.sheet.getLayout().getRow(),
+                this.sheet.getLayout().getColumn(),
+                permission.getPermission());
+    }
+    
     @Override
     public LinkedHashMap<Returnable, LinkedHashMap<Returnable, Returnable>> getGraphFromRange(String rangeToBuildGraphFrom) {
         GraphSeriesBuilder graphSeries = new GraphSeriesBuilder(new RangeImpl("range of graph", rangeToBuildGraphFrom, this.sheet.copySheet()));

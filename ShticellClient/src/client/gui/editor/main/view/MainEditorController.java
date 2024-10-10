@@ -2,41 +2,32 @@ package client.gui.editor.main.view;
 
 import component.cell.api.CellType;
 import dto.*;
-import client.Main;
+import client.main.Main;
 import client.gui.editor.action.line.ActionLineController;
 import client.gui.editor.cell.CellSubComponentController;
 import client.gui.editor.command.CommandsController;
 import client.gui.editor.customization.CustomizationController;
-import client.gui.editor.exception.ExceptionWindowController;
-import client.gui.editor.file.upload.FileUploadController;
 import client.gui.editor.graph.GraphType;
 import client.gui.editor.grid.GridBuilder;
 import client.gui.editor.grid.SheetGridController;
 import client.gui.editor.ranges.RangesController;
 import client.gui.editor.top.TopSubComponentController;
-import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.Chart;
-import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import logic.Engine;
-import logic.EngineImpl;
+import logic.engine.Engine;
+import logic.engine.EngineImpl;
 import logic.function.returnable.api.Returnable;
-import client.tasks.FileLoadingTask;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,16 +35,15 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.*;
 
+import static client.gui.exception.ExceptionWindowController.openExceptionPopup;
+
 public class MainEditorController {
 
-    @FXML
-    private TopSubComponentController topSubComponentController;
-    @FXML
-    private CustomizationController customizationsController;
-    @FXML
-    private CommandsController commandsController;
-    @FXML
-    private RangesController rangesController;
+    @FXML private TopSubComponentController topSubComponentController;
+    @FXML private CustomizationController customizationsController;
+    @FXML private CommandsController commandsController;
+    @FXML private RangesController rangesController;
+    
     private ActionLineController actionLineController;
     private SheetGridController sheetGridController;
     private Map<String, CellSubComponentController> cellSubComponentControllerMap;
@@ -68,7 +58,7 @@ public class MainEditorController {
 
     @FXML
     public void initialize() {
-        this.engine = new EngineImpl();
+        this.engine = new EngineImpl("engine");
 
         if (this.topSubComponentController != null) {
             this.topSubComponentController.setMainController(this);
@@ -121,23 +111,23 @@ public class MainEditorController {
         return fileChooser.showOpenDialog(this.primaryStage);
     }
 
-    public void loadNewSheetFromXML(String absolutePath) {
-        FileUploadController fileUploadController = this.openFileUploadWindow();
-        Task<Boolean> fileLoadingTask = new FileLoadingTask(absolutePath, this.engine);
+//    public void loadNewSheetFromXML(String absolutePath) {
+//        FileUploadController fileUploadController = this.openFileUploadWindow();
+//        Task<Boolean> fileLoadingTask = new FileLoadingTask(absolutePath);
+//
+//        this.bindFileLoadingTaskToUIComponents(fileUploadController, fileLoadingTask);
+//        fileLoadingTask.setOnFailed(event -> {
+//            Platform.runLater(() -> {
+//                fileUploadController.onTaskFinished(Optional.empty());
+//                openExceptionPopup(fileLoadingTask.getException().getMessage());
+//            });
+//        });
+//        new Thread(fileLoadingTask).start();
+//    }
 
-        this.bindFileLoadingTaskToUIComponents(fileUploadController, fileLoadingTask);
-        fileLoadingTask.setOnFailed(event -> {
-            Platform.runLater(() -> {
-                fileUploadController.onTaskFinished(Optional.empty());
-                openExceptionPopup(fileLoadingTask.getException().getMessage());
-            });
-        });
-        new Thread(fileLoadingTask).start();
-    }
-
-    private void bindFileLoadingTaskToUIComponents(FileUploadController fileUploadController, Task<Boolean> fileLoadingTask) {
-        fileUploadController.bindProgressComponents(fileLoadingTask, this::initializeSheetLayoutAndControllers);
-    }
+//    private void bindFileLoadingTaskToUIComponents(FileUploadController fileUploadController, Task<Boolean> fileLoadingTask) {
+//        fileUploadController.bindProgressComponents(fileLoadingTask, this::initializeSheetLayoutAndControllers);
+//    }
 
     private void initializeSheetLayoutAndControllers() {
         try {
@@ -162,7 +152,7 @@ public class MainEditorController {
             this.topSubComponentController.setSheetNameAndVersion(sheetDTO.getSheetName(), sheetDTO.getVersion());
 
         } catch (RuntimeException | IOException e) {
-            this.openExceptionPopup(e.getMessage());
+            openExceptionPopup(e.getMessage());
         }
     }
 
@@ -191,7 +181,7 @@ public class MainEditorController {
             this.sheetGridController.showSelectedCellAndDependencies(cellDTO);
             this.topSubComponentController.updateSheetVersion(sheetDTO.getVersion());
         } catch (RuntimeException e) {
-            this.openExceptionPopup(e.getMessage());
+            openExceptionPopup(e.getMessage());
         }
     }
 
@@ -218,7 +208,7 @@ public class MainEditorController {
             popupStage.setScene(popupScene);
             popupStage.getIcons().add(
                     new Image(Objects.requireNonNull(
-                            Main.class.getResourceAsStream("/client/gui/resources/shticellLogo.png"))));
+                            Main.class.getResourceAsStream("/client/gui/util/resources/shticellLogo.png"))));
 
             // Show the pop-up window
             popupStage.show();
@@ -227,62 +217,35 @@ public class MainEditorController {
         }
     }
 
-    private FileUploadController openFileUploadWindow() {
-        FileUploadController fileUploadController = null;
-        try {
-            // Load the FileUploadController and FXML
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/gui/editor/file/upload/FileUploadComponent.fxml"));
-            Parent root = loader.load();
-
-            fileUploadController = loader.getController();
-
-            // Set the scene and content
-            Stage popUpStage = new Stage();
-            Scene scene = new Scene(root);
-            popUpStage.setScene(scene);
-            fileUploadController.setStage(popUpStage);
-            popUpStage.getIcons().add(
-                    new Image(Objects.requireNonNull(
-                            Main.class.getResourceAsStream("/client/gui/resources/shticellLogo.png"))));
-            // Make the window modal (blocks interactions with the main window)
-            popUpStage.initModality(Modality.APPLICATION_MODAL);
-
-            // Show the window
-            popUpStage.show();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return fileUploadController;
-    }
-
-    private void openExceptionPopup(String errorMessage) {
-        // Load the FXML for the exception window
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/gui/editor/exception/ExceptionWindow.fxml"));
-            Parent root = loader.load();
-
-            // Get the controller and pass the error message to the label
-            ExceptionWindowController controller = loader.getController();
-            controller.setMessage(errorMessage); // Set the error message dynamically
-
-            // Create a new stage (window) for the popup
-            Stage popUpStage = new Stage();
-            popUpStage.setTitle("Error");
-            popUpStage.getIcons().add(
-                    new Image(Objects.requireNonNull(
-                            Main.class.getResourceAsStream("/client/gui/resources/shticellLogo.png"))));
-            popUpStage.setScene(new Scene(root));
-            popUpStage.initModality(Modality.APPLICATION_MODAL); // Block interaction with other windows
-            Button closeButton = controller.getCloseButton();
-            closeButton.setOnAction(event -> popUpStage.close());
-            popUpStage.showAndWait(); // Show the pop-up window and wait for it to be closed
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
+//    private FileUploadController openFileUploadWindow() {
+//        FileUploadController fileUploadController = null;
+//        try {
+//            // Load the FileUploadController and FXML
+//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/gui/home/file/upload/FileUploadComponent.fxml"));
+//            Parent root = loader.load();
+//
+//            fileUploadController = loader.getController();
+//
+//            // Set the scene and content
+//            Stage popUpStage = new Stage();
+//            Scene scene = new Scene(root);
+//            popUpStage.setScene(scene);
+//            fileUploadController.setStage(popUpStage);
+//            popUpStage.getIcons().add(
+//                    new Image(Objects.requireNonNull(
+//                            Main.class.getResourceAsStream("/client/gui/util/resources/shticellLogo.png"))));
+//            // Make the window modal (blocks interactions with the main window)
+//            popUpStage.initModality(Modality.APPLICATION_MODAL);
+//
+//            // Show the window
+//            popUpStage.show();
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        return fileUploadController;
+//    }
 
     public RangeDTO addNewRange(String rangeName, String from, String to) {
         try {
@@ -467,7 +430,7 @@ public class MainEditorController {
         graphStage.setTitle(i_GraphType);
         graphStage.getIcons().add(
                 new Image(Objects.requireNonNull(
-                        Main.class.getResourceAsStream("/client/gui/resources/shticellLogo.png"))));
+                        Main.class.getResourceAsStream("/client/gui/util/resources/shticellLogo.png"))));
         ScrollPane scrollPane = new ScrollPane();
         (graphChart).setPadding(new Insets(20, 20, 60, 20));
         scrollPane.setContent(graphChart);
