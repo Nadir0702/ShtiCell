@@ -29,6 +29,6 @@ public interface Engine {
     List<String> getColumnsListOfRange(String rangeToFilter);
     List<Returnable> getUniqueItemsToFilterBy(String columnToFilterBy, String rangeToFilter);
     SheetMetaDataDTO getSheetMetaData(String currentUserName);
-
     LinkedHashMap<Returnable, LinkedHashMap<Returnable, Returnable>> getGraphFromRange(String rangeToBuildGraphFrom);
+    void createNewPermissionRequest(SentPermissionRequestDTO requestToSend, String sender);
 }

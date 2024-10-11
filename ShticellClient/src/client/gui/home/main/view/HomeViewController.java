@@ -1,11 +1,17 @@
 package client.gui.home.main.view;
 
+import client.gui.exception.ExceptionWindowController;
+import client.gui.home.Command.CommandsController;
 import client.gui.home.file.upload.FileUploadController;
 import client.gui.home.permission.table.PermissionsTableController;
 import client.gui.home.sheet.table.SheetsTableController;
+import client.gui.util.Constants;
+import client.gui.util.http.HttpClientUtil;
 import client.main.Main;
 import client.task.FileLoadingTask;
+import dto.SentPermissionRequestDTO;
 import dto.SheetMetaDataDTO;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
@@ -20,15 +26,18 @@ import javafx.scene.image.Image;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import logic.UserManager;
+import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Objects;
 
 public class HomeViewController {
     
     @FXML private Button LoadSheetFromFileButton;
     @FXML private Label userNameLabel;
+    @FXML private CommandsController commandsController;
     @FXML private SheetsTableController sheetsTableController;
     @FXML private PermissionsTableController permissionsTableController;
     
@@ -44,6 +53,11 @@ public class HomeViewController {
         if (this.sheetsTableController != null) {
             this.sheetsTableController.setMainController(this);
             this.sheetsTableController.startListRefresher();
+        }
+        
+        if (this.commandsController != null) {
+            this.commandsController.setMainController(this);
+//            this.commandsController.startListRefresher();
         }
         
         this.userNameLabel.textProperty().bind(this.userNameProperty);
@@ -111,5 +125,38 @@ public class HomeViewController {
     
     private void addNewSheet(SheetMetaDataDTO sheetNameAndSize) {
         this.sheetsTableController.addSheetEntry(sheetNameAndSize);
+    }
+    
+    public void sendNewPermissionRequest(String sheetName, String newPermission) {
+        SentPermissionRequestDTO requestToSend = new SentPermissionRequestDTO(sheetName, newPermission);
+        
+        Request request = new Request.Builder()
+                .url(Constants.SEND_PERMISSION_REQUEST)
+                .post(RequestBody.create(Constants.GSON_INSTANCE.toJson(requestToSend),
+                        MediaType.parse("application/json")))
+                .build();
+        
+        HttpClientUtil.runAsync(request, new Callback() {
+            
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                try(ResponseBody responseBody = response.body()) {
+                    if (response.code() != 200) {
+                        String responseBodyString = responseBody.string();
+                        Platform.runLater(() -> {
+                            ExceptionWindowController.openExceptionPopup(responseBodyString);
+                        });
+                    }
+                }
+            }
+            
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() ->
+                        ExceptionWindowController.openExceptionPopup(
+                                "Something went wrong: " + e.getMessage())
+                );
+            }
+        });
     }
 }

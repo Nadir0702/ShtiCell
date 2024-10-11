@@ -6,14 +6,13 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import logic.EngineManager;
+import manager.EngineManager;
 import logic.engine.Engine;
 import utils.ServletUtils;
 import utils.SessionUtils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -22,7 +21,6 @@ import java.util.Set;
 public class SheetTableServlet extends HttpServlet {
     
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        //returning JSON objects, not HTML
         response.setContentType("application/json");
         EngineManager engineManager = ServletUtils.getEngineManager(getServletContext());
         

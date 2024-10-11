@@ -2,8 +2,8 @@ package utils;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
-import logic.EngineManager;
-import logic.UserManager;
+import manager.EngineManager;
+import manager.UserManager;
 
 public class ServletUtils {
 	

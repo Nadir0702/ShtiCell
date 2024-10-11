@@ -11,12 +11,9 @@ import java.util.Optional;
 
 public class FileUploadController {
 
-    @FXML
-    private Button cancelButton;
-    @FXML
-    private ProgressBar progressBar;
-    @FXML
-    private Label progressPercentLabel;
+    @FXML private Button cancelButton;
+    @FXML private ProgressBar progressBar;
+    @FXML private Label progressPercentLabel;
 
     private Stage fileUploadStage;
 

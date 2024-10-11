@@ -1,6 +1,6 @@
-package logic.permission;
+package user.permission;
 
-public enum Permission {
+public enum PermissionType {
     OWNER("Owner"),
     READER("Reader"),
     WRITER("Writer"),
@@ -8,7 +8,7 @@ public enum Permission {
     
     private final String permission;
     
-    Permission(String permission) { this.permission = permission; }
+    PermissionType(String permission) { this.permission = permission; }
     
     public String getPermission() { return this.permission; }
 }

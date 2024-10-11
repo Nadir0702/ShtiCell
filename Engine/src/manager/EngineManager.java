@@ -1,4 +1,4 @@
-package logic;
+package manager;
 
 import logic.engine.Engine;
 

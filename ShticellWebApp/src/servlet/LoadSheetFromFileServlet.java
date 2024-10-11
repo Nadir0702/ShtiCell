@@ -9,9 +9,11 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
-import logic.EngineManager;
+import manager.EngineManager;
 import logic.engine.Engine;
 import logic.engine.EngineImpl;
+import manager.UserManager;
+import user.User;
 import utils.ServletUtils;
 import utils.SessionUtils;
 
@@ -26,20 +28,27 @@ public class LoadSheetFromFileServlet extends HttpServlet {
         response.setContentType("application/json");
         Part filePart = request.getPart("file");
         EngineManager engineManager = ServletUtils.getEngineManager(getServletContext());
+        UserManager userManager = ServletUtils.getUserManager(getServletContext());
+        
+        // -------- currently here because there is no login page yet -----------------------
         String usernameFromParameter = request.getParameter(Constants.USERNAME);
         request.getSession(true).setAttribute(Constants.USERNAME, usernameFromParameter);
-        
+        synchronized (this) {
+            if (!userManager.isUserExists(usernameFromParameter)){
+                userManager.addUser(usernameFromParameter, new User(usernameFromParameter));
+            }
+        }
+        // ----------------------------------------------------------------------------------
         
         String username = SessionUtils.getUsername(request);
-        if (username == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().println("User is not logged in");
-            response.getWriter().flush();
+        if (!SessionUtils.isSessionExists(response, username)) {
             return;
         }
         
+        User user = userManager.getUsers().get(username);
+        
         try{
-            Engine engine = new EngineImpl(username);
+            Engine engine = new EngineImpl(user);
             engine.loadDataFromStream(filePart.getInputStream());
             String sheetName = engine.getName();
             
@@ -54,10 +63,10 @@ public class LoadSheetFromFileServlet extends HttpServlet {
             Gson gson = new Gson();
             response.getWriter().println(gson.toJson(engine.getSheetMetaData(username)));
             response.getWriter().flush();
-            response.setStatus(200);
+            response.setStatus(HttpServletResponse.SC_OK);
         } catch (RuntimeException e) {
             response.getWriter().println(e.getMessage());
-            response.setStatus(400);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
     }
 }

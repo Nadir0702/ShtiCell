@@ -16,27 +16,32 @@ import jaxb.converter.impl.XMLToSheetConverterImpl;
 import logic.filter.Filter;
 import logic.function.returnable.api.Returnable;
 import logic.graph.GraphSeriesBuilder;
-import logic.permission.Permission;
+import user.User;
+import user.permission.PermissionStatus;
+import user.permission.PermissionType;
 import logic.sort.Sorter;
+import user.request.api.PermissionRequestInEngine;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.*;
 
 public class EngineImpl implements Engine{
-    private final String owner;
+    private final User owner;
     private String name;
     private Sheet sheet;
     private Archive archive;
-    private Map<String, Permission> usersPermissions;
+    private Map<String, PermissionRequestInEngine> usersPermissions;
     
-    public EngineImpl(String owner) {
+    public EngineImpl(User owner) {
         this.owner = owner;
         this.name = null;
         this.sheet = null;
         this.archive = null;
         this.usersPermissions = new HashMap<>();
-        this.usersPermissions.put(this.owner, Permission.OWNER);
+        this.usersPermissions.put(this.owner.getUserName(), PermissionRequestInEngine.create(
+                PermissionType.OWNER, PermissionType.OWNER, PermissionStatus.ACCEPTED
+        ));
     }
     
     @Override
@@ -193,18 +198,20 @@ public class EngineImpl implements Engine{
     
     @Override
     public SheetMetaDataDTO getSheetMetaData(String currentUserName) {
-        Permission permission = this.usersPermissions.get(currentUserName);
+        PermissionRequestInEngine permission = this.usersPermissions.get(currentUserName);
         
         if (permission == null) {
-            permission = Permission.NONE;
+            permission = PermissionRequestInEngine.create(
+                    PermissionType.NONE, PermissionType.NONE, PermissionStatus.ACCEPTED
+            );
         }
         
         return new SheetMetaDataDTO(
-                this.owner,
+                this.owner.getUserName(),
                 this.sheet.getSheetName(),
                 this.sheet.getLayout().getRow(),
                 this.sheet.getLayout().getColumn(),
-                permission.getPermission());
+                permission.getCurrentPermission().getPermission());
     }
     
     @Override
@@ -213,7 +220,41 @@ public class EngineImpl implements Engine{
 
         return graphSeries.build();
     }
-
+    
+    @Override
+    public void createNewPermissionRequest(SentPermissionRequestDTO requestToSend, String sender)  throws IllegalArgumentException {
+        PermissionRequestInEngine permissionRequest = this.usersPermissions.get(sender);
+        PermissionType currentPermission;
+        
+        if (permissionRequest == null) {
+            this.isNewPermissionRequested(
+                    PermissionType.valueOf(requestToSend.getRequestedPermission()), PermissionType.NONE);
+                    
+            currentPermission = PermissionType.NONE;
+        } else {
+            this.isNewPermissionRequested(
+                    PermissionType.valueOf(requestToSend.getRequestedPermission()),
+                    permissionRequest.getCurrentPermission());
+            
+            currentPermission = permissionRequest.getCurrentPermission();
+        }
+        
+        permissionRequest = PermissionRequestInEngine.create(
+                currentPermission,
+                PermissionType.valueOf(requestToSend.getRequestedPermission()),
+                PermissionStatus.PENDING);
+        
+        this.usersPermissions.put(sender, permissionRequest);
+        this.owner.createPermissionRequest(requestToSend.getRequestedPermission(), this.name, sender);
+    }
+    
+    private void isNewPermissionRequested(PermissionType requestedPermission, PermissionType currentPermission) throws IllegalArgumentException {
+        if(requestedPermission.equals(currentPermission)){
+            throw new IllegalArgumentException(
+                    "Already has " + requestedPermission.getPermission() + " permission for sheet " + this.name);
+        }
+    }
+    
     private List<Returnable> getUniqueItemsInColumn(String column, Range range) {
         List<Cell> itemsList = range.getRangeCells()
                 .stream()

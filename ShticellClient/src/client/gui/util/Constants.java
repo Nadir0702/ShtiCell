@@ -18,6 +18,7 @@ public class Constants {
     
     public final static String LOAD_SHEET = FULL_SERVER_PATH + "/loadSheetFromFile";
     public final static String REFRESH_SHEET_TABLE = FULL_SERVER_PATH + "/refreshSheetTable";
+    public static final String SEND_PERMISSION_REQUEST = "/sendPermissionRequest";
 
     
     // GSON instance
