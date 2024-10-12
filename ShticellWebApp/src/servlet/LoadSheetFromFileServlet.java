@@ -45,7 +45,7 @@ public class LoadSheetFromFileServlet extends HttpServlet {
             return;
         }
         
-        User user = userManager.getUsers().get(username);
+        User user = userManager.getUser(username);
         
         try{
             Engine engine = new EngineImpl(user);

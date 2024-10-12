@@ -23,7 +23,6 @@ public class SendPermissionRequestServlet  extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json");
         EngineManager engineManager = ServletUtils.getEngineManager(getServletContext());
-        UserManager userManager = ServletUtils.getUserManager(getServletContext());
         
         String username = SessionUtils.getUsername(request);
         if (!SessionUtils.isSessionExists(response, username)) {

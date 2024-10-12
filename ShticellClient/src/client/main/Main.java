@@ -1,6 +1,5 @@
 package client.main;
 
-import client.gui.editor.main.view.MainEditorController;
 import client.gui.home.main.view.HomeViewController;
 import client.gui.util.http.HttpClientUtil;
 import javafx.application.Application;

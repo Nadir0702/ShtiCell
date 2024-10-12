@@ -45,7 +45,7 @@ public class HomeViewController {
     private Stage primaryStage;
     
     public HomeViewController() {
-        this.userNameProperty  = new SimpleStringProperty("User1");
+        this.userNameProperty  = new SimpleStringProperty("User2");
     }
     
     @FXML
@@ -57,7 +57,7 @@ public class HomeViewController {
         
         if (this.commandsController != null) {
             this.commandsController.setMainController(this);
-//            this.commandsController.startListRefresher();
+            this.commandsController.startListRefresher();
         }
         
         this.userNameLabel.textProperty().bind(this.userNameProperty);
@@ -143,9 +143,9 @@ public class HomeViewController {
                 try(ResponseBody responseBody = response.body()) {
                     if (response.code() != 200) {
                         String responseBodyString = responseBody.string();
-                        Platform.runLater(() -> {
-                            ExceptionWindowController.openExceptionPopup(responseBodyString);
-                        });
+                        Platform.runLater(() -> commandsController.updateNewRequestErrorLabel(responseBodyString));
+                    } else {
+                        Platform.runLater(() -> commandsController.clearNewPermissionRequestsFields());
                     }
                 }
             }

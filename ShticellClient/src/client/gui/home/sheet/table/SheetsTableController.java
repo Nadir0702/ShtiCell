@@ -38,12 +38,16 @@ public class SheetsTableController implements Closeable {
     
     @FXML
     private void initialize() {
-        permissionsColumn.setCellValueFactory(new PropertyValueFactory<>("permission"));
-        sheetNameColumn.setCellValueFactory(new PropertyValueFactory<>("sheetName"));
-        sheetSizeColumn.setCellValueFactory(new PropertyValueFactory<>("sheetSize"));
-        userNameColumn.setCellValueFactory(new PropertyValueFactory<>("userName"));
+        this.initializeTableView();
+    }
+    
+    private void initializeTableView() {
+        this.permissionsColumn.setCellValueFactory(new PropertyValueFactory<>("permission"));
+        this.sheetNameColumn.setCellValueFactory(new PropertyValueFactory<>("sheetName"));
+        this.sheetSizeColumn.setCellValueFactory(new PropertyValueFactory<>("sheetSize"));
+        this.userNameColumn.setCellValueFactory(new PropertyValueFactory<>("userName"));
         
-        sheetsTableView.setItems(availableSheets);
+        this.sheetsTableView.setItems(this.availableSheets);
     }
     
     public void setMainController(HomeViewController homeViewController) {
@@ -66,8 +70,7 @@ public class SheetsTableController implements Closeable {
     
     private void updateSheetsTable(List<SheetMetaDataDTO> sheets) {
         Platform.runLater(() -> {
-            ObservableList<SheetTableEntry> items = sheetsTableView.getItems();
-            items.clear();
+            availableSheets.clear();
             sheets.forEach(this::addSheetEntry);
         });
     }
@@ -79,6 +82,5 @@ public class SheetsTableController implements Closeable {
             this.tableRefresher.cancel();
             this.timer.cancel();
         }
-    
     }
 }

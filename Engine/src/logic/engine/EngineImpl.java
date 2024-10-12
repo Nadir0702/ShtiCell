@@ -228,24 +228,28 @@ public class EngineImpl implements Engine{
         
         if (permissionRequest == null) {
             this.isNewPermissionRequested(
-                    PermissionType.valueOf(requestToSend.getRequestedPermission()), PermissionType.NONE);
+                    PermissionType.valueOf(requestToSend.getRequestedPermission().toUpperCase()), PermissionType.NONE);
                     
             currentPermission = PermissionType.NONE;
         } else {
             this.isNewPermissionRequested(
-                    PermissionType.valueOf(requestToSend.getRequestedPermission()),
+                    PermissionType.valueOf(requestToSend.getRequestedPermission().toUpperCase()),
                     permissionRequest.getCurrentPermission());
+            
+            if (permissionRequest.getCurrentPermission() == PermissionType.OWNER) {
+                throw new IllegalArgumentException("Cannot create a new permission request for your own Sheets");
+            }
             
             currentPermission = permissionRequest.getCurrentPermission();
         }
         
         permissionRequest = PermissionRequestInEngine.create(
                 currentPermission,
-                PermissionType.valueOf(requestToSend.getRequestedPermission()),
+                PermissionType.valueOf(requestToSend.getRequestedPermission().toUpperCase()),
                 PermissionStatus.PENDING);
         
         this.usersPermissions.put(sender, permissionRequest);
-        this.owner.createPermissionRequest(requestToSend.getRequestedPermission(), this.name, sender);
+        this.owner.createPermissionRequest(requestToSend.getRequestedPermission().toUpperCase(), this.name, sender);
     }
     
     private void isNewPermissionRequested(PermissionType requestedPermission, PermissionType currentPermission) throws IllegalArgumentException {

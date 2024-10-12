@@ -5,6 +5,8 @@ import user.permission.PermissionType;
 import user.request.api.PermissionRequestInEngine;
 import user.request.api.PermissionRequestInOwner;
 
+import java.util.Objects;
+
 public class PermissionRequest implements PermissionRequestInEngine, PermissionRequestInOwner {
     private PermissionType currentPermission;
     private PermissionType requestedPermission;
@@ -28,6 +30,19 @@ public class PermissionRequest implements PermissionRequestInEngine, PermissionR
         this.requestStatus = requestStatus;
         this.requestedEngineName = requestedEngineName;
         this.requestSenderUserName = requestSenderUserName;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PermissionRequest that = (PermissionRequest) o;
+        return currentPermission == that.currentPermission && requestedPermission == that.requestedPermission && requestStatus == that.requestStatus && Objects.equals(requestedEngineName, that.requestedEngineName) && Objects.equals(requestSenderUserName, that.requestSenderUserName);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(currentPermission, requestedPermission, requestStatus, requestedEngineName, requestSenderUserName);
     }
     
     @Override

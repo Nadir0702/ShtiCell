@@ -23,6 +23,8 @@ public class EngineManager {
         return Collections.unmodifiableMap(enginesMap);
     }
     
+    public synchronized Engine getEngine(String sheetName) { return this.enginesMap.get(sheetName); }
+    
     public boolean isEngineExists(String sheetName) {
         return this.enginesMap.containsKey(sheetName);
     }

@@ -23,6 +23,8 @@ public class UserManager {
         return Collections.unmodifiableMap(this.usersMap);
     }
     
+    public synchronized User getUser(String userName) { return this.usersMap.get(userName); }
+    
     public boolean isUserExists(String userName) {
         return usersMap.containsKey(userName);
     }
