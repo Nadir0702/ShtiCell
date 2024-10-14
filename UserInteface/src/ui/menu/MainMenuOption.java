@@ -2,8 +2,8 @@ package ui.menu;
 
 import component.archive.impl.ArchiveImpl;
 import component.sheet.api.Sheet;
-import dto.CellDTO;
-import dto.VersionChangesDTO;
+import dto.cell.CellDTO;
+import dto.version.VersionChangesDTO;
 import logic.engine.Engine;
 import ui.io.ConsoleUtils;
 

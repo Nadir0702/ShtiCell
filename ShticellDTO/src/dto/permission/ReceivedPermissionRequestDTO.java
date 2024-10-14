@@ -1,4 +1,4 @@
-package dto;
+package dto.permission;
 
 public class ReceivedPermissionRequestDTO {
     private final String sender;

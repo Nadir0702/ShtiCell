@@ -3,7 +3,7 @@ package client.task;
 import client.gui.exception.ExceptionWindowController;
 import client.gui.util.Constants;
 import client.gui.util.http.HttpClientUtil;
-import dto.permission.ReceivedPermissionRequestDTO;
+import dto.permission.PermissionDTO;
 import javafx.application.Platform;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
@@ -14,18 +14,33 @@ import java.util.List;
 import java.util.TimerTask;
 import java.util.function.Consumer;
 
-public class PermissionRequestsTableRefresher  extends TimerTask {
+public class PermissionTableRefresher extends TimerTask {
+    private final Consumer<List<PermissionDTO>> permissionsListConsumer;
+    private String sheetName;
     
-    private final Consumer<List<ReceivedPermissionRequestDTO>> requestsListConsumer;
+    public PermissionTableRefresher(Consumer<List<PermissionDTO>> usersListConsumer) {
+        this.permissionsListConsumer = usersListConsumer;
+    }
     
-    public PermissionRequestsTableRefresher(Consumer<List<ReceivedPermissionRequestDTO>> requestsListConsumer) {
-        this.requestsListConsumer = requestsListConsumer;
+    public void setSheetName(String sheetName) {
+        this.sheetName = sheetName;
+        this.run();
     }
     
     @Override
     public void run() {
+        
+        if (this.sheetName == null || this.sheetName.isEmpty()){
+            return;
+        }
+        
+        HttpUrl url = HttpUrl.parse(Constants.REFRESH_PERMISSION_TABLE)
+                .newBuilder()
+                .addQueryParameter("sheetname", this.sheetName)
+                .build();
+        
         Request request =  new Request.Builder()
-                .url(Constants.REFRESH_PERMISSION_REQUESTS_TABLE)
+                .url(url)
                 .build();
         
         HttpClientUtil.runAsync(request, new Callback() {
@@ -41,10 +56,10 @@ public class PermissionRequestsTableRefresher  extends TimerTask {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 try(ResponseBody responseBody = response.body()) {
-                    String jsonArrayOfPermissionRequests = responseBody.string();
-                    ReceivedPermissionRequestDTO[] receivedPermissionRequests = Constants.GSON_INSTANCE.fromJson(
-                            jsonArrayOfPermissionRequests, ReceivedPermissionRequestDTO[].class);
-                    requestsListConsumer.accept(Arrays.asList(receivedPermissionRequests));
+                    String jsonArrayOfSheetPermissions = responseBody.string();
+                    PermissionDTO[] permissions = Constants.GSON_INSTANCE.fromJson(
+                            jsonArrayOfSheetPermissions, PermissionDTO[].class);
+                    permissionsListConsumer.accept(Arrays.asList(permissions));
                 }
             }
         });

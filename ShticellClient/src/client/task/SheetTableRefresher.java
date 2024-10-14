@@ -3,7 +3,7 @@ package client.task;
 import client.gui.exception.ExceptionWindowController;
 import client.gui.util.Constants;
 import client.gui.util.http.HttpClientUtil;
-import dto.SheetMetaDataDTO;
+import dto.sheet.SheetMetaDataDTO;
 import javafx.application.Platform;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;

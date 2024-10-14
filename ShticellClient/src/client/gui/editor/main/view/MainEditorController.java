@@ -1,7 +1,6 @@
 package client.gui.editor.main.view;
 
 import component.cell.api.CellType;
-import dto.*;
 import client.main.Main;
 import client.gui.editor.action.line.ActionLineController;
 import client.gui.editor.cell.CellSubComponentController;
@@ -12,6 +11,12 @@ import client.gui.editor.grid.GridBuilder;
 import client.gui.editor.grid.SheetGridController;
 import client.gui.editor.ranges.RangesController;
 import client.gui.editor.top.TopSubComponentController;
+import dto.cell.CellDTO;
+import dto.cell.ColoredCellDTO;
+import dto.range.RangeDTO;
+import dto.range.RangesDTO;
+import dto.sheet.ColoredSheetDTO;
+import dto.sheet.SheetDTO;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;

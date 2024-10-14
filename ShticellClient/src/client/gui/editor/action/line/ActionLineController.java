@@ -1,6 +1,6 @@
 package client.gui.editor.action.line;
 
-import dto.CellDTO;
+import dto.cell.CellDTO;
 import client.gui.editor.cell.ActionLineCellModel;
 import client.gui.editor.cell.CellModel;
 import client.gui.editor.main.view.MainEditorController;

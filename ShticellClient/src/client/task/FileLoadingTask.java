@@ -4,7 +4,7 @@ import client.gui.exception.ExceptionWindowController;
 import client.gui.home.file.upload.FileUploadController;
 import client.gui.util.Constants;
 import client.gui.util.http.HttpClientUtil;
-import dto.SheetMetaDataDTO;
+import dto.sheet.SheetMetaDataDTO;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import okhttp3.*;

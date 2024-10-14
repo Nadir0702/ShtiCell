@@ -1,4 +1,4 @@
-package dto;
+package dto.range;
 
 import component.range.api.Range;
 

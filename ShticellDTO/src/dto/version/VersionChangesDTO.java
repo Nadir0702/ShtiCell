@@ -1,4 +1,4 @@
-package dto;
+package dto.version;
 
 import java.util.LinkedList;
 import java.util.List;

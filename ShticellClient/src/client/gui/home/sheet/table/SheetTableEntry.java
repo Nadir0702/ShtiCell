@@ -16,6 +16,15 @@ public class SheetTableEntry {
         this.permission = new SimpleStringProperty(permission);
     }
     
+    public SheetTableEntry deepCopy() {
+        return new SheetTableEntry(
+                this.getUserName(),  // Create a new SimpleStringProperty for userName
+                this.getSheetName(),  // Create a new SimpleStringProperty for sheetName
+                this.getSheetSize(),  // Create a new SimpleStringProperty for sheetSize
+                this.getPermission() // Create a new SimpleStringProperty for permissions
+        );
+    }
+    
     public String getUserName() { return this.userName.get(); }
     
     public String getSheetName() { return this.sheetName.get(); }

@@ -1,9 +1,9 @@
-package dto;
+package dto.sheet;
 
 import component.cell.api.Cell;
 import component.sheet.api.Sheet;
 import component.sheet.impl.SheetImpl;
-import logic.function.returnable.api.Returnable;
+import dto.cell.ColoredCellDTO;
 
 import java.util.HashMap;
 import java.util.Map;

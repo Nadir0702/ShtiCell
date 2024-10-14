@@ -2,7 +2,7 @@ package client.gui.home.sheet.table;
 
 import client.gui.home.main.view.HomeViewController;
 import client.task.SheetTableRefresher;
-import dto.SheetMetaDataDTO;
+import dto.sheet.SheetMetaDataDTO;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -14,6 +14,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -39,6 +40,13 @@ public class SheetsTableController implements Closeable {
     @FXML
     private void initialize() {
         this.initializeTableView();
+        
+        this.sheetsTableView.getSelectionModel().selectedItemProperty()
+                .addListener((observable, oldValue, newValue) -> {
+            if(newValue != null && !newValue.equals(oldValue)) {
+                this.homeViewController.setSelectedSheet(newValue);
+            }
+        });
     }
     
     private void initializeTableView() {
@@ -62,16 +70,28 @@ public class SheetsTableController implements Closeable {
                 sheetToAdd.getPermission()));
     }
     
-    public void startListRefresher() {
+    public void startTableRefresher() {
         this.tableRefresher = new SheetTableRefresher(this::updateSheetsTable);
-        timer = new Timer();
-        timer.schedule(this.tableRefresher, 10000, REFRESH_RATE);
+        this.timer = new Timer();
+        this.timer.schedule(this.tableRefresher, 10000, REFRESH_RATE);
     }
     
     private void updateSheetsTable(List<SheetMetaDataDTO> sheets) {
         Platform.runLater(() -> {
+            SheetTableEntry selectedSheet = this.sheetsTableView.getSelectionModel().getSelectedItem();
+            String selectedSheetName = (selectedSheet != null) ? selectedSheet.getSheetName() : null;
+            
             availableSheets.clear();
             sheets.forEach(this::addSheetEntry);
+            
+            if (selectedSheetName != null) {
+                for (SheetTableEntry sheetEntry : this.sheetsTableView.getItems()) {
+                    if (Objects.equals(sheetEntry.getSheetName(), selectedSheetName)) {
+                        this.sheetsTableView.getSelectionModel().select(sheetEntry);
+                        break;
+                    }
+                }
+            }
         });
     }
     

@@ -1,12 +1,21 @@
 package logic.engine;
 
-import dto.*;
+import dto.cell.CellDTO;
+import dto.permission.PermissionDTO;
+import dto.permission.SentPermissionRequestDTO;
+import dto.range.RangeDTO;
+import dto.range.RangesDTO;
+import dto.sheet.ColoredSheetDTO;
+import dto.sheet.SheetDTO;
+import dto.sheet.SheetMetaDataDTO;
+import dto.version.VersionChangesDTO;
 import javafx.scene.paint.Color;
 import logic.function.returnable.api.Returnable;
 
 import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 
 public interface Engine {
     void loadData(String path);
@@ -31,4 +40,5 @@ public interface Engine {
     SheetMetaDataDTO getSheetMetaData(String currentUserName);
     LinkedHashMap<Returnable, LinkedHashMap<Returnable, Returnable>> getGraphFromRange(String rangeToBuildGraphFrom);
     void createNewPermissionRequest(SentPermissionRequestDTO requestToSend, String sender);
+    Set<PermissionDTO> getAllPermissions();
 }

@@ -1,8 +1,8 @@
 package gui.grid;
 
-import dto.CellDTO;
-import dto.ColoredCellDTO;
-import dto.RangeDTO;
+import dto.cell.CellDTO;
+import dto.cell.ColoredCellDTO;
+import dto.range.RangeDTO;
 import gui.cell.CellModel;
 import gui.cell.CellSubComponentController;
 import gui.cell.DependenciesCellModel;

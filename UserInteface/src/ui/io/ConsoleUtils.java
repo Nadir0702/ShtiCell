@@ -1,9 +1,9 @@
 package ui.io;
 
 import component.cell.api.CellType;
-import dto.CellDTO;
-import dto.SheetDTO;
-import dto.VersionChangesDTO;
+import dto.cell.CellDTO;
+import dto.sheet.SheetDTO;
+import dto.version.VersionChangesDTO;
 import logic.function.returnable.api.Returnable;
 import ui.menu.MainMenuOption;
 

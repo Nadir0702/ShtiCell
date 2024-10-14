@@ -1,6 +1,6 @@
 package client.gui.editor.ranges;
 
-import dto.RangeDTO;
+import dto.range.RangeDTO;
 import javafx.collections.ObservableList;
 
 public interface RangesModel {

@@ -8,7 +8,15 @@ import component.range.api.Range;
 import component.range.impl.RangeImpl;
 import component.sheet.api.Sheet;
 import component.sheet.impl.SheetImpl;
-import dto.*;
+import dto.cell.CellDTO;
+import dto.permission.PermissionDTO;
+import dto.permission.SentPermissionRequestDTO;
+import dto.range.RangeDTO;
+import dto.range.RangesDTO;
+import dto.sheet.ColoredSheetDTO;
+import dto.sheet.SheetDTO;
+import dto.sheet.SheetMetaDataDTO;
+import dto.version.VersionChangesDTO;
 import jakarta.xml.bind.JAXBException;
 import javafx.scene.paint.Color;
 import jaxb.converter.api.XMLToSheetConverter;
@@ -219,6 +227,21 @@ public class EngineImpl implements Engine{
         GraphSeriesBuilder graphSeries = new GraphSeriesBuilder(new RangeImpl("range of graph", rangeToBuildGraphFrom, this.sheet.copySheet()));
 
         return graphSeries.build();
+    }
+    
+    @Override
+    public Set<PermissionDTO> getAllPermissions() {
+        Set<PermissionDTO> permissions = new LinkedHashSet<>();
+        
+        this.usersPermissions.forEach((userName, permission) -> {
+            if (!permission.getCurrentPermission().equals(PermissionType.OWNER)) {
+                permissions.add(new PermissionDTO(userName,
+                        permission.getRequestedPermission().getPermission(),
+                        permission.getRequestStatus().getPermissionStatus()));
+            }
+        });
+        
+        return permissions;
     }
     
     @Override

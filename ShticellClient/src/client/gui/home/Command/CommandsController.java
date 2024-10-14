@@ -3,9 +3,7 @@ package client.gui.home.Command;
 import client.gui.home.main.view.HomeViewController;
 import client.gui.home.sheet.table.SheetTableEntry;
 import client.task.PermissionRequestsTableRefresher;
-import client.task.SheetTableRefresher;
-import dto.ReceivedPermissionRequestDTO;
-import dto.SheetMetaDataDTO;
+import dto.permission.ReceivedPermissionRequestDTO;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
@@ -20,6 +18,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -90,12 +89,25 @@ public class CommandsController implements Closeable {
     
     private void updateReceivedRequestsTable(List<ReceivedPermissionRequestDTO> requests) {
         Platform.runLater(() -> {
+            PermissionRequestTableEntry selectedRequest =
+                    this.recievedRequestsTableView.getSelectionModel().getSelectedItem();
+            
             receivedRequests.clear();
             requests.forEach(this::addRequestEntry);
+            
+            if (selectedRequest != null) {
+                for (PermissionRequestTableEntry requestEntry : this.recievedRequestsTableView.getItems()) {
+                    if (Objects.equals(requestEntry, selectedRequest)) {
+                        this.recievedRequestsTableView.getSelectionModel().select(requestEntry);
+                        break;
+                    }
+                }
+            }
+            
         });
     }
     
-    public void startListRefresher() {
+    public void startTableRefresher() {
         this.tableRefresher = new PermissionRequestsTableRefresher(this::updateReceivedRequestsTable);
         timer = new Timer();
         timer.schedule(this.tableRefresher, 10000, REFRESH_RATE);

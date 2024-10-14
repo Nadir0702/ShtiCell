@@ -1,4 +1,4 @@
-package dto;
+package dto.sheet;
 
 public class SheetMetaDataDTO {
     private String ownerName;

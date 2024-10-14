@@ -4,13 +4,14 @@ import client.gui.exception.ExceptionWindowController;
 import client.gui.home.Command.CommandsController;
 import client.gui.home.file.upload.FileUploadController;
 import client.gui.home.permission.table.PermissionsTableController;
+import client.gui.home.sheet.table.SheetTableEntry;
 import client.gui.home.sheet.table.SheetsTableController;
 import client.gui.util.Constants;
 import client.gui.util.http.HttpClientUtil;
 import client.main.Main;
 import client.task.FileLoadingTask;
-import dto.SentPermissionRequestDTO;
-import dto.SheetMetaDataDTO;
+import dto.permission.SentPermissionRequestDTO;
+import dto.sheet.SheetMetaDataDTO;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -41,6 +42,7 @@ public class HomeViewController {
     @FXML private SheetsTableController sheetsTableController;
     @FXML private PermissionsTableController permissionsTableController;
     
+    private SheetTableEntry selectedSheet;
     private StringProperty userNameProperty;
     private Stage primaryStage;
     
@@ -52,12 +54,17 @@ public class HomeViewController {
     private void initialize() {
         if (this.sheetsTableController != null) {
             this.sheetsTableController.setMainController(this);
-            this.sheetsTableController.startListRefresher();
+            this.sheetsTableController.startTableRefresher();
         }
         
         if (this.commandsController != null) {
             this.commandsController.setMainController(this);
-            this.commandsController.startListRefresher();
+            this.commandsController.startTableRefresher();
+        }
+        
+        if (this.permissionsTableController != null) {
+            this.permissionsTableController.setMainController(this);
+            this.permissionsTableController.startTableRefresher();
         }
         
         this.userNameLabel.textProperty().bind(this.userNameProperty);
@@ -158,5 +165,10 @@ public class HomeViewController {
                 );
             }
         });
+    }
+    
+    public void setSelectedSheet(SheetTableEntry newValue) {
+        this.selectedSheet = newValue.deepCopy();
+        this.permissionsTableController.setSelectedSheet(this.selectedSheet.getSheetName());
     }
 }

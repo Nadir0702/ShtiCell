@@ -1,7 +1,7 @@
 package servlet;
 
 import com.google.gson.Gson;
-import dto.SentPermissionRequestDTO;
+import dto.permission.SentPermissionRequestDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import logic.engine.Engine;
 import manager.EngineManager;
-import manager.UserManager;
 import utils.ServletUtils;
 import utils.SessionUtils;
 
