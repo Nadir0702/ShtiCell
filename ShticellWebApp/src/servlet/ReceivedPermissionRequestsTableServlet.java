@@ -13,7 +13,7 @@ import utils.SessionUtils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Set;
+import java.util.List;
 
 @WebServlet(name = "Refresh Permission Requests Table Servlet", urlPatterns = "/refreshPermissionRequestsTable")
 public class ReceivedPermissionRequestsTableServlet  extends HttpServlet {
@@ -29,7 +29,7 @@ public class ReceivedPermissionRequestsTableServlet  extends HttpServlet {
         try (PrintWriter out = response.getWriter()) {
             Gson gson = new Gson();
             User owner = userManager.getUser(userName);
-            Set<ReceivedPermissionRequestDTO> receivedPermissionRequestsDTOSet = owner.getPermissionRequests();
+            List<ReceivedPermissionRequestDTO> receivedPermissionRequestsDTOSet = owner.getPermissionRequests();
             
             String json = gson.toJson(receivedPermissionRequestsDTOSet);
             out.println(json);

@@ -1,41 +1,69 @@
 package user;
 
 import dto.permission.ReceivedPermissionRequestDTO;
+import user.request.PermissionRequest;
 
-import user.permission.PermissionStatus;
-import user.permission.PermissionType;
-import user.request.api.PermissionRequestInOwner;
-
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class User {
     private final String userName;
-    private Map<String, PermissionRequestInOwner> permissionRequests;
+    private final Map<String, List<PermissionRequest>> permissionRequests;
+    private final ReadWriteLock permissionRequestsLock;
     
     public User(String userName) {
         this.userName = userName;
         this.permissionRequests = new LinkedHashMap<>();
+        this.permissionRequestsLock = new ReentrantReadWriteLock();
     }
     
     public String getUserName() { return this.userName; }
     
-    public Set<ReceivedPermissionRequestDTO> getPermissionRequests() {
-        Set<ReceivedPermissionRequestDTO> receivedPermissionRequests = new LinkedHashSet<>();
-        permissionRequests.forEach((sender, permissionRequest) ->
-            receivedPermissionRequests.add(new ReceivedPermissionRequestDTO(
-                    permissionRequest.getRequestSenderUserName(),
-                    permissionRequest.getRequestedEngineName(),
-                    permissionRequest.getRequestedPermission().getPermission()))
-        );
+    public List<ReceivedPermissionRequestDTO> getPermissionRequests() {
+        List<ReceivedPermissionRequestDTO> receivedPermissionRequests = new LinkedList<>();
+        
+        this.permissionRequestsLock.readLock().lock();
+        try {
+            this.permissionRequests.forEach((sheetName, requests) ->
+                    requests.forEach((request) ->
+                            receivedPermissionRequests.add(new ReceivedPermissionRequestDTO(
+                                    request.getSenderName(),
+                                    sheetName,
+                                    request.getRequestedPermission().getPermission(),
+                                    request.getRequestID()
+                            ))
+                    )
+            );
+        } finally {
+            this.permissionRequestsLock.readLock().unlock();
+        }
         
         return receivedPermissionRequests;
     }
     
-    public void createPermissionRequest(String requestedPermission, String engineName, String sender) {
-        this.permissionRequests.put(sender, PermissionRequestInOwner.create(
-                PermissionType.valueOf(requestedPermission), PermissionStatus.PENDING, engineName, sender));
+    public void createPermissionRequest(PermissionRequest requestedPermission, String sheetName, String sender) {
+        this.permissionRequestsLock.writeLock().lock();
+        try {
+            this.permissionRequests.putIfAbsent(sheetName, new LinkedList<>());
+            List<PermissionRequest> requestsList = this.permissionRequests.get(sheetName);
+            
+            requestsList.add(requestedPermission);
+        } finally {
+            this.permissionRequestsLock.writeLock().unlock();
+        }
+    }
+    
+    public void removePermissionRequest(String sheetName, int requestID) {
+        this.permissionRequestsLock.writeLock().lock();
+        try {
+            List<PermissionRequest> requestList = this.permissionRequests.get(sheetName);
+            
+            if (requestList != null) {
+                requestList.removeIf(request -> request.getRequestID() == requestID);
+            }
+        } finally {
+            this.permissionRequestsLock.writeLock().unlock();
+        }
     }
 }

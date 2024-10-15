@@ -1,7 +1,6 @@
 package client.gui.home.Command;
 
 import client.gui.home.main.view.HomeViewController;
-import client.gui.home.sheet.table.SheetTableEntry;
 import client.task.PermissionRequestsTableRefresher;
 import dto.permission.ReceivedPermissionRequestDTO;
 import javafx.application.Platform;
@@ -37,9 +36,11 @@ public class CommandsController implements Closeable {
     @FXML private Button acceptRequestButton;
     @FXML private Button declineRequestButton;
     @FXML private Label newRequestErrorLabel;
+    @FXML private Label viewSheetErrorLabel;
     
     private ObservableList<PermissionRequestTableEntry> receivedRequests;
     private StringProperty newRequestErrorProperty;
+    private StringProperty viewSheetErrorProperty;
     private HomeViewController homeViewController;
     private TimerTask tableRefresher;
     private Timer timer;
@@ -47,6 +48,7 @@ public class CommandsController implements Closeable {
     public CommandsController() {
         this.receivedRequests = FXCollections.observableArrayList();
         this.newRequestErrorProperty = new SimpleStringProperty("");
+        this.viewSheetErrorProperty = new SimpleStringProperty("");
     }
     
     @FXML
@@ -55,12 +57,19 @@ public class CommandsController implements Closeable {
         this.initializeTableView();
         
         this.newRequestErrorLabel.textProperty().bind(this.newRequestErrorProperty);
+        this.viewSheetErrorLabel.textProperty().bind(this.viewSheetErrorProperty);
         
         this.sendPermissionRequestButton.disableProperty().bind(
                 Bindings.or(this.sheetNameTextField.textProperty().isEmpty(),
                         this.newPermissionChoiceBox.getSelectionModel()
                                 .selectedItemProperty().isEqualTo("Permission Type"))
         );
+        
+        this.acceptRequestButton.disableProperty().bind(
+                this.recievedRequestsTableView.getSelectionModel().selectedItemProperty().isNull());
+        
+        this.declineRequestButton.disableProperty().bind(
+                this.recievedRequestsTableView.getSelectionModel().selectedItemProperty().isNull());
         
     }
     
@@ -83,8 +92,9 @@ public class CommandsController implements Closeable {
     public void addRequestEntry(ReceivedPermissionRequestDTO requestToAdd) {
         this.receivedRequests.add(new PermissionRequestTableEntry(
                 requestToAdd.getSender(),
-                requestToAdd.getRequestedEngineName(),
-                requestToAdd.getRequestedPermission()));
+                requestToAdd.getSheetName(),
+                requestToAdd.getRequestedPermission(),
+                requestToAdd.getRequestID()));
     }
     
     private void updateReceivedRequestsTable(List<ReceivedPermissionRequestDTO> requests) {
@@ -110,12 +120,14 @@ public class CommandsController implements Closeable {
     public void startTableRefresher() {
         this.tableRefresher = new PermissionRequestsTableRefresher(this::updateReceivedRequestsTable);
         timer = new Timer();
-        timer.schedule(this.tableRefresher, 10000, REFRESH_RATE);
+        timer.schedule(this.tableRefresher, REFRESH_RATE, REFRESH_RATE);
     }
     
     public void updateNewRequestErrorLabel(String message) {
         this.newRequestErrorProperty.set(message);
     }
+    
+    public void updateViewSheetErrorLabel(String message) { this.viewSheetErrorProperty.set(message); }
     
     public void clearNewPermissionRequestsFields() {
         this.sheetNameTextField.textProperty().set("");
@@ -125,12 +137,22 @@ public class CommandsController implements Closeable {
     
     @FXML
     void onAcceptRequestClicked(ActionEvent event) {
-    
+        PermissionRequestTableEntry selectedRequest =
+                this.recievedRequestsTableView.getSelectionModel().getSelectedItem();
+        
+        if (selectedRequest != null) {
+            this.homeViewController.replyToPermissionRequest(selectedRequest, true);
+        }
     }
     
     @FXML
     void onDeclineRequestClicked(ActionEvent event) {
-    
+        PermissionRequestTableEntry selectedRequest =
+                this.recievedRequestsTableView.getSelectionModel().getSelectedItem();
+        
+        if (selectedRequest != null) {
+            this.homeViewController.replyToPermissionRequest(selectedRequest, false);
+        }
     }
     
     @FXML
@@ -142,7 +164,10 @@ public class CommandsController implements Closeable {
     
     @FXML
     void onViewSheetClicked(ActionEvent event) {
-    
+        if (this.homeViewController.viewSheet()) {
+            this.viewSheetErrorProperty.set("");
+            
+        }
     }
     
     public void setMainController(HomeViewController homeViewController) {

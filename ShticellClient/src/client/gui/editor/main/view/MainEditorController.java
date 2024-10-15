@@ -1,5 +1,7 @@
 package client.gui.editor.main.view;
 
+import client.gui.app.MainAppViewController;
+import client.gui.util.Constants;
 import component.cell.api.CellType;
 import client.main.Main;
 import client.gui.editor.action.line.ActionLineController;
@@ -56,8 +58,10 @@ public class MainEditorController {
 
     private BooleanProperty fileNotLoadedProperty;
     private Engine engine;
+    private String engineName;
     private Stage primaryStage;
-
+    private MainAppViewController mainAppController;
+    
     public MainEditorController() {
         this.fileNotLoadedProperty = new SimpleBooleanProperty(true);
     }
@@ -214,7 +218,7 @@ public class MainEditorController {
             popupStage.setScene(popupScene);
             popupStage.getIcons().add(
                     new Image(Objects.requireNonNull(
-                            Main.class.getResourceAsStream("/client/gui/util/resources/shticellLogo.png"))));
+                            Main.class.getResourceAsStream(Constants.SHTICELL_LOGO_RESOURCE_LOCATION))));
 
             // Show the pop-up window
             popupStage.show();
@@ -222,36 +226,6 @@ public class MainEditorController {
             e.printStackTrace();
         }
     }
-
-//    private FileUploadController openFileUploadWindow() {
-//        FileUploadController fileUploadController = null;
-//        try {
-//            // Load the FileUploadController and FXML
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/gui/home/file/upload/FileUploadComponent.fxml"));
-//            Parent root = loader.load();
-//
-//            fileUploadController = loader.getController();
-//
-//            // Set the scene and content
-//            Stage popUpStage = new Stage();
-//            Scene scene = new Scene(root);
-//            popUpStage.setScene(scene);
-//            fileUploadController.setStage(popUpStage);
-//            popUpStage.getIcons().add(
-//                    new Image(Objects.requireNonNull(
-//                            Main.class.getResourceAsStream("/client/gui/util/resources/shticellLogo.png"))));
-//            // Make the window modal (blocks interactions with the main window)
-//            popUpStage.initModality(Modality.APPLICATION_MODAL);
-//
-//            // Show the window
-//            popUpStage.show();
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        return fileUploadController;
-//    }
 
     public RangeDTO addNewRange(String rangeName, String from, String to) {
         try {
@@ -436,7 +410,7 @@ public class MainEditorController {
         graphStage.setTitle(i_GraphType);
         graphStage.getIcons().add(
                 new Image(Objects.requireNonNull(
-                        Main.class.getResourceAsStream("/client/gui/util/resources/shticellLogo.png"))));
+                        Main.class.getResourceAsStream(Constants.SHTICELL_LOGO_RESOURCE_LOCATION))));
         ScrollPane scrollPane = new ScrollPane();
         (graphChart).setPadding(new Insets(20, 20, 60, 20));
         scrollPane.setContent(graphChart);
@@ -446,5 +420,17 @@ public class MainEditorController {
         graphStage.setScene(scene);
         graphStage.showAndWait();  // Show the popup and wait for it to close
     }
-
+    
+    public void setAppMainController(MainAppViewController mainAppViewController) {
+        this.mainAppController = mainAppViewController;
+    }
+    
+    public void setActive(String sheetName) {
+        this.engineName = sheetName;
+        this.initializeSheetLayoutAndControllers();
+    }
+    
+    public void setInActive() {
+        // TODO
+    }
 }

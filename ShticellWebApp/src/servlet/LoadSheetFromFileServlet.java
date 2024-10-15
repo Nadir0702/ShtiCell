@@ -30,16 +30,6 @@ public class LoadSheetFromFileServlet extends HttpServlet {
         EngineManager engineManager = ServletUtils.getEngineManager(getServletContext());
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
         
-        // -------- currently here because there is no login page yet -----------------------
-        String usernameFromParameter = request.getParameter(Constants.USERNAME);
-        request.getSession(true).setAttribute(Constants.USERNAME, usernameFromParameter);
-        synchronized (this) {
-            if (!userManager.isUserExists(usernameFromParameter)){
-                userManager.addUser(usernameFromParameter, new User(usernameFromParameter));
-            }
-        }
-        // ----------------------------------------------------------------------------------
-        
         String username = SessionUtils.getUsername(request);
         if (!SessionUtils.isSessionExists(response, username)) {
             return;

@@ -73,7 +73,7 @@ public class SheetsTableController implements Closeable {
     public void startTableRefresher() {
         this.tableRefresher = new SheetTableRefresher(this::updateSheetsTable);
         this.timer = new Timer();
-        this.timer.schedule(this.tableRefresher, 10000, REFRESH_RATE);
+        this.timer.schedule(this.tableRefresher, REFRESH_RATE, REFRESH_RATE);
     }
     
     private void updateSheetsTable(List<SheetMetaDataDTO> sheets) {

@@ -28,28 +28,43 @@ import user.User;
 import user.permission.PermissionStatus;
 import user.permission.PermissionType;
 import logic.sort.Sorter;
-import user.request.api.PermissionRequestInEngine;
+import user.request.PermissionRequest;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class EngineImpl implements Engine{
     private final User owner;
     private String name;
     private Sheet sheet;
     private Archive archive;
-    private Map<String, PermissionRequestInEngine> usersPermissions;
+    private final Map<String, PermissionType> usersPermissions;
+    private final List<PermissionRequest> allPermissionRequests;
+    private final ReadWriteLock usersPermissionLock;
+    private final ReadWriteLock allPermissionLock;
     
     public EngineImpl(User owner) {
         this.owner = owner;
         this.name = null;
         this.sheet = null;
         this.archive = null;
+        
         this.usersPermissions = new HashMap<>();
-        this.usersPermissions.put(this.owner.getUserName(), PermissionRequestInEngine.create(
-                PermissionType.OWNER, PermissionType.OWNER, PermissionStatus.ACCEPTED
-        ));
+        this.allPermissionRequests = new LinkedList<>();
+        
+        this.usersPermissions.put(this.owner.getUserName(),PermissionType.OWNER);
+        this.allPermissionRequests.add(new PermissionRequest(
+                this.owner.getUserName(),
+                PermissionType.OWNER,
+                PermissionStatus.ACCEPTED,
+                this.allPermissionRequests.size())
+        );
+        
+        this.usersPermissionLock = new ReentrantReadWriteLock();
+        this.allPermissionLock = new ReentrantReadWriteLock();
     }
     
     @Override
@@ -206,12 +221,17 @@ public class EngineImpl implements Engine{
     
     @Override
     public SheetMetaDataDTO getSheetMetaData(String currentUserName) {
-        PermissionRequestInEngine permission = this.usersPermissions.get(currentUserName);
+        PermissionType permission;
+        
+        this.usersPermissionLock.readLock().lock();
+        try {
+            permission = this.usersPermissions.get(currentUserName);
+        } finally {
+            usersPermissionLock.readLock().unlock();
+        }
         
         if (permission == null) {
-            permission = PermissionRequestInEngine.create(
-                    PermissionType.NONE, PermissionType.NONE, PermissionStatus.ACCEPTED
-            );
+            permission = PermissionType.NONE;
         }
         
         return new SheetMetaDataDTO(
@@ -219,7 +239,8 @@ public class EngineImpl implements Engine{
                 this.sheet.getSheetName(),
                 this.sheet.getLayout().getRow(),
                 this.sheet.getLayout().getColumn(),
-                permission.getCurrentPermission().getPermission());
+                permission.getPermission()
+        );
     }
     
     @Override
@@ -230,56 +251,74 @@ public class EngineImpl implements Engine{
     }
     
     @Override
-    public Set<PermissionDTO> getAllPermissions() {
-        Set<PermissionDTO> permissions = new LinkedHashSet<>();
-        
-        this.usersPermissions.forEach((userName, permission) -> {
-            if (!permission.getCurrentPermission().equals(PermissionType.OWNER)) {
-                permissions.add(new PermissionDTO(userName,
-                        permission.getRequestedPermission().getPermission(),
-                        permission.getRequestStatus().getPermissionStatus()));
+    public void updatePermissionForUser(String sender, boolean answer, int requestID) {
+        this.allPermissionLock.writeLock().lock();
+        try {
+            PermissionRequest requestToAnswerTo = this.allPermissionRequests.get(requestID);
+            
+            if (requestToAnswerTo == null) {
+                throw new IllegalArgumentException("No Permission Request found with ID " + requestID);
             }
-        });
+            
+            if (answer) {
+                this.usersPermissionLock.writeLock().lock();
+                try {
+                    this.usersPermissions.put(sender, requestToAnswerTo.getRequestedPermission());
+                } finally {
+                    this.usersPermissionLock.writeLock().unlock();
+                }
+            }
+            
+            requestToAnswerTo.updateRequestStatus(answer);
+        } finally {
+            this.allPermissionLock.writeLock().unlock();
+        }
+    }
+    
+    @Override
+    public List<PermissionDTO> getAllPermissions() {
+        List<PermissionDTO> permissions;
+        
+        this.allPermissionLock.readLock().lock();
+        try {
+            permissions = new ArrayList<>(this.allPermissionRequests.size());
+            
+            this.allPermissionRequests.forEach((permission) ->
+                    permissions.add(new PermissionDTO(
+                            permission.getSenderName(),
+                            permission.getRequestedPermission().getPermission(),
+                            permission.getRequestStatus().getPermissionStatus()))
+            );
+        } finally {
+            this.allPermissionLock.readLock().unlock();
+        }
         
         return permissions;
     }
     
     @Override
     public void createNewPermissionRequest(SentPermissionRequestDTO requestToSend, String sender)  throws IllegalArgumentException {
-        PermissionRequestInEngine permissionRequest = this.usersPermissions.get(sender);
-        PermissionType currentPermission;
+        if (this.owner.getUserName().equals(sender)) {
+            throw new IllegalArgumentException("Cannot create a new permission request for your own Sheets");
+        }
         
-        if (permissionRequest == null) {
-            this.isNewPermissionRequested(
-                    PermissionType.valueOf(requestToSend.getRequestedPermission().toUpperCase()), PermissionType.NONE);
-                    
-            currentPermission = PermissionType.NONE;
-        } else {
-            this.isNewPermissionRequested(
+        PermissionRequest permissionRequest, copyRequest;
+        
+        this.allPermissionLock.writeLock().lock();
+        try {
+            permissionRequest = new PermissionRequest(
+                    sender,
                     PermissionType.valueOf(requestToSend.getRequestedPermission().toUpperCase()),
-                    permissionRequest.getCurrentPermission());
+                    PermissionStatus.PENDING,
+                    this.allPermissionRequests.size());
             
-            if (permissionRequest.getCurrentPermission() == PermissionType.OWNER) {
-                throw new IllegalArgumentException("Cannot create a new permission request for your own Sheets");
-            }
-            
-            currentPermission = permissionRequest.getCurrentPermission();
+            this.allPermissionRequests.add(permissionRequest);
+            copyRequest = permissionRequest.deepCopy();
+        } finally {
+            this.allPermissionLock.writeLock().unlock();
         }
         
-        permissionRequest = PermissionRequestInEngine.create(
-                currentPermission,
-                PermissionType.valueOf(requestToSend.getRequestedPermission().toUpperCase()),
-                PermissionStatus.PENDING);
-        
-        this.usersPermissions.put(sender, permissionRequest);
-        this.owner.createPermissionRequest(requestToSend.getRequestedPermission().toUpperCase(), this.name, sender);
-    }
-    
-    private void isNewPermissionRequested(PermissionType requestedPermission, PermissionType currentPermission) throws IllegalArgumentException {
-        if(requestedPermission.equals(currentPermission)){
-            throw new IllegalArgumentException(
-                    "Already has " + requestedPermission.getPermission() + " permission for sheet " + this.name);
-        }
+        this.owner.createPermissionRequest(copyRequest, this.name, sender);
     }
     
     private List<Returnable> getUniqueItemsInColumn(String column, Range range) {

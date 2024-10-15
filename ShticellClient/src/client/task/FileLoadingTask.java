@@ -16,17 +16,14 @@ import java.util.function.Consumer;
 
 public class FileLoadingTask extends Task<Void> {
     private final String filePath;
-    private final String userName;
     private final FileUploadController fileUploadController;
     private final Consumer<SheetMetaDataDTO> onSuccessfulResponse;
     
 
     public FileLoadingTask(String filePath,
-                           String userName,
                            FileUploadController fileUploadController,
                            Consumer<SheetMetaDataDTO> onFinished) {
         this.filePath = filePath;
-        this.userName = userName;
         this.fileUploadController = fileUploadController;
         this.onSuccessfulResponse = onFinished;
     }
@@ -64,7 +61,6 @@ public class FileLoadingTask extends Task<Void> {
         
         HttpUrl url = HttpUrl.parse(Constants.LOAD_SHEET)
                 .newBuilder()
-                .addQueryParameter("username", this.userName)
                 .build();
         
         Request request = new Request.Builder()

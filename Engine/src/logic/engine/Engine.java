@@ -15,7 +15,6 @@ import logic.function.returnable.api.Returnable;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
 
 public interface Engine {
     void loadData(String path);
@@ -40,5 +39,6 @@ public interface Engine {
     SheetMetaDataDTO getSheetMetaData(String currentUserName);
     LinkedHashMap<Returnable, LinkedHashMap<Returnable, Returnable>> getGraphFromRange(String rangeToBuildGraphFrom);
     void createNewPermissionRequest(SentPermissionRequestDTO requestToSend, String sender);
-    Set<PermissionDTO> getAllPermissions();
+    List<PermissionDTO> getAllPermissions();
+    void updatePermissionForUser(String sender, boolean answer, int requestID);
 }

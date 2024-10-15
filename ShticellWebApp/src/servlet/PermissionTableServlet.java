@@ -13,7 +13,7 @@ import utils.ServletUtils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Set;
+import java.util.List;
 
 @WebServlet(name = "Permission Table Servlet", urlPatterns = "/refreshPermissionTable")
 public class PermissionTableServlet extends HttpServlet {
@@ -28,13 +28,14 @@ public class PermissionTableServlet extends HttpServlet {
             if (engine == null) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 response.getWriter().println("No such sheet");
+                return;
             }
             
-            Set<PermissionDTO> permissionDTOSet = engine.getAllPermissions();
+            List<PermissionDTO> permissionDTOList = engine.getAllPermissions();
             
             
             
-            String json = gson.toJson(permissionDTOSet);
+            String json = gson.toJson(permissionDTOList);
             out.println(json);
             out.flush();
         }

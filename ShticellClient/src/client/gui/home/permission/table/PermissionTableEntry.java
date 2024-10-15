@@ -8,7 +8,6 @@ import java.util.Objects;
 public class PermissionTableEntry {
     private final StringProperty username;
     private final StringProperty permissionType;
-    
     private final StringProperty requestStatus;
     
     public PermissionTableEntry(String username, String permissionType, String requestStatus) {

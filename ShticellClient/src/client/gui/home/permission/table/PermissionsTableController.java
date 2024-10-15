@@ -63,7 +63,7 @@ public class PermissionsTableController implements Closeable {
     public void startTableRefresher() {
         this.tableRefresher = new PermissionTableRefresher(this::updatePermissionsTable);
         this.timer = new Timer();
-        this.timer.schedule(this.tableRefresher, 10000, REFRESH_RATE);
+        this.timer.schedule(this.tableRefresher, REFRESH_RATE, REFRESH_RATE);
     }
     
     private void updatePermissionsTable(List<PermissionDTO> permissions) {
