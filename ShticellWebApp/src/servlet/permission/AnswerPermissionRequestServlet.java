@@ -1,9 +1,8 @@
-package servlet;
+package servlet.permission;
 
 import com.google.gson.Gson;
 import constants.Constants;
 import dto.permission.ReceivedPermissionRequestDTO;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +20,8 @@ import java.io.IOException;
 @WebServlet(name = "Answer Permission Request Servlet", urlPatterns = "/answerPermissionRequest")
 public class AnswerPermissionRequestServlet extends HttpServlet {
     
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json");
         EngineManager engineManager = ServletUtils.getEngineManager(getServletContext());
         UserManager userManager = ServletUtils.getUserManager(getServletContext());

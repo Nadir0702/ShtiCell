@@ -97,15 +97,15 @@ public class RangesController {
     
     @FXML
     void onSaveRangeClicked(ActionEvent event) {
-        RangeDTO newRange = this.mainEditorController.addNewRange(
+        this.mainEditorController.addNewRange(
                 this.rangeNameTextField.getText(),
                 this.topRightBoundaryTextField.getText(),
                 this.bottomLeftBoundaryTextField.getText());
-        
-        if (newRange != null) {
-            this.rangesModel.rangesProperty().add(newRange);
-            this.clearNewRangeFields();
-        }
+    }
+    
+    public void acceptNewRange(RangeDTO newRange) {
+        this.rangesModel.rangesProperty().add(newRange);
+        this.clearNewRangeFields();
     }
     
     public void setMainController(MainEditorController mainViewController) {

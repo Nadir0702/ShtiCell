@@ -3,7 +3,6 @@ package client.gui.app;
 import client.gui.editor.main.view.MainEditorController;
 import client.gui.home.main.view.HomeViewController;
 import client.gui.login.LoginController;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -118,5 +117,9 @@ public class MainAppViewController implements Closeable {
         this.homeViewController.setInActive();
         this.editorViewController.setActive(sheetName);
         this.setMainPanelTo(this.editorViewComponent);
+    }
+    
+    public Parent getEditorRootElement() {
+        return this.editorViewComponent;
     }
 }

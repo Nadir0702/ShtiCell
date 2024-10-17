@@ -1,39 +1,42 @@
-package servlet;
+package servlet.refresher.home;
 
 import com.google.gson.Gson;
-import dto.sheet.SheetMetaDataDTO;
+import constants.Constants;
+import dto.permission.PermissionDTO;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import manager.EngineManager;
 import logic.engine.Engine;
+import manager.EngineManager;
 import utils.ServletUtils;
-import utils.SessionUtils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.List;
 
-@WebServlet(name = "Sheet Table Servlet", urlPatterns = "/refreshSheetTable")
-public class SheetTableServlet extends HttpServlet {
+@WebServlet(name = "Permission Table Servlet", urlPatterns = "/refreshPermissionTable")
+public class PermissionTableServlet extends HttpServlet {
     
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json");
         EngineManager engineManager = ServletUtils.getEngineManager(getServletContext());
         
         try (PrintWriter out = response.getWriter()) {
             Gson gson = new Gson();
-            Map<String, Engine> enginesList = engineManager.getEngines();
-            Set<SheetMetaDataDTO> sheetMetaDataDTOSet = new LinkedHashSet<>();
+            Engine engine = engineManager.getEngine(request.getParameter(Constants.SHEET_NAME));
+            if (engine == null) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                response.getWriter().println("No such sheet");
+                return;
+            }
             
-            enginesList.forEach((name, engine) ->
-                    sheetMetaDataDTOSet.add(engine.getSheetMetaData(SessionUtils.getUsername(request)))
-            );
+            List<PermissionDTO> permissionDTOList = engine.getAllPermissions();
             
-            String json = gson.toJson(sheetMetaDataDTOSet);
+            
+            
+            String json = gson.toJson(permissionDTOList);
             out.println(json);
             out.flush();
         }

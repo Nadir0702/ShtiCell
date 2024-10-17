@@ -2,12 +2,13 @@ package dto.cell;
 
 import component.cell.api.Cell;
 import component.cell.impl.SerializableColor;
+import dto.returnable.EffectiveValueDTO;
 import javafx.scene.paint.Color;
 import logic.function.returnable.api.Returnable;
 
 public class ColoredCellDTO {
     private final String cellId;
-    private final Returnable effectiveValue;
+    private final EffectiveValueDTO effectiveValue;
     private SerializableColor backgroundColor;
     private SerializableColor textColor;
     private final boolean isActive;
@@ -16,7 +17,7 @@ public class ColoredCellDTO {
     public ColoredCellDTO(Cell cell, String cellID) {
         if (cell != null) {
             this.cellId = cell.getCellId();
-            this.effectiveValue = cell.getEffectiveValue();
+            this.effectiveValue = new EffectiveValueDTO(cell.getEffectiveValue());
             this.backgroundColor = cell.getBackgroundColor();
             this.textColor = cell.getTextColor();
             this.isActive = true;
@@ -37,7 +38,7 @@ public class ColoredCellDTO {
         return this.cellId;
     }
     
-    public Returnable getEffectiveValue() {
+    public EffectiveValueDTO getEffectiveValue() {
         return this.effectiveValue;
     }
     

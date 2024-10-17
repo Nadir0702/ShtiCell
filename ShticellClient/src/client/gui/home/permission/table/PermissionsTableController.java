@@ -15,7 +15,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import static client.gui.util.Constants.REFRESH_RATE;
 

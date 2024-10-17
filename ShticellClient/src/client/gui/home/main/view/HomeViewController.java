@@ -30,7 +30,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
-import user.permission.PermissionType;
 
 import java.io.Closeable;
 import java.io.File;
@@ -237,7 +236,7 @@ public class HomeViewController implements Closeable {
     public boolean viewSheet() {
         if (this.selectedSheet == null) {
             this.commandsController.updateViewSheetErrorLabel("No sheet selected");
-        } else if (this.selectedSheet.getPermission().equalsIgnoreCase(PermissionType.NONE.getPermission())) {
+        } else if (this.selectedSheet.getPermission().equalsIgnoreCase(Constants.NONE_PERMISSION_TYPE)) {
             this.commandsController.updateViewSheetErrorLabel("Unauthorized to view this sheet");
         } else {
             this.mainAppController.switchToEditor(this.selectedSheet.getSheetName());

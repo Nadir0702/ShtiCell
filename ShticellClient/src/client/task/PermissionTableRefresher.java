@@ -36,7 +36,7 @@ public class PermissionTableRefresher extends TimerTask {
         
         HttpUrl url = HttpUrl.parse(Constants.REFRESH_PERMISSION_TABLE)
                 .newBuilder()
-                .addQueryParameter("sheetname", this.sheetName)
+                .addQueryParameter("sheetName", this.sheetName)
                 .build();
         
         Request request =  new Request.Builder()

@@ -1,7 +1,6 @@
-package servlet;
+package servlet.file;
 
 import com.google.gson.Gson;
-import constants.Constants;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;

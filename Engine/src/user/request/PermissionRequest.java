@@ -47,9 +47,9 @@ public class PermissionRequest {
     
     public void updateRequestStatus(boolean answer) {
         if (answer) {
-            this.requestStatus = PermissionStatus.ACCEPTED;
+            this.requestStatus = PermissionStatus.APPROVED;
         } else {
-            this.requestStatus = PermissionStatus.DENIED;
+            this.requestStatus = PermissionStatus.REJECTED;
         }
     }
 }

@@ -1,4 +1,4 @@
-package servlet;
+package servlet.refresher.home;
 
 import com.google.gson.Gson;
 import dto.permission.ReceivedPermissionRequestDTO;
@@ -18,6 +18,7 @@ import java.util.List;
 @WebServlet(name = "Refresh Permission Requests Table Servlet", urlPatterns = "/refreshPermissionRequestsTable")
 public class ReceivedPermissionRequestsTableServlet  extends HttpServlet {
     
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json");
         UserManager userManager = ServletUtils.getUserManager(getServletContext());

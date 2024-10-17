@@ -1,41 +1,40 @@
-package servlet;
+package servlet.refresher.home;
 
 import com.google.gson.Gson;
-import constants.Constants;
-import dto.permission.PermissionDTO;
+import dto.sheet.SheetMetaDataDTO;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import logic.engine.Engine;
 import manager.EngineManager;
+import logic.engine.Engine;
 import utils.ServletUtils;
+import utils.SessionUtils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
-@WebServlet(name = "Permission Table Servlet", urlPatterns = "/refreshPermissionTable")
-public class PermissionTableServlet extends HttpServlet {
+@WebServlet(name = "Sheet Table Servlet", urlPatterns = "/refreshSheetTable")
+public class SheetTableServlet extends HttpServlet {
     
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json");
         EngineManager engineManager = ServletUtils.getEngineManager(getServletContext());
         
         try (PrintWriter out = response.getWriter()) {
             Gson gson = new Gson();
-            Engine engine = engineManager.getEngine(request.getParameter(Constants.SHEETNAME));
-            if (engine == null) {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                response.getWriter().println("No such sheet");
-                return;
-            }
+            Map<String, Engine> enginesList = engineManager.getEngines();
+            Set<SheetMetaDataDTO> sheetMetaDataDTOSet = new LinkedHashSet<>();
             
-            List<PermissionDTO> permissionDTOList = engine.getAllPermissions();
+            enginesList.forEach((name, engine) ->
+                    sheetMetaDataDTOSet.add(engine.getSheetMetaData(SessionUtils.getUsername(request)))
+            );
             
-            
-            
-            String json = gson.toJson(permissionDTOList);
+            String json = gson.toJson(sheetMetaDataDTOSet);
             out.println(json);
             out.flush();
         }

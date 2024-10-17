@@ -3,6 +3,7 @@ package logic.filter;
 import component.cell.api.Cell;
 import component.range.api.Range;
 import component.sheet.api.Sheet;
+import dto.returnable.EffectiveValueDTO;
 import logic.function.returnable.api.Returnable;
 
 import java.util.ArrayList;
@@ -25,18 +26,18 @@ public class Filter {
         this.rightColumn = this.rangeToFilter.getTo().getCellId().substring(0,1);
     }
     
-    public Range filter(String columnToFilterBy, List<Returnable> itemsToFilter) {
+    public Range filter(String columnToFilterBy, List<EffectiveValueDTO> itemsToFilter) {
         List<Cell> columnToFilter = this.getColumnListFromRange(columnToFilterBy);
         List<List<Cell>> rangeInRows = this.getRowsFromRange();
         List<List<Cell>> filteredCells = new ArrayList<>();
         
         for (int i = 0; i < columnToFilter.size(); i++) {
-            for (Returnable item : itemsToFilter) {
+            for (EffectiveValueDTO item : itemsToFilter) {
                 
                 String effectiveValueAsString = String.valueOf(columnToFilter.get(i)
                         .getEffectiveValue().getValue());
                 
-                if (String.valueOf(item.getValue()).equals(effectiveValueAsString)) {
+                if (String.valueOf(item.getEffectiveValue()).equals(effectiveValueAsString)) {
                     filteredCells.add(rangeInRows.get(i));
                     break;
                 }

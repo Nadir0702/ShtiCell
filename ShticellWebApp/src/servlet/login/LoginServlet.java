@@ -1,4 +1,4 @@
-package servlet;
+package servlet.login;
 
 import constants.Constants;
 import jakarta.servlet.annotation.WebServlet;
@@ -60,5 +60,4 @@ public class LoginServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_OK);
         }
     }
-    
 }

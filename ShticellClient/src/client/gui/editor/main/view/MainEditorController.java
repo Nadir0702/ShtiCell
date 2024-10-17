@@ -1,8 +1,9 @@
 package client.gui.editor.main.view;
 
 import client.gui.app.MainAppViewController;
+import client.gui.exception.ExceptionWindowController;
 import client.gui.util.Constants;
-import component.cell.api.CellType;
+import client.gui.util.http.HttpClientUtil;
 import client.main.Main;
 import client.gui.editor.action.line.ActionLineController;
 import client.gui.editor.cell.CellSubComponentController;
@@ -17,8 +18,12 @@ import dto.cell.CellDTO;
 import dto.cell.ColoredCellDTO;
 import dto.range.RangeDTO;
 import dto.range.RangesDTO;
+import dto.returnable.EffectiveValueDTO;
 import dto.sheet.ColoredSheetDTO;
+import dto.sheet.SheetAndCellDTO;
+import dto.sheet.SheetAndRangesDTO;
 import dto.sheet.SheetDTO;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
@@ -30,20 +35,17 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import logic.engine.Engine;
 import logic.engine.EngineImpl;
-import logic.function.returnable.api.Returnable;
+import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 import user.User;
 
-import java.io.File;
 import java.io.IOException;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.*;
-
-import static client.gui.exception.ExceptionWindowController.openExceptionPopup;
 
 public class MainEditorController {
 
@@ -58,8 +60,6 @@ public class MainEditorController {
 
     private BooleanProperty fileNotLoadedProperty;
     private Engine engine;
-    private String engineName;
-    private Stage primaryStage;
     private MainAppViewController mainAppController;
     
     public MainEditorController() {
@@ -113,59 +113,70 @@ public class MainEditorController {
         });
     }
 
-    public void setPrimaryStage(Stage stage) {
-        this.primaryStage = stage;
+    private void getSheetAndRanges() {
+        Request request = new Request.Builder()
+                .url(Constants.GET_SHEET_AND_RANGES)
+                .build();
+        
+        HttpClientUtil.runAsync(request, new Callback() {
+            
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() ->
+                        ExceptionWindowController.openExceptionPopup(
+                                "Something went wrong: " + e.getMessage())
+                );
+            }
+            
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                try(ResponseBody responseBody = response.body()) {
+                    String responseBodyString = responseBody.string();
+                    if (response.code() != 200) {
+                        Platform.runLater(() ->
+                                ExceptionWindowController.openExceptionPopup(
+                                        "Something went wrong: " + responseBodyString)
+                        );
+                    } else {
+                        SheetAndRangesDTO sheetAndRanges =
+                                Constants.GSON_INSTANCE.fromJson(responseBodyString, SheetAndRangesDTO.class);
+                     
+                        Platform.runLater(() ->
+                            initializeSheetLayoutAndControllers(
+                                    sheetAndRanges.getSheetDTO(), sheetAndRanges.getRangesDTO())
+                        );
+                    }
+                } catch (RuntimeException e) {
+                    Platform.runLater(() -> ExceptionWindowController.openExceptionPopup(e.getMessage()));
+                }
+            }
+        });
     }
-
-    public File getFilePath(FileChooser fileChooser) {
-        return fileChooser.showOpenDialog(this.primaryStage);
-    }
-
-//    public void loadNewSheetFromXML(String absolutePath) {
-//        FileUploadController fileUploadController = this.openFileUploadWindow();
-//        Task<Boolean> fileLoadingTask = new FileLoadingTask(absolutePath);
-//
-//        this.bindFileLoadingTaskToUIComponents(fileUploadController, fileLoadingTask);
-//        fileLoadingTask.setOnFailed(event -> {
-//            Platform.runLater(() -> {
-//                fileUploadController.onTaskFinished(Optional.empty());
-//                openExceptionPopup(fileLoadingTask.getException().getMessage());
-//            });
-//        });
-//        new Thread(fileLoadingTask).start();
-//    }
-
-//    private void bindFileLoadingTaskToUIComponents(FileUploadController fileUploadController, Task<Boolean> fileLoadingTask) {
-//        fileUploadController.bindProgressComponents(fileLoadingTask, this::initializeSheetLayoutAndControllers);
-//    }
-
-    private void initializeSheetLayoutAndControllers() {
+    
+    private void initializeSheetLayoutAndControllers(SheetDTO sheetDTO, RangesDTO rangesDTO) {
+        GridBuilder gridBuilder = new GridBuilder(sheetDTO.getLayout().getRow(),
+                sheetDTO.getLayout().getColumn(),
+                sheetDTO.getLayout().getRowHeight(),
+                sheetDTO.getLayout().getColumnWidth());
+        
+        BorderPane root = (BorderPane) this.mainAppController.getEditorRootElement();
         try {
-            SheetDTO sheetDTO = this.engine.getSheetAsDTO();
-            RangesDTO rangesDto = this.engine.getAllRanges();
-            GridBuilder gridBuilder = new GridBuilder(sheetDTO.getLayout().getRow(),
-                    sheetDTO.getLayout().getColumn(),
-                    sheetDTO.getLayout().getRowHeight(),
-                    sheetDTO.getLayout().getColumnWidth());
-
-            BorderPane root = (BorderPane) this.primaryStage.getScene().getRoot();
             root.setCenter(gridBuilder.build());
-            this.setSheetGridController(gridBuilder.getSheetGridController());
-            this.setCellSubComponentControllerMap(this.sheetGridController.getCellsControllers());
-            this.sheetGridController.initializeGridModel(sheetDTO.getCells());
-            this.rangesController.initializeRangesModel(rangesDto);
-            this.fileNotLoadedProperty.set(false);
-            this.actionLineController.resetCellModel();
-            this.rangesController.resetController();
-            this.customizationsController.resetController();
-            this.commandsController.resetController();
-            this.topSubComponentController.setSheetNameAndVersion(sheetDTO.getSheetName(), sheetDTO.getVersion());
-
-        } catch (RuntimeException | IOException e) {
-            openExceptionPopup(e.getMessage());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+        setSheetGridController(gridBuilder.getSheetGridController());
+        setCellSubComponentControllerMap(sheetGridController.getCellsControllers());
+        sheetGridController.initializeGridModel(sheetDTO.getCells());
+        rangesController.initializeRangesModel(rangesDTO);
+        fileNotLoadedProperty.set(false);
+        actionLineController.resetCellModel();
+        rangesController.resetController();
+        customizationsController.resetController();
+        commandsController.resetController();
+        topSubComponentController.setSheetNameAndVersion(
+                sheetDTO.getSheetName(), sheetDTO.getVersion());
     }
-
 
     public void showCellDetails(CellSubComponentController cellSubComponentController) {
         String selectedCellID = cellSubComponentController.cellIDProperty().get();
@@ -174,34 +185,171 @@ public class MainEditorController {
             this.actionLineController.resetCellModel();
             this.customizationsController.deselectCell();
         } else {
-            CellDTO cellDTO = this.engine.getSingleCellData(cellSubComponentController.cellIDProperty().get());
-            this.actionLineController.showCellDetails(cellDTO);
-            this.sheetGridController.showSelectedCellAndDependencies(cellDTO);
-            this.customizationsController.setSelectedCell(cellDTO);
+            this.getSingleCellData(selectedCellID);
         }
+    }
+    
+    private void getSingleCellData(String cellID) {
+        HttpUrl url = HttpUrl.parse(Constants.GET_SINGLE_CELL_DATA)
+                .newBuilder()
+                .addQueryParameter("cellID", cellID)
+                .build();
+        
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        
+        HttpClientUtil.runAsync(request, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() ->
+                        ExceptionWindowController.openExceptionPopup(
+                                "Something went wrong: " + e.getMessage())
+                );
+            }
+            
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                try(ResponseBody responseBody = response.body()) {
+                    String responseBodyString = responseBody.string();
+                    if (response.code() != 200) {
+                        Platform.runLater(() ->
+                                ExceptionWindowController.openExceptionPopup(
+                                        "Something went wrong: " + responseBodyString)
+                        );
+                    } else {
+                        CellDTO cellData = Constants.GSON_INSTANCE.fromJson(responseBodyString, CellDTO.class);
+                        
+                        Platform.runLater(() -> {
+                            actionLineController.showCellDetails(cellData);
+                            sheetGridController.showSelectedCellAndDependencies(cellData);
+                            customizationsController.setSelectedCell(cellData);
+                        });
+                    }
+                }
+            }
+        });
     }
 
     public void updateCellValue(String cellToUpdate, String newValue) {
-        try {
-            this.engine.updateSingleCellData(cellToUpdate, newValue);
-            SheetDTO sheetDTO = this.engine.getSheetAsDTO();
-            CellDTO cellDTO = this.engine.getSingleCellData(cellToUpdate);
-            this.sheetGridController.updateGridModel(sheetDTO.getCells());
-            this.actionLineController.showCellDetails(cellDTO);
-            this.sheetGridController.showSelectedCellAndDependencies(cellDTO);
-            this.topSubComponentController.updateSheetVersion(sheetDTO.getVersion());
-        } catch (RuntimeException e) {
-            openExceptionPopup(e.getMessage());
-        }
+        HttpUrl url = HttpUrl.parse(Constants.UPDATE_CELL_DATA)
+                .newBuilder()
+                .addQueryParameter("cellID", cellToUpdate)
+                .addQueryParameter("newValue", newValue)
+                .build();
+        
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        
+        HttpClientUtil.runAsync(request, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() ->
+                        ExceptionWindowController.openExceptionPopup(
+                                "Something went wrong: " + e.getMessage())
+                );
+            }
+            
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                try(ResponseBody responseBody = response.body()) {
+                    String responseBodyString = responseBody.string();
+                    if (response.code() != 200) {
+                        Platform.runLater(() ->
+                                ExceptionWindowController.openExceptionPopup(
+                                        "Something went wrong: " + responseBodyString)
+                        );
+                    } else {
+                        SheetAndCellDTO sheetAndCellData =
+                                Constants.GSON_INSTANCE.fromJson(responseBodyString, SheetAndCellDTO.class);
+                        
+                        Platform.runLater(() -> {
+                            sheetGridController.updateGridModel(sheetAndCellData.getSheetDTO().getCells());
+                            actionLineController.showCellDetails(sheetAndCellData.getCellDTO());
+                            sheetGridController.showSelectedCellAndDependencies(sheetAndCellData.getCellDTO());
+                            topSubComponentController.updateSheetVersion(sheetAndCellData.getSheetDTO().getVersion());
+                        });
+                    }
+                }
+            }
+        });
     }
 
-    public int getSheetVersions() {
-        return this.engine.isSheetLoaded() ? this.engine.showVersions().getVersionChanges().size() : 0;
+    public void getLatestVersionNumber() {
+        Request request = new Request.Builder()
+                .url(Constants.GET_LATEST_VERSION_NUMBER)
+                .build();
+        
+        HttpClientUtil.runAsync(request, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() ->
+                        ExceptionWindowController.openExceptionPopup(
+                                "Something went wrong: " + e.getMessage())
+                );
+            }
+            
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                try(ResponseBody responseBody = response.body()) {
+                    String responseBodyString = responseBody.string();
+                    if (response.code() != 200) {
+                        Platform.runLater(() ->
+                                ExceptionWindowController.openExceptionPopup(
+                                        "Something went wrong: " + responseBodyString)
+                        );
+                    } else {
+                        Integer versionNumber = Constants.GSON_INSTANCE.fromJson(responseBodyString, Integer.class);
+                        
+                        Platform.runLater(() -> {
+                            topSubComponentController.updateVersionsChoiceBox(versionNumber);
+                        });
+                    }
+                }
+            }
+        });
     }
 
     public void loadSheetVersion(int version) {
-        ColoredSheetDTO sheetDTO = this.engine.getSheetVersionAsDTO(version);
-        createReadonlyGrid(sheetDTO, " - version " + version);
+        HttpUrl url = HttpUrl.parse(Constants.LOAD_SHEET_VERSION)
+                .newBuilder()
+                .addQueryParameter("version", String.valueOf(version))
+                .build();
+        
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        
+        HttpClientUtil.runAsync(request, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() ->
+                        ExceptionWindowController.openExceptionPopup(
+                                "Something went wrong: " + e.getMessage())
+                );
+            }
+            
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                try(ResponseBody responseBody = response.body()) {
+                    String responseBodyString = responseBody.string();
+                    if (response.code() != 200) {
+                        Platform.runLater(() ->
+                                ExceptionWindowController.openExceptionPopup(
+                                        "Something went wrong: " + responseBodyString)
+                        );
+                    } else {
+                        ColoredSheetDTO coloredSheet =
+                                Constants.GSON_INSTANCE.fromJson(responseBodyString, ColoredSheetDTO.class);
+                        
+                        Platform.runLater(() -> {
+                            createReadonlyGrid(coloredSheet, " - version " + version);
+                        });
+                    }
+                }
+            }
+        });
     }
 
     public void openGridPopup(GridBuilder gridBuilder, String title, String sheetName) {
@@ -227,13 +375,39 @@ public class MainEditorController {
         }
     }
 
-    public RangeDTO addNewRange(String rangeName, String from, String to) {
-        try {
-            return this.engine.addRange(rangeName, from + ".." + to);
-        } catch (RuntimeException e) {
-            this.rangesController.updateSaveErrorLabel(e.getMessage());
-            return null;
-        }
+    public void addNewRange(String rangeName, String from, String to) {
+        HttpUrl url = HttpUrl.parse(Constants.ADD_NEW_RANGE)
+                .newBuilder()
+                .addQueryParameter("rangeName", rangeName)
+                .addQueryParameter("rangeBoundaries", from + ".." + to)
+                .build();
+        
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        
+        HttpClientUtil.runAsync(request, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() ->
+                        ExceptionWindowController.openExceptionPopup(
+                                "Something went wrong: " + e.getMessage())
+                );
+            }
+            
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                try(ResponseBody responseBody = response.body()) {
+                    String responseBodyString = responseBody.string();
+                    if (response.code() != 200) {
+                        Platform.runLater(() -> rangesController.updateSaveErrorLabel(responseBodyString));
+                    } else {
+                        RangeDTO newRange = Constants.GSON_INSTANCE.fromJson(responseBodyString, RangeDTO.class);
+                        Platform.runLater(() -> rangesController.acceptNewRange(newRange));
+                    }
+                }
+            }
+        });
     }
 
     public boolean deleteRange(RangeDTO rangeToDelete) {
@@ -266,7 +440,7 @@ public class MainEditorController {
     }
 
     private GridPane getSheetGrid() {
-        BorderPane root = (BorderPane) this.primaryStage.getScene().getRoot();
+        BorderPane root = (BorderPane) this.mainAppController.getEditorRootElement();
         ScrollPane scrollPane = (ScrollPane) root.getCenter();
         return (GridPane) scrollPane.getContent();
     }
@@ -354,7 +528,7 @@ public class MainEditorController {
         }
     }
 
-    public List<Returnable> getUniqueItems(String columnToFilterBy, String rangeToFilter) {
+    public List<EffectiveValueDTO> getUniqueItems(String columnToFilterBy, String rangeToFilter) {
         try {
             return this.engine.getUniqueItemsToFilterBy(columnToFilterBy, rangeToFilter);
         } catch (RuntimeException e) {
@@ -364,12 +538,11 @@ public class MainEditorController {
         return Collections.emptyList();
     }
 
-    public static String effectiveValueFormatter(Returnable effectiveValue) {
-        CellType type = effectiveValue.getCellType();
-        String valueToPrint = effectiveValue.getValue().toString();
-        if (type.equals(CellType.BOOLEAN)) {
+    public static String effectiveValueFormatter(EffectiveValueDTO effectiveValue) {
+        String valueToPrint = effectiveValue.getEffectiveValue();
+        if (effectiveValue.getType().equals(Constants.BOOLEAN_CELL_TYPE)) {
             valueToPrint = booleanFormatter(valueToPrint);
-        } else if (type.equals(CellType.NUMERIC)) {
+        } else if (effectiveValue.getType().equals(Constants.NUMERIC_CELL_TYPE)) {
             valueToPrint = numberFormatter(valueToPrint);
         }
 
@@ -393,7 +566,8 @@ public class MainEditorController {
 
     public boolean buildGraph(String rangeToBuildGraphFrom, String graphType) {
         try {
-            LinkedHashMap<Returnable, LinkedHashMap<Returnable, Returnable>> graph = this.engine.getGraphFromRange(rangeToBuildGraphFrom);
+            LinkedHashMap<EffectiveValueDTO, LinkedHashMap<EffectiveValueDTO, EffectiveValueDTO>> graph =
+                    this.engine.getGraphFromRange(rangeToBuildGraphFrom);
             this.showGraphPopup(graphType, graph);
             return true;
         } catch (RuntimeException e) {
@@ -402,7 +576,10 @@ public class MainEditorController {
         }
     }
 
-    private void showGraphPopup(String i_GraphType, LinkedHashMap<Returnable, LinkedHashMap<Returnable, Returnable>> graphData) {
+    private void showGraphPopup(
+            String i_GraphType,
+            LinkedHashMap<EffectiveValueDTO, LinkedHashMap<EffectiveValueDTO, EffectiveValueDTO>> graphData) {
+        
         GraphType graphType = GraphType.valueOf(i_GraphType.toUpperCase().replace(" ", "_"));
         Chart graphChart = graphType.createChart(graphData);
 
@@ -426,11 +603,44 @@ public class MainEditorController {
     }
     
     public void setActive(String sheetName) {
-        this.engineName = sheetName;
-        this.initializeSheetLayoutAndControllers();
+        this.setEngineNameInSession(sheetName);
     }
     
     public void setInActive() {
         // TODO
+    }
+    
+    public void setEngineNameInSession(String sheetName) {
+        HttpUrl url = HttpUrl.parse(Constants.SET_ENGINE_TO_SESSION)
+                .newBuilder()
+                .addQueryParameter("sheetName", sheetName)
+                .build();
+        
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        
+        HttpClientUtil.runAsync(request, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() ->
+                        ExceptionWindowController.openExceptionPopup(
+                                "Something went wrong: " + e.getMessage())
+                );
+            }
+            
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.code() != 200) {
+                    String responseBody = response.body().string();
+                    Platform.runLater(() ->
+                            ExceptionWindowController.openExceptionPopup(
+                                    "Something went wrong: " + responseBody)
+                    );
+                } else {
+                    getSheetAndRanges();
+                }
+            }
+        });
     }
 }

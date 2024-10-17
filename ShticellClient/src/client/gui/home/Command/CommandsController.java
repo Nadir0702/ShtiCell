@@ -166,7 +166,6 @@ public class CommandsController implements Closeable {
     void onViewSheetClicked(ActionEvent event) {
         if (this.homeViewController.viewSheet()) {
             this.viewSheetErrorProperty.set("");
-            
         }
     }
     

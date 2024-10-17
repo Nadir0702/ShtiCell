@@ -28,8 +28,8 @@ public class ActionLineController {
     private BooleanProperty isFileLoadedProperty;
     
     public ActionLineController() {
-        actionLineCellModel = new CellModel();
-        isFileLoadedProperty = new SimpleBooleanProperty(true);
+        this.actionLineCellModel = new CellModel();
+        this.isFileLoadedProperty = new SimpleBooleanProperty(true);
     }
     
     @FXML

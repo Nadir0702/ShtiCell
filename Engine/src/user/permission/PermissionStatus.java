@@ -1,8 +1,8 @@
 package user.permission;
 
 public enum PermissionStatus {
-    ACCEPTED("Accepted"),
-    DENIED("Denied"),
+    APPROVED("Approved"),
+    REJECTED("Rejected"),
     PENDING("Pending");
     
     private final String permissionStatus;
