@@ -30,6 +30,13 @@ public class Constants {
     private final static String CONTEXT_PATH = "/ShticellWebApp_Web_exploded";
     private final static String FULL_SERVER_PATH = BASE_URL + CONTEXT_PATH;
     
+    public static final String BUILD_GRAPH = FULL_SERVER_PATH + "/buildGraph";
+    public static final String FILTER_RANGE = FULL_SERVER_PATH + "/filterRange";
+    public static final String GET_FILTERABLE_ELEMENTS = FULL_SERVER_PATH + "/getFilterableElements";
+    public static final String GET_COLUMNS_OF_RANGE = FULL_SERVER_PATH + "/getColumnsOfRange";
+    public static final String SORT_RANGE = FULL_SERVER_PATH + "/sortRange";
+    public static final String UPDATE_CELL_STYLE = FULL_SERVER_PATH + "/updateCellStyle";
+    public static final String DELETE_RANGE = FULL_SERVER_PATH + "/deleteRange";
     public static final String ADD_NEW_RANGE = FULL_SERVER_PATH + "/addNewRange";
     public static final String LOAD_SHEET_VERSION = FULL_SERVER_PATH + "/loadSheetVersion";
     public static final String GET_LATEST_VERSION_NUMBER = FULL_SERVER_PATH + "/getLatestVersionNumber";

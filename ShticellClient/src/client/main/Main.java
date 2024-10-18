@@ -30,13 +30,14 @@ public class Main extends Application {
             Parent root = fxmlLoader.load();
             this.mainAppViewController = fxmlLoader.getController();
             
-            Scene scene = new Scene(root, 1000, 600);
+            Scene scene = new Scene(root, 400, 600);
             primaryStage.setTitle("ShtiCell v3.0");
             primaryStage.getIcons().add(
                     new Image(Objects.requireNonNull(
                             Main.class.getResourceAsStream(SHTICELL_LOGO_RESOURCE_LOCATION))));
             
             primaryStage.setScene(scene);
+            this.mainAppViewController.setStage(primaryStage);
             primaryStage.show();
         } catch (IOException e) {
             e.printStackTrace();

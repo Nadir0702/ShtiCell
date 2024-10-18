@@ -9,6 +9,8 @@ import component.range.impl.RangeImpl;
 import component.sheet.api.Sheet;
 import component.sheet.impl.SheetImpl;
 import dto.cell.CellDTO;
+import dto.cell.CellStyleDTO;
+import dto.filter.FilterParametersDTO;
 import dto.permission.PermissionDTO;
 import dto.permission.SentPermissionRequestDTO;
 import dto.range.RangeDTO;
@@ -186,14 +188,15 @@ public class EngineImpl implements Engine{
     }
     
     @Override
-    public void updateCellStyle(String cellID, Color backgroundColor, Color textColor) {
+    public void updateCellStyle(CellStyleDTO newCellStyle) {
+        String cellID = newCellStyle.getCellID();
         if(this.sheet.getCell(cellID) == null) {
             Cell cell = new CellImpl(cellID, "", this.sheet.getVersion(), this.sheet);
             this.sheet.getCells().put(cell.getCellId(), cell);
         }
         
-        this.sheet.getCell(cellID).setBackgroundColor(backgroundColor);
-        this.sheet.getCell(cellID).setTextColor(textColor);
+        this.sheet.getCell(cellID).setBackgroundColor(newCellStyle.getBackgroundColor());
+        this.sheet.getCell(cellID).setTextColor(newCellStyle.getTextColor());
     }
     
     @Override
@@ -335,18 +338,24 @@ public class EngineImpl implements Engine{
     }
     
     @Override
-    public ColoredSheetDTO filterRangeOfCells(String rangeToFilterBy, String columnToFilterBy, List<Integer> itemsToFilterBy) {
+    public ColoredSheetDTO filterRangeOfCells(FilterParametersDTO filterParameters) {
         Sheet filteredSheet = this.sheet.copySheet();
-        Range rangeToFilter = new RangeImpl("range to filter", rangeToFilterBy, filteredSheet);
+        Range rangeToFilter =
+                new RangeImpl("range to filter", filterParameters.getRangeToFilterBy(), filteredSheet);
+        
         rangeToFilter.getRangeCells().forEach(cell -> filteredSheet.getCells().remove(cell.getCellId()));
         Filter filter = new Filter(rangeToFilter);
-        List<EffectiveValueDTO> uniqueItemsList = this.getUniqueItemsInColumn(columnToFilterBy, rangeToFilter);
+        
+        List<EffectiveValueDTO> uniqueItemsList =
+                this.getUniqueItemsInColumn(filterParameters.getColumnToFilterBy(), rangeToFilter);
+        
         List<EffectiveValueDTO> filteredItemsList = new ArrayList<>();
-        for (int itemToFilterIndex : itemsToFilterBy) {
+        for (int itemToFilterIndex : filterParameters.getItemsToFilterBy()) {
             filteredItemsList.add(uniqueItemsList.get(itemToFilterIndex));
         }
-        filter.filter(columnToFilterBy,filteredItemsList)
+        filter.filter(filterParameters.getColumnToFilterBy(), filteredItemsList)
                 .getRangeCells().forEach(cell -> filteredSheet.getCells().put(cell.getCellId(), cell));
+        
         return new ColoredSheetDTO(filteredSheet);
     }
 }

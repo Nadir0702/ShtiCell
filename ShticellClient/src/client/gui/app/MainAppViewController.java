@@ -11,6 +11,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -33,6 +34,7 @@ public class MainAppViewController implements Closeable {
     @FXML private AnchorPane mainPanel;
     
     private final StringProperty currentUserName;
+    private Stage primaryStage;
     
     public MainAppViewController() {
         this.currentUserName = new SimpleStringProperty(JOHN_DOE);
@@ -109,17 +111,27 @@ public class MainAppViewController implements Closeable {
     
     public void switchToHomeView() {
         this.editorViewController.setInActive();
+        this.primaryStage.close();
+        this.primaryStage.setWidth(1000);
+        this.primaryStage.show();
         this.setMainPanelTo(this.homeViewComponent);
         this.homeViewController.setActive();
     }
     
     public void switchToEditor(String sheetName) {
         this.homeViewController.setInActive();
+        this.primaryStage.close();
+        this.primaryStage.setWidth(1200);
+        this.primaryStage.show();
         this.editorViewController.setActive(sheetName);
         this.setMainPanelTo(this.editorViewComponent);
     }
     
     public Parent getEditorRootElement() {
         return this.editorViewComponent;
+    }
+    
+    public void setStage(Stage primaryStage) {
+        this.primaryStage = primaryStage;
     }
 }

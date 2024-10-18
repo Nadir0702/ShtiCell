@@ -11,6 +11,7 @@ public class Constants {
     public static final String VERSION = "version";
     public static final String RANGE_NAME = "rangeName";
     public static final String RANGE_BOUNDARIES = "rangeBoundaries";
+    public static final String COLUMN_NAME = "columnName";
     
     
     public static final String USER_NAME_ERROR = "username_error";

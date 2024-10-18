@@ -75,38 +75,40 @@ public class CommandsController {
                 Bindings.or(this.isFileLoadedProperty.not(),
                         Bindings.or(this.bottomLeftBoundaryTextField.textProperty().isEmpty(),
                                 this.topRightBoundaryTextField.textProperty().isEmpty())));
-
-
-
+        
         this.filterElementMenuButton.disableProperty().bind(
                 Bindings.or(this.filterColumnChoiceBox.disableProperty(),
-                            this.filterColumnChoiceBox.getSelectionModel()
-                                    .selectedItemProperty().isEqualTo("Select Item")));
+                        Bindings.or(this.filterColumnChoiceBox.getSelectionModel()
+                                    .selectedItemProperty().isEqualTo("Select Column"),
+                                    this.filterColumnChoiceBox.getSelectionModel().selectedItemProperty().isNull())));
         
-        
+        this.buildGraphButton.disableProperty().bind(
+                Bindings.or(this.graphTypeChoiceBox.disableProperty(),
+                        this.graphTypeChoiceBox.getSelectionModel()
+                                .selectedItemProperty().isEqualTo("Graph Type")));
         
         this.sortButton.disableProperty().bind(this.columnsToSortByTextField.textProperty().isEmpty());
         
         this.filterButton.disableProperty().bind(this.filterElementMenuButton.disableProperty());
 
-        this.buildGraphButton.disableProperty().bind(Bindings.or(this.graphTypeChoiceBox.disableProperty(), this.graphTypeChoiceBox.getSelectionModel().selectedItemProperty().isEqualTo("Graph Type")));
 
         this.filterColumnChoiceBox.getSelectionModel().selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> {
             if(newValue != null && !newValue.equals("Select Column")) {
-                List<EffectiveValueDTO> availableFilters =
-                        this.mainEditorController.getUniqueItems(this.filterColumnChoiceBox.getValue(),
-                                getCurrentRangeAsString());
-                this.filterElementMenuButton.getItems().clear();
-                availableFilters.forEach((item) -> {
-                    if (item != null) {
-                        CheckMenuItem checkMenuItem = new CheckMenuItem(effectiveValueFormatter(item));
-                        this.filterElementMenuButton.getItems().add(checkMenuItem);
-                    }
-                });
+                this.mainEditorController
+                        .getUniqueItems(this.filterColumnChoiceBox.getValue(), getCurrentRangeAsString());
             }
         });
-        
+    }
+    
+    public void updateFilterElementMenuButton(List<EffectiveValueDTO> availableFilters) {
+        this.filterElementMenuButton.getItems().clear();
+        availableFilters.forEach((item) -> {
+            if (item != null) {
+                CheckMenuItem checkMenuItem = new CheckMenuItem(effectiveValueFormatter(item));
+                this.filterElementMenuButton.getItems().add(checkMenuItem);
+            }
+        });
     }
     
     private String getCurrentRangeAsString() {
@@ -126,14 +128,14 @@ public class CommandsController {
             
             List<Integer> itemsToFilterIndices = this.getItemsToFilter();
             
-            if (!itemsToFilterIndices.isEmpty() && this.mainEditorController.filterRange(
-                    getCurrentRangeAsString(),
-                    this.filterColumnChoiceBox.getValue(),
-                    getItemsToFilter())) {
-                
-                this.filterErrorProperty.set("");
-            } else {
+            if (itemsToFilterIndices.isEmpty()){
                 this.filterErrorProperty.set("Must select at least one item");
+            } else {
+                this.filterErrorProperty.set("");
+                this.mainEditorController.filterRange(
+                        getCurrentRangeAsString(),
+                        this.filterColumnChoiceBox.getValue(),
+                        getItemsToFilter());
             }
         }
     }
@@ -153,7 +155,10 @@ public class CommandsController {
     @FXML
     void onColumnToFilterByClicked(MouseEvent event) {
         event.consume();
-        List<String> columnsToFilterBy = this.mainEditorController.getColumnsOfRange(getCurrentRangeAsString());
+        this.mainEditorController.getColumnsOfRange(getCurrentRangeAsString());
+    }
+    
+    public void updateFilterColumnChoiceBox(List<String> columnsToFilterBy) {
         this.filterColumnChoiceBox.getItems().clear();
         this.filterColumnChoiceBox.getItems().add("Select Column");
         if (columnsToFilterBy.isEmpty()) {
@@ -166,28 +171,29 @@ public class CommandsController {
 
     @FXML
     void onSortClicked(ActionEvent event) {
-        String rangeToSort = this.topRightBoundaryTextField.getText()
-                + ".." + this.bottomLeftBoundaryTextField.getText();
+        String rangeToSort = this.getCurrentRangeAsString();
+        
         List<String> columnsToSortBy = this.getColumnsToSortBy();
-        if ( this.mainEditorController.sortRange(rangeToSort, columnsToSortBy)) {
-            this.sortErrorProperty.set("");
-        }
+        this.mainEditorController.sortRange(rangeToSort, columnsToSortBy);
     }
 
     @FXML
     public void onBuildGraphClicked(ActionEvent actionEvent) {
-        String rangeToBuildGraphFrom =
-                this.topRightBoundaryTextField.getText() + ".." + this.bottomLeftBoundaryTextField.getText();
-
-        if(this.mainEditorController.buildGraph(rangeToBuildGraphFrom, this.graphTypeChoiceBox.getSelectionModel().getSelectedItem())){
-            this.updateGraphErrorLabel("");
-            this.graphTypeChoiceBox.getSelectionModel().selectFirst();
-        }
+        String rangeToBuildGraphFrom = this.getCurrentRangeAsString();
+        
+        this.mainEditorController.buildGraph(
+                rangeToBuildGraphFrom, this.graphTypeChoiceBox.getSelectionModel().getSelectedItem());
+    }
+    
+    public void updateGraphTypeChoiceBox() {
+        this.updateGraphErrorLabel("");
+        this.graphTypeChoiceBox.getSelectionModel().selectFirst();
     }
 
     private List<String> getColumnsToSortBy() {
         List<String> columnsToSortBy = new ArrayList<>();
         String[] columnsNames = this.columnsToSortByTextField.getText().split(";");
+        
         for (String columnsName : columnsNames) {
             columnsToSortBy.add(columnsName.trim().toUpperCase());
         }

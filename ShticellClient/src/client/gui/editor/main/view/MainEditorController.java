@@ -14,8 +14,11 @@ import client.gui.editor.grid.GridBuilder;
 import client.gui.editor.grid.SheetGridController;
 import client.gui.editor.ranges.RangesController;
 import client.gui.editor.top.TopSubComponentController;
+import com.google.gson.reflect.TypeToken;
 import dto.cell.CellDTO;
+import dto.cell.CellStyleDTO;
 import dto.cell.ColoredCellDTO;
+import dto.filter.FilterParametersDTO;
 import dto.range.RangeDTO;
 import dto.range.RangesDTO;
 import dto.returnable.EffectiveValueDTO;
@@ -36,13 +39,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import logic.engine.Engine;
-import logic.engine.EngineImpl;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
-import user.User;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -59,7 +60,6 @@ public class MainEditorController {
     private Map<String, CellSubComponentController> cellSubComponentControllerMap;
 
     private BooleanProperty fileNotLoadedProperty;
-    private Engine engine;
     private MainAppViewController mainAppController;
     
     public MainEditorController() {
@@ -68,8 +68,6 @@ public class MainEditorController {
 
     @FXML
     public void initialize() {
-        this.engine = new EngineImpl(new User("User1"));
-
         if (this.topSubComponentController != null) {
             this.topSubComponentController.setMainController(this);
             this.setActionLineController(this.topSubComponentController.getActionLIneController());
@@ -410,14 +408,41 @@ public class MainEditorController {
         });
     }
 
-    public boolean deleteRange(RangeDTO rangeToDelete) {
-        try {
-            this.engine.removeRange(rangeToDelete.getName());
-            return true;
-        } catch (RuntimeException e) {
-            this.rangesController.updateDeleteErrorLabel(e.getMessage());
-            return false;
+    public void deleteRange(RangeDTO rangeToDelete) {
+        if (rangeToDelete == null) {
+            return;
         }
+        
+        HttpUrl url = HttpUrl.parse(Constants.DELETE_RANGE)
+                .newBuilder()
+                .addQueryParameter("rangeName", rangeToDelete.getName())
+                .build();
+        
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        
+        HttpClientUtil.runAsync(request, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() ->
+                        ExceptionWindowController.openExceptionPopup(
+                                "Something went wrong: " + e.getMessage())
+                );
+            }
+            
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                try(ResponseBody responseBody = response.body()) {
+                    String responseBodyString = responseBody.string();
+                    if (response.code() != 200) {
+                        Platform.runLater(() -> rangesController.updateDeleteErrorLabel(responseBodyString));
+                    } else {
+                        Platform.runLater(() -> rangesController.removeRange(rangeToDelete));
+                    }
+                }
+            }
+        });
     }
 
     public void toggleSelectedRange(RangeDTO selectedRange, RangeDTO previousSelectedRange) {
@@ -468,33 +493,112 @@ public class MainEditorController {
 
     public void setCellStyle(String cellID, Color backgroundColor, Color textColor) {
         this.cellSubComponentControllerMap.get(cellID).setCellStyle(backgroundColor, textColor);
-        this.engine.updateCellStyle(cellID, backgroundColor, textColor);
+        CellStyleDTO newCellStyle = new CellStyleDTO(cellID, backgroundColor, textColor);
+        
+        Request request = new Request.Builder()
+                .url(Constants.UPDATE_CELL_STYLE)
+                .post(RequestBody.create(Constants.GSON_INSTANCE.toJson(newCellStyle),
+                        MediaType.parse("application/json")))
+                .build();
+        
+        HttpClientUtil.runAsync(request, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() ->
+                        ExceptionWindowController.openExceptionPopup(
+                                "Something went wrong: " + e.getMessage())
+                );
+            }
+            
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                try(ResponseBody responseBody = response.body()) {
+                    String responseBodyString = responseBody.string();
+                    if (response.code() != 200) {
+                        Platform.runLater(() ->
+                                ExceptionWindowController.openExceptionPopup(
+                                        "Something went wrong: " + responseBodyString)
+                        );
+                    }
+                }
+            }
+        });
     }
 
-    public boolean sortRange(String rangeToSort, List<String> columnsToSortBy) {
-        try {
-            ColoredSheetDTO sortedSheet = this.engine.sortRangeOfCells(rangeToSort, columnsToSortBy);
-            createReadonlyGrid(sortedSheet, " - Sorted");
-            return true;
-        } catch (ClassCastException e) {
-            this.commandsController.updateSortErrorLabel("Cannot sort by non-numeric column");
-            return false;
-        } catch (RuntimeException e) {
-            this.commandsController.updateSortErrorLabel(e.getMessage());
-            return false;
-        }
+    public void sortRange(String rangeToSort, List<String> columnsToSortBy) {
+        HttpUrl url = HttpUrl.parse(Constants.SORT_RANGE)
+                .newBuilder()
+                .addQueryParameter("rangeName", rangeToSort)
+                .build();
+        
+        Request request = new Request.Builder()
+                .url(url)
+                .post(RequestBody.create(Constants.GSON_INSTANCE.toJson(columnsToSortBy),
+                        MediaType.parse("application/json")))
+                .build();
+        
+        HttpClientUtil.runAsync(request, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() ->
+                        ExceptionWindowController.openExceptionPopup(
+                                "Something went wrong: " + e.getMessage())
+                );
+            }
+            
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                try(ResponseBody responseBody = response.body()) {
+                    String responseBodyString = responseBody.string();
+                    if (response.code() != 200) {
+                        Platform.runLater(() -> commandsController.updateSortErrorLabel(responseBodyString));
+                    } else {
+                        ColoredSheetDTO sortedSheet =
+                                Constants.GSON_INSTANCE.fromJson(responseBodyString, ColoredSheetDTO.class);
+                        Platform.runLater(() -> {
+                            createReadonlyGrid(sortedSheet, " - Sorted");
+                            commandsController.updateSortErrorLabel("");
+                        });
+                    }
+                }
+            }
+        });
     }
 
-    public boolean filterRange(String rangeToFilterBy, String columnToFilterBy, List<Integer> itemsToFilterBy) {
-        try {
-            ColoredSheetDTO filteredSheet = this.engine.filterRangeOfCells(rangeToFilterBy, columnToFilterBy, itemsToFilterBy);
-            createReadonlyGrid(filteredSheet, " - Filtered");
-            return true;
-        } catch (RuntimeException e) {
-            this.commandsController.updateFilterErrorLabel(e.getMessage());
-            return false;
-        }
-
+    public void filterRange(String rangeToFilterBy, String columnToFilterBy, List<Integer> itemsToFilterBy) {
+        FilterParametersDTO filterParameters = new FilterParametersDTO(
+                rangeToFilterBy, columnToFilterBy, itemsToFilterBy);
+        
+        Request request = new Request.Builder()
+                .url(Constants.FILTER_RANGE)
+                .post(RequestBody.create(Constants.GSON_INSTANCE.toJson(filterParameters),
+                        MediaType.parse("application/json")))
+                .build();
+        
+        HttpClientUtil.runAsync(request, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() ->
+                        ExceptionWindowController.openExceptionPopup(
+                                "Something went wrong: " + e.getMessage())
+                );
+            }
+            
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                try(ResponseBody responseBody = response.body()) {
+                    String responseBodyString = responseBody.string();
+                    if (response.code() != 200) {
+                        Platform.runLater(() -> commandsController.updateFilterErrorLabel(responseBodyString));
+                    } else {
+                        ColoredSheetDTO filteredSheet =
+                                Constants.GSON_INSTANCE.fromJson(responseBodyString, ColoredSheetDTO.class);
+                        
+                        Platform.runLater(() -> createReadonlyGrid(filteredSheet, " - Filtered"));
+                    }
+                }
+            }
+        });
     }
 
     private void createReadonlyGrid(ColoredSheetDTO sheetToShow, String popupName) {
@@ -519,23 +623,85 @@ public class MainEditorController {
         });
     }
 
-    public List<String> getColumnsOfRange(String rangeToFilter) {
-        try {
-            return this.engine.getColumnsListOfRange(rangeToFilter);
-        } catch (RuntimeException e) {
-            this.commandsController.updateFilterErrorLabel(e.getMessage());
-            return Collections.emptyList();
-        }
+    public void getColumnsOfRange(String rangeToGetColumnsFrom) {
+        HttpUrl url = HttpUrl.parse(Constants.GET_COLUMNS_OF_RANGE)
+                .newBuilder()
+                .addQueryParameter("rangeName", rangeToGetColumnsFrom)
+                .build();
+        
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        
+        HttpClientUtil.runAsync(request, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() ->
+                        ExceptionWindowController.openExceptionPopup(
+                                "Something went wrong: " + e.getMessage())
+                );
+            }
+            
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                try(ResponseBody responseBody = response.body()) {
+                    String responseBodyString = responseBody.string();
+                    if (response.code() != 200) {
+                        Platform.runLater(() -> {
+                            commandsController.updateFilterErrorLabel(responseBodyString);
+                            commandsController.updateFilterColumnChoiceBox(Collections.emptyList());
+                        });
+                    } else {
+                        List<String> columnsToFilterBy =
+                                Arrays.stream(Constants.GSON_INSTANCE.fromJson(responseBodyString, String[].class))
+                                        .toList();
+                        
+                        Platform.runLater(() -> commandsController.updateFilterColumnChoiceBox(columnsToFilterBy));
+                    }
+                }
+            }
+        });
     }
 
-    public List<EffectiveValueDTO> getUniqueItems(String columnToFilterBy, String rangeToFilter) {
-        try {
-            return this.engine.getUniqueItemsToFilterBy(columnToFilterBy, rangeToFilter);
-        } catch (RuntimeException e) {
-            this.commandsController.updateFilterErrorLabel(e.getMessage());
-        }
-
-        return Collections.emptyList();
+    public void getUniqueItems(String columnToFilterBy, String rangeToFilter) {
+        HttpUrl url = HttpUrl.parse(Constants.GET_FILTERABLE_ELEMENTS)
+                .newBuilder()
+                .addQueryParameter("columnName", columnToFilterBy)
+                .addQueryParameter("rangeName", rangeToFilter)
+                .build();
+        
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        
+        HttpClientUtil.runAsync(request, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() ->
+                        ExceptionWindowController.openExceptionPopup(
+                                "Something went wrong: " + e.getMessage())
+                );
+            }
+            
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                try(ResponseBody responseBody = response.body()) {
+                    String responseBodyString = responseBody.string();
+                    if (response.code() != 200) {
+                        Platform.runLater(() -> {
+                            commandsController.updateFilterErrorLabel(responseBodyString);
+                            commandsController.updateFilterElementMenuButton(Collections.emptyList());
+                        });
+                    } else {
+                        List<EffectiveValueDTO> filterableElements = Arrays.stream(
+                                Constants.GSON_INSTANCE.fromJson(responseBodyString, EffectiveValueDTO[].class))
+                                        .toList();
+                        
+                        Platform.runLater(() -> commandsController.updateFilterElementMenuButton(filterableElements));
+                    }
+                }
+            }
+        });
     }
 
     public static String effectiveValueFormatter(EffectiveValueDTO effectiveValue) {
@@ -564,16 +730,55 @@ public class MainEditorController {
         return valueToPrint.toUpperCase();
     }
 
-    public boolean buildGraph(String rangeToBuildGraphFrom, String graphType) {
-        try {
-            LinkedHashMap<EffectiveValueDTO, LinkedHashMap<EffectiveValueDTO, EffectiveValueDTO>> graph =
-                    this.engine.getGraphFromRange(rangeToBuildGraphFrom);
-            this.showGraphPopup(graphType, graph);
-            return true;
-        } catch (RuntimeException e) {
-            this.commandsController.updateGraphErrorLabel(e.getMessage());
-            return false;
-        }
+    public void buildGraph(String rangeToBuildGraphFrom, String graphType) {
+        HttpUrl url = HttpUrl.parse(Constants.BUILD_GRAPH)
+                .newBuilder()
+                .addQueryParameter("rangeName", rangeToBuildGraphFrom)
+                .build();
+        
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        
+        HttpClientUtil.runAsync(request, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() ->
+                        ExceptionWindowController.openExceptionPopup(
+                                "Something went wrong: " + e.getMessage())
+                );
+            }
+            
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                try(ResponseBody responseBody = response.body()) {
+                    String responseBodyString = responseBody.string();
+                    if (response.code() != 200) {
+                        Platform.runLater(() -> commandsController.updateGraphErrorLabel(responseBodyString));
+                    } else {
+                        Type mapType =
+                                new TypeToken<LinkedHashMap<String, LinkedHashMap<String, EffectiveValueDTO>>>()
+                                {}.getType();
+                        
+                        LinkedHashMap<String, LinkedHashMap<String, EffectiveValueDTO>> graph =
+                                Constants.GSON_INSTANCE.fromJson(responseBodyString, mapType);
+                        
+                        LinkedHashMap<EffectiveValueDTO,
+                                LinkedHashMap<EffectiveValueDTO, EffectiveValueDTO>> originalGraph =
+                                GraphType.recreateOriginalMap(graph);
+                        
+                        Platform.runLater(() -> {
+                            try {
+                                showGraphPopup(graphType, originalGraph);
+                                commandsController.updateGraphTypeChoiceBox();
+                            } catch (RuntimeException e) {
+                                commandsController.updateGraphErrorLabel(e.getMessage());
+                            }
+                        });
+                    }
+                }
+            }
+        });
     }
 
     private void showGraphPopup(

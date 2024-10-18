@@ -1,6 +1,8 @@
 package logic.engine;
 
 import dto.cell.CellDTO;
+import dto.cell.CellStyleDTO;
+import dto.filter.FilterParametersDTO;
 import dto.permission.PermissionDTO;
 import dto.permission.SentPermissionRequestDTO;
 import dto.range.RangeDTO;
@@ -32,9 +34,9 @@ public interface Engine {
     RangeDTO addRange(String rangeName, String range);
     void removeRange(String rangeName);
     RangesDTO getAllRanges();
-    void updateCellStyle(String cellID, Color backgroundColor, Color textColor);
+    void updateCellStyle(CellStyleDTO cellStyle);
     ColoredSheetDTO sortRangeOfCells(String range, List<String> columnsToSortBy);
-    ColoredSheetDTO filterRangeOfCells(String rangeToFilterBy, String columnToFilterBy, List<Integer> itemsToFilterBy);
+    ColoredSheetDTO filterRangeOfCells(FilterParametersDTO filterParameters);
     List<String> getColumnsListOfRange(String rangeToFilter);
     List<EffectiveValueDTO> getUniqueItemsToFilterBy(String columnToFilterBy, String rangeToFilter);
     SheetMetaDataDTO getSheetMetaData(String currentUserName);

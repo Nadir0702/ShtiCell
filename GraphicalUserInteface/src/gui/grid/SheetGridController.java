@@ -3,6 +3,7 @@ package gui.grid;
 import dto.cell.CellDTO;
 import dto.cell.ColoredCellDTO;
 import dto.range.RangeDTO;
+import dto.returnable.EffectiveValueDTO;
 import gui.cell.CellModel;
 import gui.cell.CellSubComponentController;
 import gui.cell.DependenciesCellModel;
@@ -76,14 +77,14 @@ public class SheetGridController {
         return this.cellsControllers;
     }
     
-    public void initializeGridModel(Map<String, Returnable> cells) {
+    public void initializeGridModel(Map<String, EffectiveValueDTO> cells) {
         this.gridModel = new GridModel(cellsControllers);
         this.updateGridModel(cells);
     }
     
-    public void updateGridModel(Map<String, Returnable> cells) {
-        cells.forEach((cellID, returnable) -> {
-            this.gridModel.getCellValueProperty(cellID).set(effectiveValueFormatter(returnable));
+    public void updateGridModel(Map<String, EffectiveValueDTO> cells) {
+        cells.forEach((cellID, effectiveValue) -> {
+            this.gridModel.getCellValueProperty(cellID).set(effectiveValueFormatter(effectiveValue));
         });
     }
     
