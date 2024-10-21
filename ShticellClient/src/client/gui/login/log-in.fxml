@@ -14,10 +14,9 @@
 <?import javafx.scene.paint.Stop?>
 <?import javafx.scene.shape.Rectangle?>
 
-
-<ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.gui.login.LoginController">
+<ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="600.0" prefWidth="400.0" stylesheets="@style/log-in.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.gui.login.LoginController">
    <content>
-      <StackPane>
+      <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="stack-pane">
          <children>
             <Rectangle arcHeight="5.0" arcWidth="10.0" height="502.0" stroke="TRANSPARENT" strokeType="INSIDE" width="350.0">
                <fill>
@@ -37,17 +36,26 @@
                   </LinearGradient>
                </fill>
             </Rectangle>
-            <VBox alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="300.0" spacing="25.0" stylesheets="@log-in.css">
+            <VBox alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="300.0" spacing="25.0" stylesheets="@style/log-in.css">
                 <!-- Title "Welcome" -->
-                <Label id="welcome-label" styleClass="welcome-label" text="Welcome" />
+                <Label id="welcome-label" styleClass="welcome-label" text="Welcome">
+                  <VBox.margin>
+                     <Insets top="60.0" />
+                  </VBox.margin></Label>
                <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
                   <image>
                      <Image url="@../util/resources/shticellLogo.png" />
                   </image>
+                  <VBox.margin>
+                     <Insets bottom="30.0" />
+                  </VBox.margin>
                </ImageView>
             
                                                                          <!-- Email input field -->
-                <TextField fx:id="userNameTextField" onKeyTyped="#userNameKeyTyped" promptText="  Username" styleClass="input-field" />
+                <TextField fx:id="userNameTextField" onKeyTyped="#userNameKeyTyped" promptText="  Username" styleClass="input-field">
+                  <VBox.margin>
+                     <Insets />
+                  </VBox.margin></TextField>
             
                                                                          <!-- Login Button -->
                 <Button fx:id="loginButton" onAction="#onLoginClicked" styleClass="login-button" text="LOGIN" />

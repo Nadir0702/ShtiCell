@@ -4,15 +4,15 @@ import dto.range.RangesDTO;
 
 public class SheetAndRangesDTO {
     
-    private final SheetDTO sheetDTO;
+    private final ColoredSheetDTO coloredSheetDTO;
     private final RangesDTO rangesDTO;
     
-    public SheetAndRangesDTO(SheetDTO sheetDTO, RangesDTO rangesDTO) {
-        this.sheetDTO = sheetDTO;
+    public SheetAndRangesDTO(ColoredSheetDTO coloredSheetDTO, RangesDTO rangesDTO) {
+        this.coloredSheetDTO = coloredSheetDTO;
         this.rangesDTO = rangesDTO;
     }
     
-    public SheetDTO getSheetDTO() { return this.sheetDTO; }
+    public ColoredSheetDTO getSheetDTO() { return this.coloredSheetDTO; }
     
     public RangesDTO getRangesDTO() { return this.rangesDTO; }
 }

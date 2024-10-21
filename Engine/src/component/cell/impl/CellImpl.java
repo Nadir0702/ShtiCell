@@ -33,12 +33,11 @@ public class CellImpl implements Cell {
         this.influencingOn = new ArrayList<>();
         this.sheet = sheet;
         
-
         this.getInfluencingCellsFromDummy();
         this.setDependencies();
     }
 
-    private void getInfluencingCellsFromDummy(){
+    private void getInfluencingCellsFromDummy() {
         Cell dummyCell = this.sheet.getCell(this.cellId);
         if(dummyCell != null){
             this.influencingOn.addAll(dummyCell.getInfluencedCells());
@@ -173,7 +172,6 @@ public class CellImpl implements Cell {
     @Override
     public void setTextColor(Color color) {
         this.textColor = new SerializableColor(color);
-        
     }
     
     @Override

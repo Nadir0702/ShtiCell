@@ -17,6 +17,7 @@ import dto.range.RangeDTO;
 import dto.range.RangesDTO;
 import dto.returnable.EffectiveValueDTO;
 import dto.sheet.ColoredSheetDTO;
+import dto.sheet.SheetAndRangesDTO;
 import dto.sheet.SheetDTO;
 import dto.sheet.SheetMetaDataDTO;
 import dto.version.VersionChangesDTO;
@@ -46,8 +47,12 @@ public class EngineImpl implements Engine{
     private Archive archive;
     private final Map<String, PermissionType> usersPermissions;
     private final List<PermissionRequest> allPermissionRequests;
+    private final Map<String, Integer> usersActiveVersion;
+    
+    private final Object sheetEditLock;
     private final ReadWriteLock usersPermissionLock;
     private final ReadWriteLock allPermissionLock;
+    private final ReadWriteLock usersActiveVersionLock;
     
     public EngineImpl(User owner) {
         this.owner = owner;
@@ -57,6 +62,7 @@ public class EngineImpl implements Engine{
         
         this.usersPermissions = new HashMap<>();
         this.allPermissionRequests = new LinkedList<>();
+        this.usersActiveVersion = new HashMap<>();
         
         this.usersPermissions.put(this.owner.getUserName(),PermissionType.OWNER);
         this.allPermissionRequests.add(new PermissionRequest(
@@ -66,8 +72,10 @@ public class EngineImpl implements Engine{
                 this.allPermissionRequests.size())
         );
         
+        this.sheetEditLock = new Object();
         this.usersPermissionLock = new ReentrantReadWriteLock();
         this.allPermissionLock = new ReentrantReadWriteLock();
+        this.usersActiveVersionLock = new ReentrantReadWriteLock();
     }
     
     @Override
@@ -101,17 +109,37 @@ public class EngineImpl implements Engine{
     }
     
     @Override
-    public SheetDTO getSheetAsDTO() {
-        return new SheetDTO(this.sheet);
+    public ColoredSheetDTO getColoredSheetAsDTO(String username) {
+        this.usersActiveVersionLock.readLock().lock();
+        try {
+            return new ColoredSheetDTO(this.archive.retrieveVersion(this.usersActiveVersion.get(username)));
+        } finally {
+            this.usersActiveVersionLock.readLock().unlock();
+        }
+    }
+    @Override
+    public SheetDTO getSheetAsDTO(String username) {
+        this.usersActiveVersionLock.readLock().lock();
+        try {
+            return new SheetDTO(this.archive.retrieveVersion(this.usersActiveVersion.get(username)));
+        } finally {
+            this.usersActiveVersionLock.readLock().unlock();
+        }
     }
 
     @Override
-    public CellDTO getSingleCellData(String cellID) {
-        return new CellDTO(this.sheet.getCell(cellID), cellID);
+    public CellDTO getSingleCellData(String cellID, String username) {
+        this.usersActiveVersionLock.readLock().lock();
+        try {
+            return new CellDTO(
+                    this.archive.retrieveVersion(this.usersActiveVersion.get(username)).getCell(cellID), cellID);
+        } finally {
+            this.usersActiveVersionLock.readLock().unlock();
+        }
     }
 
     @Override
-    public void updateSingleCellData(String cellID, String value) {
+    public void updateSingleCellData(String cellID, String value, String username) {
         Cell cellToUpdate = this.sheet.getCell(cellID);
         boolean isUpdatingEmptyToEmpty = cellToUpdate == null && value.isEmpty();
         boolean isOriginalValueChanged = cellToUpdate != null && !cellToUpdate.getOriginalValue().equals(value);
@@ -125,10 +153,11 @@ public class EngineImpl implements Engine{
         Sheet tempSheet = this.sheet.updateSheet(newSheetVersion, isOriginalValueChanged);
         if (!tempSheet.equals(this.sheet)) {
             this.sheet = tempSheet;
+            this.updateActiveUserVersion(username);
             this.archive.storeInArchive(this.sheet.copySheet());
         }
     }
-
+    
     private void updateCell(String cellID, String value, Sheet newSheetVersion) {
         Cell cellToUpdate = newSheetVersion.getCell(cellID);
         if (cellToUpdate != null) {
@@ -151,8 +180,19 @@ public class EngineImpl implements Engine{
     }
 
     @Override
-    public ColoredSheetDTO getSheetVersionAsDTO(int version) {
-        return new ColoredSheetDTO(this.archive.retrieveVersion(version));
+    public SheetAndRangesDTO getSheetVersionAsDTO(int version, String username) {
+        this.usersActiveVersionLock.writeLock().lock();
+        try {
+            if (version == this.archive.retrieveLatestVersion().getVersion()) {
+                this.usersActiveVersion.put(username, version);
+            }
+        } finally {
+            this.usersActiveVersionLock.writeLock().unlock();
+        }
+        Sheet sheetToRetrieve = this.archive.retrieveVersion(version);
+        ColoredSheetDTO coloredSheet = new ColoredSheetDTO(sheetToRetrieve);
+        RangesDTO ranges = new RangesDTO(sheetToRetrieve.getRanges());
+        return new SheetAndRangesDTO(coloredSheet, ranges);
     }
 
     @Override
@@ -183,20 +223,26 @@ public class EngineImpl implements Engine{
     }
     
     @Override
-    public RangesDTO getAllRanges() {
-        return new RangesDTO(this.sheet.getRanges());
+    public RangesDTO getAllRanges(String username) {
+        this.usersActiveVersionLock.readLock().lock();
+        try {
+            return new RangesDTO(this.archive.retrieveVersion(this.usersActiveVersion.get(username)).getRanges());
+        } finally {
+            this.usersActiveVersionLock.readLock().unlock();
+        }
     }
     
     @Override
     public void updateCellStyle(CellStyleDTO newCellStyle) {
         String cellID = newCellStyle.getCellID();
-        if(this.sheet.getCell(cellID) == null) {
-            Cell cell = new CellImpl(cellID, "", this.sheet.getVersion(), this.sheet);
-            this.sheet.getCells().put(cell.getCellId(), cell);
+        Cell cellToStyle = this.sheet.getCell(cellID);
+        if(cellToStyle == null) {
+            cellToStyle = new CellImpl(cellID, "", this.sheet.getVersion(), this.sheet);
+            this.sheet.getCells().put(cellToStyle.getCellId(), cellToStyle);
         }
         
-        this.sheet.getCell(cellID).setBackgroundColor(newCellStyle.getBackgroundColor());
-        this.sheet.getCell(cellID).setTextColor(newCellStyle.getTextColor());
+        cellToStyle.setBackgroundColor(newCellStyle.getBackgroundColor());
+        cellToStyle.setTextColor(newCellStyle.getTextColor());
     }
     
     @Override
@@ -277,6 +323,50 @@ public class EngineImpl implements Engine{
         } finally {
             this.allPermissionLock.writeLock().unlock();
         }
+    }
+    
+    @Override
+    public void updateActiveUserVersion(String username) {
+        this.usersActiveVersionLock.writeLock().lock();
+        
+        try {
+            this.usersActiveVersion.put(username, this.sheet.getVersion());
+        } finally {
+            this.usersActiveVersionLock.writeLock().unlock();
+        }
+    }
+    
+    @Override
+    public boolean isPermitted(String username) {
+        this.usersPermissionLock.readLock().lock();
+        try {
+            if (this.usersPermissions.containsKey(username)) {
+                return !this.usersPermissions.get(username).equals(PermissionType.READER);
+            }
+            
+            throw new IllegalArgumentException("You don't have Permissions for this sheet");
+        } finally {
+            this.usersPermissionLock.readLock().unlock();
+        }
+    }
+    
+    @Override
+    public boolean isInLatestVersion(String username) {
+        this.usersActiveVersionLock.readLock().lock();
+        try {
+            if (this.usersActiveVersion.containsKey(username)) {
+                return this.usersActiveVersion.get(username).equals(this.sheet.getVersion());
+            }
+            
+            throw new IllegalArgumentException("No active version was found");
+        } finally {
+            this.usersActiveVersionLock.readLock().unlock();
+        }
+    }
+    
+    @Override
+    public Object getSheetEditLock() {
+        return this.sheetEditLock;
     }
     
     @Override

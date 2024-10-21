@@ -76,27 +76,27 @@ public class SheetGridController {
         return this.cellsControllers;
     }
     
-    public void initializeGridModel(Map<String, EffectiveValueDTO> cells) {
+    public void initializeGridModel(Map<String, ColoredCellDTO> cells) {
         this.gridModel = new GridModel(this.cellsControllers);
         this.updateGridModel(cells);
     }
     
-    public void updateGridModel(Map<String, EffectiveValueDTO> cells) {
-        cells.forEach((cellID, effectiveValue) -> {
-            this.gridModel.getCellValueProperty(cellID).set(effectiveValueFormatter(effectiveValue));
-        });
-    }
-    
-    public void initializePopupGridModel(Map<String, ColoredCellDTO> cells) {
-        this.gridModel = new GridModel(this.cellsControllers);
-        this.updatePopupGridModel(cells);
-    }
-    
-    public void updatePopupGridModel(Map<String, ColoredCellDTO> cells) {
+    public void updateGridModel(Map<String, ColoredCellDTO> cells) {
         cells.forEach((cellID, cell) -> {
             this.gridModel.getCellValueProperty(cellID).set(effectiveValueFormatter(cell.getEffectiveValue()));
         });
     }
+    
+//    public void initializePopupGridModel(Map<String, ColoredCellDTO> cells) {
+//        this.gridModel = new GridModel(this.cellsControllers);
+//        this.updatePopupGridModel(cells);
+//    }
+//
+//    public void updatePopupGridModel(Map<String, ColoredCellDTO> cells) {
+//        cells.forEach((cellID, cell) -> {
+//            this.gridModel.getCellValueProperty(cellID).set(effectiveValueFormatter(cell.getEffectiveValue()));
+//        });
+//    }
     
     public void showSelectedCellAndDependencies(CellDTO cellDTO) {
         String previousSelected = this.dependenciesCellModel.getSelectedCellProperty().get();

@@ -179,8 +179,6 @@ public class SheetImpl implements Sheet {
             ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()));
             return (SheetImpl) ois.readObject();
         } catch (Exception e) {
-            // deal with the runtime error that was discovered as part of invocation
-            // CATCH IN THE UI
             throw new RuntimeException(e);
         }
     }
@@ -201,7 +199,7 @@ public class SheetImpl implements Sheet {
     }
     
     @Override
-    public Map<String, Cell> getCells(){
+    public Map<String, Cell> getCells() {
         return this.cells;
     }
     

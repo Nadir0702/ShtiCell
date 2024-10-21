@@ -1,18 +1,19 @@
 package dto.sheet;
 
 import dto.cell.CellDTO;
+import dto.cell.ColoredCellDTO;
 
 public class SheetAndCellDTO {
     
-    private final SheetDTO sheetDTO;
+    private final ColoredSheetDTO coloredSheetDTO;
     private final CellDTO cellDTO;
     
-    public SheetAndCellDTO(SheetDTO sheetDTO, CellDTO cellDTO) {
-        this.sheetDTO = sheetDTO;
+    public SheetAndCellDTO(ColoredSheetDTO coloredSheetDTO, CellDTO cellDTO) {
+        this.coloredSheetDTO = coloredSheetDTO;
         this.cellDTO = cellDTO;
     }
     
-    public SheetDTO getSheetDTO() {return this.sheetDTO;}
+    public ColoredSheetDTO getSheetDTO() { return this.coloredSheetDTO; }
     
-    public CellDTO getCellDTO() {return this.cellDTO;}
+    public CellDTO getCellDTO() { return this.cellDTO; }
 }

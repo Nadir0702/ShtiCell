@@ -51,11 +51,10 @@ public class RangeImpl implements Range {
         char fromCol = Character.toUpperCase(this.from.charAt(0));
         char toCol = Character.toUpperCase(this.to.charAt(0));
         
-        
         for (int row = fromRow; row <= toRow; row++) {
             for (char col = fromCol; col <= toCol; col++) {
                 String currentCellId ="" + col + row;
-                Cell currentCell = sheet.getCells().get(currentCellId);
+                Cell currentCell = sheet.getCell(currentCellId);
                 
                 if (currentCell == null) {
                     currentCell = new CellImpl(currentCellId, "", sheet.getVersion(), sheet);
@@ -63,7 +62,6 @@ public class RangeImpl implements Range {
                 }
                 
                 cells.add(currentCell);
-                
             }
         }
     }

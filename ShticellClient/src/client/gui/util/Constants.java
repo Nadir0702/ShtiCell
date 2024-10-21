@@ -17,6 +17,7 @@ public class Constants {
     public final static String EDITOR_VIEW_FXML_RESOURCE_LOCATION = "/client/gui/editor/main/view/EditorView.fxml";
     public final static String FILE_UPLOAD_FXML_RESOURCE_LOCATION = "/client/gui/home/file/upload/FileUploadComponent.fxml";
     public final static String CELL_COMPONENT_FXML_RESOURCE_LOCATION = "/client/gui/editor/cell/CellSubComponent.fxml";
+    public final static String BACK_BUTTON_LAYER_FXML_RESOURCE_LOCATION = "/client/gui/editor/grid/BackButtonLayer.fxml";
     
     // css locations
     public final static String GRID_COMPONENT_CSS_RESOURCE_LOCATION = "/client/gui/editor/grid/style/MainGridComponent.css";

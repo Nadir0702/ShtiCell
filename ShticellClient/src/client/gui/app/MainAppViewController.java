@@ -42,7 +42,7 @@ public class MainAppViewController implements Closeable {
     
     @FXML
     public void initialize() {
-        this.userGreetingLabel.textProperty().bind(Bindings.concat("Hello, ", this.currentUserName));
+        this.userGreetingLabel.textProperty().bind(Bindings.concat("Hello ", this.currentUserName));
         
         // prepare components
         this.loadLoginPage();

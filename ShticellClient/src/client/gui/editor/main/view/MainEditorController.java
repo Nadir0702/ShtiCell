@@ -1,6 +1,7 @@
 package client.gui.editor.main.view;
 
 import client.gui.app.MainAppViewController;
+import client.gui.editor.grid.BackButtonLayerController;
 import client.gui.exception.ExceptionWindowController;
 import client.gui.util.Constants;
 import client.gui.util.http.HttpClientUtil;
@@ -25,18 +26,20 @@ import dto.returnable.EffectiveValueDTO;
 import dto.sheet.ColoredSheetDTO;
 import dto.sheet.SheetAndCellDTO;
 import dto.sheet.SheetAndRangesDTO;
-import dto.sheet.SheetDTO;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.Chart;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import okhttp3.*;
@@ -45,6 +48,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.math.RoundingMode;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -61,6 +65,7 @@ public class MainEditorController {
 
     private BooleanProperty fileNotLoadedProperty;
     private MainAppViewController mainAppController;
+    private BackButtonLayerController backButtonLayerController;
     
     public MainEditorController() {
         this.fileNotLoadedProperty = new SimpleBooleanProperty(true);
@@ -151,31 +156,49 @@ public class MainEditorController {
         });
     }
     
-    private void initializeSheetLayoutAndControllers(SheetDTO sheetDTO, RangesDTO rangesDTO) {
-        GridBuilder gridBuilder = new GridBuilder(sheetDTO.getLayout().getRow(),
-                sheetDTO.getLayout().getColumn(),
-                sheetDTO.getLayout().getRowHeight(),
-                sheetDTO.getLayout().getColumnWidth());
+    private void initializeSheetLayoutAndControllers(ColoredSheetDTO sheet, RangesDTO ranges) {
+        GridBuilder gridBuilder = new GridBuilder(sheet.getLayout().getRow(),
+                sheet.getLayout().getColumn(),
+                sheet.getLayout().getRowHeight(),
+                sheet.getLayout().getColumnWidth());
         
         BorderPane root = (BorderPane) this.mainAppController.getEditorRootElement();
         try {
             root.setCenter(gridBuilder.build());
+//            this.addBackButtonLayer(center);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         setSheetGridController(gridBuilder.getSheetGridController());
         setCellSubComponentControllerMap(sheetGridController.getCellsControllers());
-        sheetGridController.initializeGridModel(sheetDTO.getCells());
-        rangesController.initializeRangesModel(rangesDTO);
+        sheetGridController.initializeGridModel(sheet.getCells());
+        rangesController.initializeRangesModel(ranges);
         fileNotLoadedProperty.set(false);
         actionLineController.resetCellModel();
         rangesController.resetController();
         customizationsController.resetController();
         commandsController.resetController();
         topSubComponentController.setSheetNameAndVersion(
-                sheetDTO.getSheetName(), sheetDTO.getVersion());
+                sheet.getSheetName(), sheet.getVersion());
+        
+        sheetGridController.getCellsControllers().forEach((cellID, cellController) -> {
+            ColoredCellDTO currentCell = sheet.getCells().get(cellID);
+            if (currentCell != null) {
+                cellController.setCellStyle(currentCell.getBackgroundColor(), currentCell.getTextColor());
+            }
+        });
     }
-
+    
+    private void addBackButtonLayer(StackPane center) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        URL url = getClass().getResource(Constants.BACK_BUTTON_LAYER_FXML_RESOURCE_LOCATION);
+        fxmlLoader.setLocation(url);
+        Parent root = fxmlLoader.load();
+        this.backButtonLayerController = fxmlLoader.getController();
+        this.backButtonLayerController.setMainController(this);
+        center.getChildren().add(root);
+    }
+    
     public void showCellDetails(CellSubComponentController cellSubComponentController) {
         String selectedCellID = cellSubComponentController.cellIDProperty().get();
         if (this.sheetGridController.isAlreadySelected(selectedCellID)) {
@@ -309,7 +332,7 @@ public class MainEditorController {
         });
     }
 
-    public void loadSheetVersion(int version) {
+    public void loadSheetVersion(int version, boolean isGettingLastVersion) {
         HttpUrl url = HttpUrl.parse(Constants.LOAD_SHEET_VERSION)
                 .newBuilder()
                 .addQueryParameter("version", String.valueOf(version))
@@ -338,12 +361,17 @@ public class MainEditorController {
                                         "Something went wrong: " + responseBodyString)
                         );
                     } else {
-                        ColoredSheetDTO coloredSheet =
-                                Constants.GSON_INSTANCE.fromJson(responseBodyString, ColoredSheetDTO.class);
-                        
-                        Platform.runLater(() -> {
-                            createReadonlyGrid(coloredSheet, " - version " + version);
-                        });
+                        SheetAndRangesDTO sheetAndRanges =
+                                Constants.GSON_INSTANCE.fromJson(responseBodyString, SheetAndRangesDTO.class);
+                        if (isGettingLastVersion) {
+                            Platform.runLater(() ->
+                                    initializeSheetLayoutAndControllers(
+                                            sheetAndRanges.getSheetDTO(), sheetAndRanges.getRangesDTO()));
+                        } else {
+                            Platform.runLater(() ->
+                                    createReadonlyGrid(
+                                            sheetAndRanges.getSheetDTO(), " - version " + version));
+                        }
                     }
                 }
             }
@@ -466,6 +494,8 @@ public class MainEditorController {
 
     private GridPane getSheetGrid() {
         BorderPane root = (BorderPane) this.mainAppController.getEditorRootElement();
+//        StackPane stackPane = (StackPane) root.getCenter();
+//        ScrollPane scrollPane = (ScrollPane) stackPane.getChildren().getFirst();
         ScrollPane scrollPane = (ScrollPane) root.getCenter();
         return (GridPane) scrollPane.getContent();
     }
@@ -610,7 +640,7 @@ public class MainEditorController {
 
         this.openGridPopup(gridBuilder, popupName, sheetToShow.getSheetName());
         SheetGridController gridPopupController = gridBuilder.getSheetGridController();
-        gridPopupController.initializePopupGridModel(sheetToShow.getCells());
+        gridPopupController.initializeGridModel(sheetToShow.getCells());
 
         gridPopupController.getCellsControllers().forEach((cellID, cellController) -> {
             cellController.addOldVersionStyleClass();

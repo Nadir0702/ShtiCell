@@ -1,0 +1,15 @@
+.main-app-grid-pane {
+    -fx-background-color: white ;
+}
+
+#shticell {
+    -fx-text-fill: #4dabf7;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-color: #edf2ff;
+}
+
+#username .text {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}

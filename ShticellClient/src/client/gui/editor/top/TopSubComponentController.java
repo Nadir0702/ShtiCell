@@ -20,7 +20,6 @@ public class TopSubComponentController {
     private StringProperty sheetVersionProperty;
     private MainEditorController mainViewController;
     private BooleanProperty isFileLoadedProperty;
-    private int lastSelectVersion = 1;
 
     public TopSubComponentController() {
         this.sheetNameProperty = new SimpleStringProperty("Sheet Name");
@@ -41,12 +40,16 @@ public class TopSubComponentController {
 
         this.versionsChoiceBox.getSelectionModel().selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> {
-            if (newValue != null
-                    && !newValue.contains("" + this.lastSelectVersion)
-                    && !newValue.contains("Select Version")) {
+                
+            boolean isGettingLastVersion = false;
+            if (newValue != null && !newValue.contains("Select Version")) {
+                if (newValue.equals(this.versionsChoiceBox.getItems().getLast())) {
+                    isGettingLastVersion = true;
+                }
                 
                 this.mainViewController.loadSheetVersion(
-                        Integer.parseInt(this.versionsChoiceBox.getValue().substring(8)));
+                        Integer.parseInt(this.versionsChoiceBox.getValue().substring(8)),
+                        isGettingLastVersion);
             }
                 this.versionsChoiceBox.getSelectionModel().selectFirst();
         });
@@ -64,7 +67,6 @@ public class TopSubComponentController {
         for (int i = 1; i <= numOfVersions; i++) {
             if(!this.versionsChoiceBox.getItems().contains("version " + i)) {
                 this.versionsChoiceBox.getItems().add("version " + i);
-                this.lastSelectVersion = i;
                 this.versionsChoiceBox.styleProperty().set("-fx-mark-color: transparent");
             }
         }

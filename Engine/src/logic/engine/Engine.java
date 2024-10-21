@@ -9,11 +9,10 @@ import dto.range.RangeDTO;
 import dto.range.RangesDTO;
 import dto.returnable.EffectiveValueDTO;
 import dto.sheet.ColoredSheetDTO;
+import dto.sheet.SheetAndRangesDTO;
 import dto.sheet.SheetDTO;
 import dto.sheet.SheetMetaDataDTO;
 import dto.version.VersionChangesDTO;
-import javafx.scene.paint.Color;
-import logic.function.returnable.api.Returnable;
 
 import java.io.InputStream;
 import java.util.LinkedHashMap;
@@ -23,17 +22,18 @@ public interface Engine {
     void loadData(String path);
     void loadDataFromStream(InputStream stream);
     String getName();
-    SheetDTO getSheetAsDTO();
-    CellDTO getSingleCellData(String cellID);
-    void updateSingleCellData(String cellID, String value);
+    ColoredSheetDTO getColoredSheetAsDTO(String username);
+    SheetDTO getSheetAsDTO(String username);
+    CellDTO getSingleCellData(String cellID, String username);
+    void updateSingleCellData(String cellID, String value, String username);
     VersionChangesDTO showVersions();
-    ColoredSheetDTO getSheetVersionAsDTO(int version);
+    SheetAndRangesDTO getSheetVersionAsDTO(int version, String username);
     boolean isSheetLoaded();
     void loadFromFile(String path);
     void saveToFile(String path);
     RangeDTO addRange(String rangeName, String range);
     void removeRange(String rangeName);
-    RangesDTO getAllRanges();
+    RangesDTO getAllRanges(String username);
     void updateCellStyle(CellStyleDTO cellStyle);
     ColoredSheetDTO sortRangeOfCells(String range, List<String> columnsToSortBy);
     ColoredSheetDTO filterRangeOfCells(FilterParametersDTO filterParameters);
@@ -44,4 +44,8 @@ public interface Engine {
     void createNewPermissionRequest(SentPermissionRequestDTO requestToSend, String sender);
     List<PermissionDTO> getAllPermissions();
     void updatePermissionForUser(String sender, boolean answer, int requestID);
+    void updateActiveUserVersion(String username);
+    boolean isPermitted(String username);
+    boolean isInLatestVersion(String username);
+    Object getSheetEditLock();
 }

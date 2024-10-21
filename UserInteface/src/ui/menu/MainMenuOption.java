@@ -58,7 +58,7 @@ public enum MainMenuOption {
         @Override
         public void executeOption(Engine engine) {
             if (engine.isSheetLoaded()){
-                ConsoleUtils.printSheet(engine.getSheetAsDTO());
+                ConsoleUtils.printSheet(engine.getSheetAsDTO("user"));
             } else {
                 ConsoleUtils.printSheetNotLoaded();
             }
@@ -78,7 +78,7 @@ public enum MainMenuOption {
                     String errorMessage = "The Cell ID # is Invalid, must be in format: Column as letter, and Row as number. examples: A4, d17.";
                     String cellID = ConsoleUtils.getInputFromUser(messageToUser, errorMessage, Sheet::isValidCellID);
                     if (!cellID.equalsIgnoreCase("Q")){
-                        CellDTO cellDTO = engine.getSingleCellData(cellID);
+                        CellDTO cellDTO = engine.getSingleCellData(cellID, "user");
                         if (cellDTO.isActive()) {
                             ConsoleUtils.printCell(cellDTO);
                         } else {
@@ -106,7 +106,7 @@ public enum MainMenuOption {
                     String messageToUser = "Please Enter the cell ID(for example A4)";
                     String errorMessage = "The Cell ID # is Invalid, must be in format: Column as letter, and Row as number. examples: A4, d17.";
                     String cellID = ConsoleUtils.getInputFromUser(messageToUser, errorMessage, Sheet::isValidCellID);                    if (!cellID.equalsIgnoreCase("q")) {
-                        CellDTO cellDTO = engine.getSingleCellData(cellID);
+                        CellDTO cellDTO = engine.getSingleCellData(cellID, "user");
 
                         if (cellDTO.isActive()) {
                             ConsoleUtils.printSimplifiedCell(cellDTO);
@@ -115,7 +115,7 @@ public enum MainMenuOption {
                         }
 
                         String newOriginalValue = ConsoleUtils.getOriginalValueFromUser(cellID);
-                        engine.updateSingleCellData(cellID, newOriginalValue);
+                        engine.updateSingleCellData(cellID, newOriginalValue, "user");
                         SHOW_SHEET.executeOption(engine);
                     }
                 } catch (RuntimeException e) {

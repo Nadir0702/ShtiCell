@@ -150,8 +150,8 @@ public class MainViewController {
 
     private void initializeSheetLayoutAndControllers() {
         try {
-            SheetDTO sheetDTO = this.engine.getSheetAsDTO();
-            RangesDTO rangesDto = this.engine.getAllRanges();
+            SheetDTO sheetDTO = this.engine.getSheetAsDTO("user");
+            RangesDTO rangesDto = this.engine.getAllRanges("user");
             GridBuilder gridBuilder = new GridBuilder(sheetDTO.getLayout().getRow(),
                     sheetDTO.getLayout().getColumn(),
                     sheetDTO.getLayout().getRowHeight(),
@@ -183,7 +183,7 @@ public class MainViewController {
             this.actionLineController.resetCellModel();
             this.customizationsController.deselectCell();
         } else {
-            CellDTO cellDTO = this.engine.getSingleCellData(cellSubComponentController.cellIDProperty().get());
+            CellDTO cellDTO = this.engine.getSingleCellData(cellSubComponentController.cellIDProperty().get(), "user");
             this.actionLineController.showCellDetails(cellDTO);
             this.sheetGridController.showSelectedCellAndDependencies(cellDTO);
             this.customizationsController.setSelectedCell(cellDTO);
@@ -192,9 +192,9 @@ public class MainViewController {
 
     public void updateCellValue(String cellToUpdate, String newValue) {
         try {
-            this.engine.updateSingleCellData(cellToUpdate, newValue);
-            SheetDTO sheetDTO = this.engine.getSheetAsDTO();
-            CellDTO cellDTO = this.engine.getSingleCellData(cellToUpdate);
+            this.engine.updateSingleCellData(cellToUpdate, newValue, "user");
+            SheetDTO sheetDTO = this.engine.getSheetAsDTO("user");
+            CellDTO cellDTO = this.engine.getSingleCellData(cellToUpdate, "user");
             this.sheetGridController.updateGridModel(sheetDTO.getCells());
             this.actionLineController.showCellDetails(cellDTO);
             this.sheetGridController.showSelectedCellAndDependencies(cellDTO);
@@ -209,7 +209,7 @@ public class MainViewController {
     }
 
     public void loadSheetVersion(int version) {
-        ColoredSheetDTO sheetDTO = this.engine.getSheetVersionAsDTO(version);
+        ColoredSheetDTO sheetDTO = this.engine.getSheetVersionAsDTO(version, "user").getSheetDTO();
         createReadonlyGrid(sheetDTO, " - version " + version);
     }
 
