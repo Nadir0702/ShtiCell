@@ -83,6 +83,14 @@
     -fx-background-radius: 10px;
 }
 
+.new-version-available {
+    -fx-border-color: orangered;
+    -fx-border-width: 3px;
+    -fx-cursor: hand;
+    -fx-border-radius: 20%;
+    -fx-background-radius: 50px;
+}
+
 .menu-button:hover, .choice-box:hover {
     -fx-background-color: #dbe4ff;
 }

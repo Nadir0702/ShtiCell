@@ -15,6 +15,7 @@ import client.gui.editor.grid.GridBuilder;
 import client.gui.editor.grid.SheetGridController;
 import client.gui.editor.ranges.RangesController;
 import client.gui.editor.top.TopSubComponentController;
+import client.task.EditorRefresher;
 import com.google.gson.reflect.TypeToken;
 import dto.cell.CellDTO;
 import dto.cell.CellStyleDTO;
@@ -27,8 +28,6 @@ import dto.sheet.ColoredSheetDTO;
 import dto.sheet.SheetAndCellDTO;
 import dto.sheet.SheetAndRangesDTO;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -45,6 +44,7 @@ import javafx.stage.Stage;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.math.RoundingMode;
@@ -52,16 +52,20 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.*;
 
-public class MainEditorController {
+import static client.gui.util.Constants.REFRESH_RATE;
+
+public class MainEditorController implements Closeable {
 
     @FXML private TopSubComponentController topSubComponentController;
     @FXML private CustomizationController customizationsController;
     @FXML private CommandsController commandsController;
     @FXML private RangesController rangesController;
     
+    private Map<String, CellSubComponentController> cellSubComponentControllerMap;
     private ActionLineController actionLineController;
     private SheetGridController sheetGridController;
-    private Map<String, CellSubComponentController> cellSubComponentControllerMap;
+    private TimerTask editorRefresher;
+    private Timer timer;
 
     private MainAppViewController mainAppController;
     private BackButtonLayerController backButtonLayerController;
@@ -287,9 +291,7 @@ public class MainEditorController {
                             sheetGridController.updateGridModel(sheetAndCellData.getSheetDTO().getCells());
                             actionLineController.showCellDetails(sheetAndCellData.getCellDTO());
                             sheetGridController.showSelectedCellAndDependencies(sheetAndCellData.getCellDTO());
-                            topSubComponentController.setSheetNameAndVersion(
-                                    sheetAndCellData.getSheetDTO().getSheetName(),
-                                    sheetAndCellData.getSheetDTO().getVersion());
+                            topSubComponentController.setSheetVersion(sheetAndCellData.getSheetDTO().getVersion());
                         });
                     }
                 }
@@ -874,8 +876,27 @@ public class MainEditorController {
                     );
                 } else {
                     getSheetAndRanges();
+                    startEditorRefresher();
                 }
             }
         });
+    }
+    
+    public void startEditorRefresher() {
+        this.editorRefresher = new EditorRefresher(this::disableEditableActions, this::notifyNewVersion);
+        this.timer = new Timer();
+        this.timer.schedule(this.editorRefresher, REFRESH_RATE, REFRESH_RATE);
+    }
+    
+    private void notifyNewVersion(int newLatestVersion) {
+        this.topSubComponentController.notifyNewVersion(newLatestVersion);
+    }
+    
+    @Override
+    public void close() throws IOException {
+        if (this.editorRefresher != null && timer != null) {
+            this.editorRefresher.cancel();
+            this.timer.cancel();
+        }
     }
 }

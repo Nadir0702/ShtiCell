@@ -2,8 +2,6 @@ package client.gui.editor.top;
 
 import client.gui.editor.action.line.ActionLineController;
 import client.gui.editor.main.view.MainEditorController;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
@@ -19,10 +17,12 @@ public class TopSubComponentController {
     private StringProperty sheetNameProperty;
     private MainEditorController mainViewController;
     private int latestVersion;
+    private int currentVersion;
 
     public TopSubComponentController() {
         this.sheetNameProperty = new SimpleStringProperty("Sheet Name");
         this.latestVersion = 1;
+        this.currentVersion = 1;
     }
     
     @FXML
@@ -34,12 +34,17 @@ public class TopSubComponentController {
         this.sheetNameTitledPane.textProperty().bind(this.sheetNameProperty);
 
         this.versionsChoiceBox.getSelectionModel().selectedItemProperty()
-                .addListener((observable, oldValue, newValue) -> {
+            .addListener((observable, oldValue, newValue) -> {
+                
+                if (newValue != null && oldValue != null && !newValue.equals(oldValue)) {
+                    this.currentVersion = this.versionsChoiceBox.getSelectionModel().getSelectedIndex() + 1;
                     
-                    if (newValue != null && oldValue != null && !newValue.equals(oldValue)) {
-                        this.mainViewController.loadSheetVersion(
-                                this.versionsChoiceBox.getSelectionModel().getSelectedIndex() + 1);
+                    if (this.currentVersion == this.latestVersion) {
+                        this.versionsChoiceBox.getStyleClass().remove("new-version-available");
                     }
+                    
+                    this.mainViewController.loadSheetVersion(this.currentVersion);
+                }
         });
     }
     
@@ -64,15 +69,34 @@ public class TopSubComponentController {
     }
     
     public void setSheetNameAndVersion(String sheetName, int sheetVersion) {
+        this.sheetNameProperty.set(sheetName);
+        this.setSheetVersion(sheetVersion);
+    }
+    
+    public void setSheetVersion(int sheetVersion) {
         if (this.latestVersion < sheetVersion) {
             this.latestVersion = sheetVersion;
         }
         
-        this.sheetNameProperty.set(sheetName);
+        this.currentVersion = sheetVersion;
         this.versionsChoiceBox.getItems().clear();
-        this.versionsChoiceBox.getItems().add("Version " + sheetVersion + "/" + this.latestVersion);
+        this.versionsChoiceBox.getItems().add("Version " + this.currentVersion + "/" + this.latestVersion);
         this.versionsChoiceBox.getSelectionModel().select(
-                "Version " + sheetVersion + "/" + this.latestVersion);
+                "Version " + this.currentVersion + "/" + this.latestVersion);
+    }
+    
+    public void notifyNewVersion(int newLatestVersion) {
+        if (!this.versionsChoiceBox.getStyleClass().contains("new-version-available")) {
+            this.versionsChoiceBox.getStyleClass().add("new-version-available");
+        }
+        
+        if (newLatestVersion != this.latestVersion) {
+            this.latestVersion = newLatestVersion;
+            this.versionsChoiceBox.getItems().clear();
+            this.versionsChoiceBox.getItems().add("Version " + this.currentVersion + "/" + this.latestVersion);
+            this.versionsChoiceBox.getSelectionModel().select(
+                    "Version " + this.currentVersion + "/" + this.latestVersion);
+        }
     }
     
     public void setMainController(MainEditorController mainViewController) {

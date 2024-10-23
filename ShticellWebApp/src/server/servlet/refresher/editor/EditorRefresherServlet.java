@@ -1,8 +1,8 @@
-package server.servlet.editor.graph;
+package server.servlet.refresher.editor;
 
 import com.google.gson.Gson;
-import server.constants.Constants;
-import dto.returnable.EffectiveValueDTO;
+import dto.sheet.SheetMetaDataDTO;
+import dto.version.EditorRefresherAnswerDTO;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,10 +14,12 @@ import server.utils.SessionUtils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
-@WebServlet(name = "Build Graph Servlet", urlPatterns = "/buildGraph")
-public class BuildGraph extends HttpServlet {
+@WebServlet(name = "Editor Refresher Servlet", urlPatterns = "/refreshEditor")
+public class EditorRefresherServlet extends HttpServlet {
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -31,27 +33,24 @@ public class BuildGraph extends HttpServlet {
             return;
         }
         
-        String rangeToBuildGraphFrom = request.getParameter(Constants.RANGE_NAME);
-        if (rangeToBuildGraphFrom == null || rangeToBuildGraphFrom.isEmpty()) {
-            ServletUtils.writeErrorResponse(response,
-                    "No range boundaries were given", HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
-        
-        Engine engine = engineManager.getEngine(sheetName);
-        Gson gson = new Gson();
-        
         try (PrintWriter out = response.getWriter()) {
+            String json = "";
             try {
-                LinkedHashMap<EffectiveValueDTO, LinkedHashMap<EffectiveValueDTO, EffectiveValueDTO>> graph =
-                        engine.getGraphFromRange(rangeToBuildGraphFrom);
-                String json = gson.toJson(graph);
+                Gson gson = new Gson();
+                Engine engine = engineManager.getEngine(sheetName);
+                
+                EditorRefresherAnswerDTO refresherAnswer = new EditorRefresherAnswerDTO(
+                        engine.isUserCannotEdit(engine.getUsersActiveVersion(username), username),
+                        !engine.isInLatestVersion(username),
+                        engine.showVersions().getVersionChanges().size());
+                
+                json = gson.toJson(refresherAnswer);
+                
                 out.println(json);
                 out.flush();
                 response.setStatus(HttpServletResponse.SC_OK);
-            }  catch (Exception e) {
-                ServletUtils.writeErrorResponse(
-                        response, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
+            } catch (Exception e) {
+                ServletUtils.writeErrorResponse(response, "return boolean " + json, HttpServletResponse.SC_BAD_REQUEST);
             }
         }
     }

@@ -28,6 +28,9 @@ public interface Engine {
     void updateSingleCellData(String cellID, String value, String username);
     VersionChangesDTO showVersions();
     SheetAndRangesDTO getSheetVersionAsDTO(int version, String username);
+    
+    boolean isUserCannotEdit(int version, String username);
+    
     boolean isSheetLoaded();
     void loadFromFile(String path);
     void saveToFile(String path);
@@ -35,17 +38,20 @@ public interface Engine {
     void removeRange(String rangeName);
     RangesDTO getAllRanges(String username);
     void updateCellStyle(CellStyleDTO cellStyle);
-    ColoredSheetDTO sortRangeOfCells(String range, List<String> columnsToSortBy);
-    ColoredSheetDTO filterRangeOfCells(FilterParametersDTO filterParameters);
-    List<String> getColumnsListOfRange(String rangeToFilter);
-    List<EffectiveValueDTO> getUniqueItemsToFilterBy(String columnToFilterBy, String rangeToFilter);
+    ColoredSheetDTO sortRangeOfCells(String range, List<String> columnsToSortBy, String username);
+    ColoredSheetDTO filterRangeOfCells(FilterParametersDTO filterParameters, String username);
+    List<String> getColumnsListOfRange(String rangeToFilter, String username);
+    List<EffectiveValueDTO> getUniqueItemsToFilterBy(String columnToFilterBy, String rangeToFilter, String username);
     SheetMetaDataDTO getSheetMetaData(String currentUserName);
-    LinkedHashMap<EffectiveValueDTO, LinkedHashMap<EffectiveValueDTO, EffectiveValueDTO>> getGraphFromRange(String rangeToBuildGraphFrom);
+    LinkedHashMap<EffectiveValueDTO, LinkedHashMap<EffectiveValueDTO, EffectiveValueDTO>> getGraphFromRange(String rangeToBuildGraphFrom, String username);
     void createNewPermissionRequest(SentPermissionRequestDTO requestToSend, String sender);
     List<PermissionDTO> getAllPermissions();
     void updatePermissionForUser(String sender, boolean answer, int requestID);
     void updateActiveUserVersion(String username);
     boolean isPermitted(String username);
     boolean isInLatestVersion(String username);
+    
+    int getUsersActiveVersion(String username);
+    
     Object getSheetEditLock();
 }

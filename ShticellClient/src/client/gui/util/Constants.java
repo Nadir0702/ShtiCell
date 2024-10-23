@@ -50,6 +50,7 @@ public class Constants {
     public static final String SEND_PERMISSION_REQUEST = FULL_SERVER_PATH + "/sendPermissionRequest";
     public static final String ANSWER_PERMISSION_REQUEST = FULL_SERVER_PATH + "/answerPermissionRequest";
     
+    public static final String REFRESH_EDITOR = FULL_SERVER_PATH + "/refreshEditor";
     public final static String REFRESH_SHEET_TABLE = FULL_SERVER_PATH + "/refreshSheetTable";
     public static final String REFRESH_PERMISSION_TABLE = FULL_SERVER_PATH + "/refreshPermissionTable";
     public static final String REFRESH_PERMISSION_REQUESTS_TABLE = FULL_SERVER_PATH + "/refreshPermissionRequestsTable";

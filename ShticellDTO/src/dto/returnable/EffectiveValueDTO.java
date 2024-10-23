@@ -2,6 +2,8 @@ package dto.returnable;
 
 import logic.function.returnable.api.Returnable;
 
+import java.util.Objects;
+
 public class EffectiveValueDTO {
     private final String effectiveValue;
     private final String type;
@@ -23,5 +25,18 @@ public class EffectiveValueDTO {
     @Override
     public String toString() {
         return effectiveValue + "-" + type; // Or some other unique string representation
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EffectiveValueDTO that = (EffectiveValueDTO) o;
+        return Objects.equals(effectiveValue, that.effectiveValue) && Objects.equals(type, that.type);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(effectiveValue, type);
     }
 }

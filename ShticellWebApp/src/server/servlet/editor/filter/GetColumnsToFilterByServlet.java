@@ -42,7 +42,7 @@ public class GetColumnsToFilterByServlet extends HttpServlet {
         try (PrintWriter out = response.getWriter()) {
             List<String> columnsInRange;
             try {
-                columnsInRange = engine.getColumnsListOfRange(rangeToGetColumnsFrom);
+                columnsInRange = engine.getColumnsListOfRange(rangeToGetColumnsFrom, username);
                 Gson gson = new Gson();
                 String json = gson.toJson(columnsInRange);
                 out.println(json);

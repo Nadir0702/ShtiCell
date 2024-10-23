@@ -43,7 +43,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import logic.engine.Engine;
 import logic.engine.EngineImpl;
-import logic.function.returnable.api.Returnable;
 import tasks.FileLoadingTask;
 import user.User;
 
@@ -365,7 +364,7 @@ public class MainViewController {
 
     public boolean sortRange(String rangeToSort, List<String> columnsToSortBy) {
         try {
-            ColoredSheetDTO sortedSheet = this.engine.sortRangeOfCells(rangeToSort, columnsToSortBy);
+            ColoredSheetDTO sortedSheet = this.engine.sortRangeOfCells(rangeToSort, columnsToSortBy, "user");
             createReadonlyGrid(sortedSheet, " - Sorted");
             return true;
         } catch (ClassCastException e) {
@@ -381,7 +380,7 @@ public class MainViewController {
         try {
             ColoredSheetDTO filteredSheet =
                     this.engine.filterRangeOfCells(
-                            new FilterParametersDTO(rangeToFilterBy, columnToFilterBy, itemsToFilterBy));
+                            new FilterParametersDTO(rangeToFilterBy, columnToFilterBy, itemsToFilterBy), "user");
             createReadonlyGrid(filteredSheet, " - Filtered");
             return true;
         } catch (RuntimeException e) {
@@ -415,7 +414,7 @@ public class MainViewController {
 
     public List<String> getColumnsOfRange(String rangeToFilter) {
         try {
-            return this.engine.getColumnsListOfRange(rangeToFilter);
+            return this.engine.getColumnsListOfRange(rangeToFilter, "user");
         } catch (RuntimeException e) {
             this.commandsController.updateFilterErrorLabel(e.getMessage());
             return Collections.emptyList();
@@ -424,7 +423,7 @@ public class MainViewController {
 
     public List<EffectiveValueDTO> getUniqueItems(String columnToFilterBy, String rangeToFilter) {
         try {
-            return this.engine.getUniqueItemsToFilterBy(columnToFilterBy, rangeToFilter);
+            return this.engine.getUniqueItemsToFilterBy(columnToFilterBy, rangeToFilter, "user");
         } catch (RuntimeException e) {
             this.commandsController.updateFilterErrorLabel(e.getMessage());
         }
@@ -461,7 +460,8 @@ public class MainViewController {
 
     public boolean buildGraph(String rangeToBuildGraphFrom, String graphType) {
         try {
-            LinkedHashMap<EffectiveValueDTO, LinkedHashMap<EffectiveValueDTO, EffectiveValueDTO>> graph = this.engine.getGraphFromRange(rangeToBuildGraphFrom);
+            LinkedHashMap<EffectiveValueDTO, LinkedHashMap<EffectiveValueDTO, EffectiveValueDTO>> graph =
+                    this.engine.getGraphFromRange(rangeToBuildGraphFrom, "user");
             this.showGraphPopup(graphType, graph);
             return true;
         } catch (RuntimeException e) {

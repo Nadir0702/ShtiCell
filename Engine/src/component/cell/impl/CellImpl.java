@@ -22,11 +22,13 @@ public class CellImpl implements Cell {
     private SerializableColor textColor;
     private final List<Cell> dependingOn;
     private final List<Cell> influencingOn;
-
+    private String updatedBy;
+    
     public CellImpl(String cellID, String originalValue, int version, ReadonlySheet sheet) {
         this.cellId = Character.toUpperCase(cellID.charAt(0)) + cellID.substring(1);
         this.originalValue = originalValue;
         this.version = version;
+        this.updatedBy = "";
         this.backgroundColor = new SerializableColor(Color.WHITE);
         this.textColor = new SerializableColor(Color.BLACK);
         this.dependingOn = new ArrayList<>();
@@ -97,7 +99,7 @@ public class CellImpl implements Cell {
     }
 
     @Override
-    public void setOriginalValue(String value, int newVersion) {
+    public void setOriginalValue(String value, int newVersion, String username) {
         this.originalValue = value;
         
         this.dependingOn.forEach(cell -> cell.getInfluencedCells().remove(this));
@@ -105,6 +107,7 @@ public class CellImpl implements Cell {
         this.setDependencies();
         
         this.version = newVersion;
+        this.updatedBy = username;
     }
 
     @Override
@@ -162,6 +165,16 @@ public class CellImpl implements Cell {
     @Override
     public void updateCellID(String newID) {
         this.cellId = newID;
+    }
+    
+    @Override
+    public String getUpdatedBy() {
+        return this.updatedBy;
+    }
+    
+    @Override
+    public void setUpdatedBy(String username) {
+        this.updatedBy = username;
     }
     
     @Override

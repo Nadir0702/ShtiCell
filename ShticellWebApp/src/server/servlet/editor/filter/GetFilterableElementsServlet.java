@@ -50,7 +50,7 @@ public class GetFilterableElementsServlet extends HttpServlet {
         try (PrintWriter out = response.getWriter()) {
             List<EffectiveValueDTO> uniqueItemsInColumn;
             try {
-                uniqueItemsInColumn = engine.getUniqueItemsToFilterBy(columnToFilterBy, rangeToFilter);
+                uniqueItemsInColumn = engine.getUniqueItemsToFilterBy(columnToFilterBy, rangeToFilter, username);
                 Gson gson = new Gson();
                 String json = gson.toJson(uniqueItemsInColumn);
                 out.println(json);

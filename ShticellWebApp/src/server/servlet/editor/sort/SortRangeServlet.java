@@ -50,7 +50,7 @@ public class SortRangeServlet extends HttpServlet {
         try (PrintWriter out = response.getWriter()) {
             ColoredSheetDTO sortedSheet;
             try {
-                sortedSheet = engine.sortRangeOfCells(rangeToSort, columnsToSortBy);
+                sortedSheet = engine.sortRangeOfCells(rangeToSort, columnsToSortBy, username);
                 String json = gson.toJson(sortedSheet);
                 out.println(json);
                 out.flush();

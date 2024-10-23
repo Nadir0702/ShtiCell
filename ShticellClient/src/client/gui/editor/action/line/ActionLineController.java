@@ -63,16 +63,22 @@ public class ActionLineController {
     }
     
     public void showCellDetails(CellDTO cellDTO) {
-        this.actionLineCellModel.getCellIDProperty().set(cellDTO.getCellId());
         this.originalValueTextField.setText(cellDTO.getOriginalValue());
+        this.actionLineCellModel.getCellIDProperty().set(cellDTO.getCellId());
         this.actionLineCellModel.getLastUpdatedVersionProperty().set(String.valueOf(cellDTO.getVersion()));
+        
+        if (cellDTO.getUpdatedBy().isEmpty()) {
+            this.actionLineCellModel.getUpdatedByProperty().set("");
+        } else {
+            this.actionLineCellModel.getUpdatedByProperty().set("By " + cellDTO.getUpdatedBy());
+        }
     }
     
-    
     public void resetCellModel() {
-        this.actionLineCellModel.getCellIDProperty().set("");
         this.originalValueTextField.setText("");
+        this.actionLineCellModel.getCellIDProperty().set("");
         this.actionLineCellModel.getLastUpdatedVersionProperty().set("");
+        this.actionLineCellModel.getUpdatedByProperty().set("");
     }
     
     public void disableEditableActions(boolean disable) {
