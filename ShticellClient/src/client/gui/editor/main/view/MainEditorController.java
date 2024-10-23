@@ -63,14 +63,9 @@ public class MainEditorController {
     private SheetGridController sheetGridController;
     private Map<String, CellSubComponentController> cellSubComponentControllerMap;
 
-    private BooleanProperty fileNotLoadedProperty;
     private MainAppViewController mainAppController;
     private BackButtonLayerController backButtonLayerController;
     
-    public MainEditorController() {
-        this.fileNotLoadedProperty = new SimpleBooleanProperty(true);
-    }
-
     @FXML
     public void initialize() {
         if (this.topSubComponentController != null) {
@@ -89,12 +84,6 @@ public class MainEditorController {
         if (this.commandsController != null) {
             this.commandsController.setMainController(this);
         }
-
-        this.actionLineController.bindFileNotLoaded(this.fileNotLoadedProperty);
-        this.rangesController.bindFileNotLoaded(this.fileNotLoadedProperty);
-        this.customizationsController.bindFileNotLoaded(this.fileNotLoadedProperty);
-        this.commandsController.bindFileNotLoaded(this.fileNotLoadedProperty);
-        this.topSubComponentController.bindFileNotLoaded(this.fileNotLoadedProperty);
     }
 
     public void setActionLineController(ActionLineController actionLineController) {
@@ -146,7 +135,9 @@ public class MainEditorController {
                      
                         Platform.runLater(() ->
                             initializeSheetLayoutAndControllers(
-                                    sheetAndRanges.getSheetDTO(), sheetAndRanges.getRangesDTO())
+                                    sheetAndRanges.getSheetDTO(),
+                                    sheetAndRanges.getRangesDTO(),
+                                    sheetAndRanges.isInReaderMode())
                         );
                     }
                 } catch (RuntimeException e) {
@@ -156,7 +147,8 @@ public class MainEditorController {
         });
     }
     
-    private void initializeSheetLayoutAndControllers(ColoredSheetDTO sheet, RangesDTO ranges) {
+    private void initializeSheetLayoutAndControllers(ColoredSheetDTO sheet,
+                                                     RangesDTO ranges ,boolean isInReaderMode) {
         GridBuilder gridBuilder = new GridBuilder(sheet.getLayout().getRow(),
                 sheet.getLayout().getColumn(),
                 sheet.getLayout().getRowHeight(),
@@ -173,13 +165,11 @@ public class MainEditorController {
         setCellSubComponentControllerMap(sheetGridController.getCellsControllers());
         sheetGridController.initializeGridModel(sheet.getCells());
         rangesController.initializeRangesModel(ranges);
-        fileNotLoadedProperty.set(false);
         actionLineController.resetCellModel();
         rangesController.resetController();
         customizationsController.resetController();
         commandsController.resetController();
-        topSubComponentController.setSheetNameAndVersion(
-                sheet.getSheetName(), sheet.getVersion());
+        topSubComponentController.setSheetNameAndVersion(sheet.getSheetName(), sheet.getVersion());
         
         sheetGridController.getCellsControllers().forEach((cellID, cellController) -> {
             ColoredCellDTO currentCell = sheet.getCells().get(cellID);
@@ -187,6 +177,14 @@ public class MainEditorController {
                 cellController.setCellStyle(currentCell.getBackgroundColor(), currentCell.getTextColor());
             }
         });
+        
+        this.disableEditableActions(isInReaderMode);
+    }
+    
+    private void disableEditableActions(boolean disable) {
+        this.actionLineController.disableEditableActions(disable);
+        this.rangesController.disableEditableActions(disable);
+        this.customizationsController.disableEditableActions(disable);
     }
     
     private void addBackButtonLayer(StackPane center) throws IOException {
@@ -244,7 +242,7 @@ public class MainEditorController {
                         Platform.runLater(() -> {
                             actionLineController.showCellDetails(cellData);
                             sheetGridController.showSelectedCellAndDependencies(cellData);
-                            customizationsController.setSelectedCell(cellData);
+                            customizationsController.setSelectedCell(cellSubComponentControllerMap.get(cellID));
                         });
                     }
                 }
@@ -289,7 +287,9 @@ public class MainEditorController {
                             sheetGridController.updateGridModel(sheetAndCellData.getSheetDTO().getCells());
                             actionLineController.showCellDetails(sheetAndCellData.getCellDTO());
                             sheetGridController.showSelectedCellAndDependencies(sheetAndCellData.getCellDTO());
-                            topSubComponentController.updateSheetVersion(sheetAndCellData.getSheetDTO().getVersion());
+                            topSubComponentController.setSheetNameAndVersion(
+                                    sheetAndCellData.getSheetDTO().getSheetName(),
+                                    sheetAndCellData.getSheetDTO().getVersion());
                         });
                     }
                 }
@@ -332,7 +332,7 @@ public class MainEditorController {
         });
     }
 
-    public void loadSheetVersion(int version, boolean isGettingLastVersion) {
+    public void loadSheetVersion(int version) {
         HttpUrl url = HttpUrl.parse(Constants.LOAD_SHEET_VERSION)
                 .newBuilder()
                 .addQueryParameter("version", String.valueOf(version))
@@ -363,15 +363,11 @@ public class MainEditorController {
                     } else {
                         SheetAndRangesDTO sheetAndRanges =
                                 Constants.GSON_INSTANCE.fromJson(responseBodyString, SheetAndRangesDTO.class);
-                        if (isGettingLastVersion) {
-                            Platform.runLater(() ->
-                                    initializeSheetLayoutAndControllers(
-                                            sheetAndRanges.getSheetDTO(), sheetAndRanges.getRangesDTO()));
-                        } else {
-                            Platform.runLater(() ->
-                                    createReadonlyGrid(
-                                            sheetAndRanges.getSheetDTO(), " - version " + version));
-                        }
+                        
+                        Platform.runLater(() -> initializeSheetLayoutAndControllers(
+                                sheetAndRanges.getSheetDTO(),
+                                sheetAndRanges.getRangesDTO(),
+                                sheetAndRanges.isInReaderMode()));
                     }
                 }
             }
@@ -522,7 +518,6 @@ public class MainEditorController {
     }
 
     public void setCellStyle(String cellID, Color backgroundColor, Color textColor) {
-        this.cellSubComponentControllerMap.get(cellID).setCellStyle(backgroundColor, textColor);
         CellStyleDTO newCellStyle = new CellStyleDTO(cellID, backgroundColor, textColor);
         
         Request request = new Request.Builder()
@@ -545,9 +540,14 @@ public class MainEditorController {
                 try(ResponseBody responseBody = response.body()) {
                     String responseBodyString = responseBody.string();
                     if (response.code() != 200) {
+                        Platform.runLater(() -> {
+                            ExceptionWindowController.openExceptionPopup(
+                                    "Something went wrong: " + responseBodyString);
+                            customizationsController.setSelectedCell(cellSubComponentControllerMap.get(cellID));
+                        });
+                    } else {
                         Platform.runLater(() ->
-                                ExceptionWindowController.openExceptionPopup(
-                                        "Something went wrong: " + responseBodyString)
+                                cellSubComponentControllerMap.get(cellID).setCellStyle(backgroundColor, textColor)
                         );
                     }
                 }

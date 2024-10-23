@@ -25,22 +25,22 @@ public class ActionLineController {
     private TopSubComponentController topSubComponentController;
     private MainEditorController mainEditorController;
     private ActionLineCellModel actionLineCellModel;
-    private BooleanProperty isFileLoadedProperty;
+    private BooleanProperty isInReaderModeProperty;
     
     public ActionLineController() {
         this.actionLineCellModel = new CellModel();
-        this.isFileLoadedProperty = new SimpleBooleanProperty(true);
+        this.isInReaderModeProperty = new SimpleBooleanProperty(true);
     }
     
     @FXML
     private void initialize() {
         this.updateValueButton.disableProperty().bind(
                 Bindings.or(this.cellIDLabel.textProperty().isEqualTo("Cell ID "),
-                            this.isFileLoadedProperty));
+                            this.isInReaderModeProperty));
         
         this.originalValueTextField.disableProperty().bind(
                 Bindings.or(this.cellIDLabel.textProperty().isEqualTo("Cell ID "),
-                        this.isFileLoadedProperty));
+                        this.isInReaderModeProperty));
         
         this.actionLineCellModel.bind(
                 this.cellIDLabel.textProperty(),
@@ -75,8 +75,7 @@ public class ActionLineController {
         this.actionLineCellModel.getLastUpdatedVersionProperty().set("");
     }
     
-    public void bindFileNotLoaded(BooleanProperty isFileLoaded) {
-        this.isFileLoadedProperty.bind(isFileLoaded);
+    public void disableEditableActions(boolean disable) {
+        this.isInReaderModeProperty.set(disable);
     }
-
 }

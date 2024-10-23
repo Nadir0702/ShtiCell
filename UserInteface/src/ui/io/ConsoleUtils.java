@@ -6,6 +6,7 @@ import dto.returnable.EffectiveValueDTO;
 import dto.sheet.SheetDTO;
 import dto.version.VersionChangesDTO;
 import logic.function.returnable.api.Returnable;
+import logic.function.returnable.impl.ReturnableImpl;
 import ui.menu.MainMenuOption;
 
 import java.math.RoundingMode;
@@ -147,7 +148,7 @@ public class ConsoleUtils {
         System.out.println("Cell ID: " + cellDTO.getCellId());
         System.out.println("Original Value: " + cellDTO.getOriginalValue());
 
-        String valueToPrint = effectiveValueFormatter(cellDTO.getEffectiveValue());
+        String valueToPrint = effectiveValueFormatter(new ReturnableImpl(cellDTO.getEffectiveValue().getEffectiveValue(), CellType.NUMERIC));
 
         System.out.println("Effective Value: " + valueToPrint);
     }

@@ -11,10 +11,17 @@ import javafx.scene.paint.Color;
 
 public class CellSubComponentController {
     
-    @FXML
-    private Label cellComponent;
+    @FXML private Label cellComponent;
+    
     private MainEditorController mainEditorController;
     private StringProperty cellID;
+    private Color backgroundColor;
+    private Color textColor;
+    
+    public CellSubComponentController() {
+        this.backgroundColor = Color.WHITE;
+        this.textColor = Color.BLACK;
+    }
     
     @FXML
     private void initialize() {
@@ -70,6 +77,8 @@ public class CellSubComponentController {
     
     public void setCellStyle(Color backgroundColor, Color textColor) {
         this.cellComponent.setStyle(formatCellStyleString(backgroundColor, textColor));
+        this.backgroundColor = backgroundColor;
+        this.textColor = textColor;
     }
     
     private String formatCellStyleString(Color backgroundColor, Color textColor) {
@@ -83,4 +92,8 @@ public class CellSubComponentController {
                 (int) (textColor.getGreen() * 255),
                 (int) (textColor.getBlue() * 255));
     }
+    
+    public Color getBackgroundColor() { return this.backgroundColor; }
+    
+    public Color getTextColor() { return this.textColor; }
 }

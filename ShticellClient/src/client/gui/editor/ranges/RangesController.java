@@ -28,13 +28,13 @@ public class RangesController {
     private MainEditorController mainEditorController;
     private RangesModel rangesModel;
     
-    private final BooleanProperty isFileLoadedProperty;
     private final BooleanProperty isSelectedRangeProperty;
     private final StringProperty saveRangeErrorProperty;
     private final StringProperty deleteRangeErrorProperty;
+    private final BooleanProperty isInReaderModeProperty;
     
     public RangesController() {
-        this.isFileLoadedProperty = new SimpleBooleanProperty(true);
+        this.isInReaderModeProperty = new SimpleBooleanProperty(true);
         this.isSelectedRangeProperty = new SimpleBooleanProperty(false);
         this.saveRangeErrorProperty = new SimpleStringProperty("");
         this.deleteRangeErrorProperty = new SimpleStringProperty("");
@@ -44,11 +44,16 @@ public class RangesController {
     private void initialize() {
         this.newRangeErrorLabel.textProperty().bind(this.saveRangeErrorProperty);
         this.deleteRangeErrorLabel.textProperty().bind(this.deleteRangeErrorProperty);
-        this.deleteRangeButton.disableProperty().bind(this.rangesListView.getSelectionModel().selectedItemProperty().isNull());
+        
+        this.deleteRangeButton.disableProperty().bind(Bindings.or(
+                this.rangesListView.getSelectionModel().selectedItemProperty().isNull(),
+                this.isInReaderModeProperty
+        ));
+        
         
         this.saveRangeButton.disableProperty().bind(
                 Bindings.or(
-                        this.isFileLoadedProperty,
+                        this.isInReaderModeProperty,
                         Bindings.or(
                                 this.rangeNameTextField.textProperty().isEmpty(),
                                 Bindings.or(
@@ -65,6 +70,7 @@ public class RangesController {
             this.deleteRangeErrorProperty.set("");
             
         });
+        
         this.rangesListView.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) {
                 PauseTransition pause = new PauseTransition(Duration.millis(10));
@@ -80,10 +86,6 @@ public class RangesController {
                 pause.play();
             }
         });
-    }
-    
-    public void bindFileNotLoaded(BooleanProperty isFileLoaded) {
-        this.isFileLoadedProperty.bind(isFileLoaded);
     }
     
     @FXML
@@ -136,5 +138,12 @@ public class RangesController {
         this.topRightBoundaryTextField.textProperty().set("");
         this.bottomLeftBoundaryTextField.textProperty().set("");
         this.saveRangeErrorProperty.set("");
+    }
+    
+    public void disableEditableActions(boolean disable) {
+        this.rangeNameTextField.setDisable(disable);
+        this.topRightBoundaryTextField.setDisable(disable);
+        this.bottomLeftBoundaryTextField.setDisable(disable);
+        this.isInReaderModeProperty.set(disable);
     }
 }

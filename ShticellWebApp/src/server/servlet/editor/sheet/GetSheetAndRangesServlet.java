@@ -34,7 +34,10 @@ public class GetSheetAndRangesServlet extends HttpServlet {
             
             engine.updateActiveUserVersion(username);
             SheetAndRangesDTO sheetAndRanges =
-                    new SheetAndRangesDTO(engine.getColoredSheetAsDTO(username), engine.getAllRanges(username));
+                    new SheetAndRangesDTO(
+                            engine.getColoredSheetAsDTO(username),
+                            engine.getAllRanges(username),
+                            !engine.isPermitted(username));
             
             Gson gson = new Gson();
             String json = gson.toJson(sheetAndRanges);

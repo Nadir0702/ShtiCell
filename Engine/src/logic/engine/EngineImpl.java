@@ -183,16 +183,20 @@ public class EngineImpl implements Engine{
     public SheetAndRangesDTO getSheetVersionAsDTO(int version, String username) {
         this.usersActiveVersionLock.writeLock().lock();
         try {
-            if (version == this.archive.retrieveLatestVersion().getVersion()) {
-                this.usersActiveVersion.put(username, version);
-            }
+            this.usersActiveVersion.put(username, version);
         } finally {
             this.usersActiveVersionLock.writeLock().unlock();
         }
+        
+        boolean isGettingLatestVersion = this.archive.retrieveLatestVersion().getVersion() == version;
+        boolean userInReaderMode = !this.isPermitted(username);
+        
+        boolean userCannotEdit = userInReaderMode || !isGettingLatestVersion;
+        
         Sheet sheetToRetrieve = this.archive.retrieveVersion(version);
         ColoredSheetDTO coloredSheet = new ColoredSheetDTO(sheetToRetrieve);
         RangesDTO ranges = new RangesDTO(sheetToRetrieve.getRanges());
-        return new SheetAndRangesDTO(coloredSheet, ranges);
+        return new SheetAndRangesDTO(coloredSheet, ranges, userCannotEdit);
     }
 
     @Override
@@ -429,6 +433,9 @@ public class EngineImpl implements Engine{
     
     @Override
     public ColoredSheetDTO filterRangeOfCells(FilterParametersDTO filterParameters) {
+        
+        
+        
         Sheet filteredSheet = this.sheet.copySheet();
         Range rangeToFilter =
                 new RangeImpl("range to filter", filterParameters.getRangeToFilterBy(), filteredSheet);
@@ -449,3 +456,5 @@ public class EngineImpl implements Engine{
         return new ColoredSheetDTO(filteredSheet);
     }
 }
+
+
