@@ -1,21 +1,22 @@
-package server.servlet.editor.sheet;
+package server.servlet.editor.dynamicanalysis;
 
 import com.google.gson.Gson;
-import dto.sheet.SheetAndRangesDTO;
+import dto.sheet.SheetAndCellDTO;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import logic.engine.Engine;
 import manager.EngineManager;
+import server.constants.Constants;
 import server.utils.ServletUtils;
 import server.utils.SessionUtils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 
-@WebServlet(name = "Get Sheet And Ranges Servlet", urlPatterns = "/getSheetAndRanges")
-public class GetSheetAndRangesServlet extends HttpServlet {
+@WebServlet(name = "Dynamic Analysis Servlet", urlPatterns = "/dynamicAnalysis")
+public class DynamicAnalysisServlet extends HttpServlet {
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -31,16 +32,28 @@ public class GetSheetAndRangesServlet extends HttpServlet {
         
         try (PrintWriter out = response.getWriter()) {
             Engine engine = engineManager.getEngine(sheetName);
+            String cellID = request.getParameter(Constants.CELL_ID);
+            String newOriginalValue = request.getParameter(Constants.NEW_ORIGINAL_VALUE);
             
-            engine.updateUserActiveVersion(username);
-            SheetAndRangesDTO sheetAndRanges =
-                    new SheetAndRangesDTO(
-                            engine.getColoredSheetAsDTO(username),
-                            engine.getAllRanges(username),
-                            !engine.isPermitted(username));
+            if (cellID == null || cellID.isEmpty()) {
+                ServletUtils.writeErrorResponse(
+                        response, "Got No Cell ID", HttpServletResponse.SC_BAD_REQUEST);
+            }
+            
+            if (newOriginalValue == null) {
+                ServletUtils.writeErrorResponse(
+                        response, "Got No original value", HttpServletResponse.SC_BAD_REQUEST);
+            }
+            SheetAndCellDTO sheetAndCellData;
+            try {
+                sheetAndCellData = engine.dynamicCellUpdate(cellID, newOriginalValue, username);
+            } catch (Exception e) {
+                ServletUtils.writeErrorResponse(response, e.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
             
             Gson gson = new Gson();
-            String json = gson.toJson(sheetAndRanges);
+            String json = gson.toJson(sheetAndCellData);
             out.println(json);
             out.flush();
             response.setStatus(HttpServletResponse.SC_OK);

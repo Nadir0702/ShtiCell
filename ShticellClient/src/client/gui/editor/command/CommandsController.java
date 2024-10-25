@@ -3,8 +3,6 @@ package client.gui.editor.command;
 import client.gui.editor.main.view.MainEditorController;
 import dto.returnable.EffectiveValueDTO;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
@@ -29,8 +27,8 @@ public class CommandsController {
     @FXML private Label graphErrorLabel;
     @FXML private Button buildGraphButton;
     @FXML private ChoiceBox<String> graphTypeChoiceBox;
-
-
+    @FXML private DynamicAnalysisController dynamicAnalysisController;
+    
     private List<ChoiceBox<String>> additionalColumnsToSortBy;
     
     private MainEditorController mainEditorController;
@@ -83,8 +81,11 @@ public class CommandsController {
         this.sortButton.disableProperty().bind(this.columnsToSortByTextField.textProperty().isEmpty());
         
         this.filterButton.disableProperty().bind(this.filterElementMenuButton.disableProperty());
-
-
+        
+        if (this.dynamicAnalysisController != null) {
+            this.dynamicAnalysisController.setCommandsController(this);
+        }
+        
         this.filterColumnChoiceBox.getSelectionModel().selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> {
             if(newValue != null && !newValue.equals("Select Column")) {
@@ -223,5 +224,9 @@ public class CommandsController {
 
     public void updateGraphErrorLabel(String message) {
         this.graphErrorLabel.setText(message);
+    }
+    
+    public DynamicAnalysisController getDynamicAnalysisController() {
+        return this.dynamicAnalysisController;
     }
 }

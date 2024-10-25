@@ -26,4 +26,5 @@ public interface Cell extends Serializable {
     void updateCellID(String newID);
     String getUpdatedBy();
     void setUpdatedBy(String username);
+    void setDynamicValue(String newOriginalValue);
 }

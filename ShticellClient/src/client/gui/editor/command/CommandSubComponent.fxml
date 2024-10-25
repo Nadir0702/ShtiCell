@@ -8,6 +8,7 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
@@ -26,7 +27,7 @@
             <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="NEVER" />
           <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="NEVER" />
           <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="NEVER" />
-            <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="NEVER" />
+            <RowConstraints maxHeight="15.0" minHeight="15.0" prefHeight="15.0" vgrow="NEVER" />
             <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="NEVER" />
             <RowConstraints maxHeight="45.0" minHeight="45.0" prefHeight="45.0" vgrow="NEVER" />
             <RowConstraints maxHeight="60.0" minHeight="60.0" prefHeight="60.0" vgrow="NEVER" />
@@ -34,10 +35,14 @@
             <RowConstraints maxHeight="45.0" minHeight="45.0" prefHeight="45.0" vgrow="NEVER" />
             <RowConstraints maxHeight="45.0" minHeight="45.0" prefHeight="45.0" vgrow="NEVER" />
             <RowConstraints maxHeight="60.0" minHeight="60.0" prefHeight="60.0" vgrow="NEVER" />
-            <RowConstraints maxHeight="10.0" minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+            <RowConstraints maxHeight="10.0" minHeight="10.0" prefHeight="10.0" vgrow="NEVER" />
             <RowConstraints maxHeight="45.0" minHeight="45.0" prefHeight="45.0" vgrow="NEVER" />
             <RowConstraints maxHeight="60.0" minHeight="60.0" prefHeight="60.0" vgrow="NEVER" />
-            <RowConstraints />
+            <RowConstraints maxHeight="10.0" minHeight="10.0" prefHeight="10.0" vgrow="NEVER" />
+            <RowConstraints maxHeight="45.0" minHeight="45.0" prefHeight="45.0" vgrow="NEVER" />
+            <RowConstraints maxHeight="1.7976931348623157E308" vgrow="ALWAYS" />
+            <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS" />
+            <RowConstraints maxHeight="10.0" minHeight="10.0" prefHeight="10.0" />
         </rowConstraints>
          <children>
             <Label text="Top Right Boundary" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
@@ -63,12 +68,21 @@
             <Separator layoutX="25.0" layoutY="304.0" GridPane.columnIndex="1" GridPane.rowIndex="12" />
             <Label styleClass="header" text="Graph" GridPane.columnIndex="1" GridPane.rowIndex="13" />
             <ChoiceBox fx:id="graphTypeChoiceBox" layoutX="167.0" layoutY="320.0" maxWidth="1.7976931348623157E308" GridPane.columnIndex="2" GridPane.rowIndex="13" />
-            <Button fx:id="buildGraphButton" layoutX="229.0" layoutY="385.0" mnemonicParsing="false" onAction="#onBuildGraphClicked" text="Build" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="14" />
+            <Button fx:id="buildGraphButton" layoutX="229.0" layoutY="385.0" mnemonicParsing="false" onAction="#onBuildGraphClicked" text="BUILD" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="14" />
             <Label fx:id="graphErrorLabel" layoutX="25.0" layoutY="259.0" styleClass="error-label" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="14" GridPane.rowSpan="2" GridPane.valignment="TOP">
                <font>
                   <Font size="10.0" />
                </font>
             </Label>
+            <Separator prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="15" />
+            <Label styleClass="header" text="Dynamic Analisys" GridPane.columnIndex="1" GridPane.rowIndex="16" />
+            <FlowPane GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="17">
+               <children>
+                  <fx:include fx:id="dynamicAnalysis" source="DynamicAnalysis.fxml" />
+               </children>
+            </FlowPane>
+            <Button mnemonicParsing="false" text="Finish Analysis" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="18" />
+            <Button mnemonicParsing="false" text="+" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="18" />
          </children>
       </GridPane>
    </content>

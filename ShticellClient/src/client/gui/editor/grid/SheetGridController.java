@@ -87,17 +87,6 @@ public class SheetGridController {
         });
     }
     
-//    public void initializePopupGridModel(Map<String, ColoredCellDTO> cells) {
-//        this.gridModel = new GridModel(this.cellsControllers);
-//        this.updatePopupGridModel(cells);
-//    }
-//
-//    public void updatePopupGridModel(Map<String, ColoredCellDTO> cells) {
-//        cells.forEach((cellID, cell) -> {
-//            this.gridModel.getCellValueProperty(cellID).set(effectiveValueFormatter(cell.getEffectiveValue()));
-//        });
-//    }
-    
     public void showSelectedCellAndDependencies(CellDTO cellDTO) {
         String previousSelected = this.dependenciesCellModel.getSelectedCellProperty().get();
         

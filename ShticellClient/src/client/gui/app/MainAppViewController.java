@@ -6,9 +6,11 @@ import client.gui.login.LoginController;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
@@ -32,6 +34,7 @@ public class MainAppViewController implements Closeable {
     
     @FXML private Label userGreetingLabel;
     @FXML private AnchorPane mainPanel;
+    @FXML private Button backButton;
     
     private final StringProperty currentUserName;
     private Stage primaryStage;
@@ -44,10 +47,17 @@ public class MainAppViewController implements Closeable {
     public void initialize() {
         this.userGreetingLabel.textProperty().bind(Bindings.concat("Hello ", this.currentUserName));
         
+        this.backButton.setVisible(false);
+        
         // prepare components
         this.loadLoginPage();
         this.loadHomePage();
         this.loadEditorPage();
+    }
+    
+    @FXML
+    void onBackClicked(ActionEvent event) {
+        this.switchToHomeView();
     }
     
     public void updateUserName(String userName) {
@@ -114,6 +124,7 @@ public class MainAppViewController implements Closeable {
         this.primaryStage.close();
         this.primaryStage.setWidth(1000);
         this.primaryStage.show();
+        this.backButton.setVisible(false);
         this.setMainPanelTo(this.homeViewComponent);
         this.homeViewController.setActive();
     }
@@ -123,6 +134,7 @@ public class MainAppViewController implements Closeable {
         this.primaryStage.close();
         this.primaryStage.setWidth(1200);
         this.primaryStage.show();
+        this.backButton.setVisible(true);
         this.editorViewController.setActive(sheetName);
         this.setMainPanelTo(this.editorViewComponent);
     }

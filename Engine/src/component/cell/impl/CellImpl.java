@@ -178,6 +178,11 @@ public class CellImpl implements Cell {
     }
     
     @Override
+    public void setDynamicValue(String newOriginalValue) {
+        this.originalValue = newOriginalValue;
+    }
+    
+    @Override
     public void setBackgroundColor(Color color) {
         this.backgroundColor = new SerializableColor(color);
     }

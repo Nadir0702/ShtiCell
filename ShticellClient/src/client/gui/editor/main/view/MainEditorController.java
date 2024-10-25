@@ -1,6 +1,7 @@
 package client.gui.editor.main.view;
 
 import client.gui.app.MainAppViewController;
+import client.gui.editor.command.DynamicAnalysisController;
 import client.gui.editor.grid.BackButtonLayerController;
 import client.gui.exception.ExceptionWindowController;
 import client.gui.util.Constants;
@@ -62,6 +63,7 @@ public class MainEditorController implements Closeable {
     @FXML private RangesController rangesController;
     
     private Map<String, CellSubComponentController> cellSubComponentControllerMap;
+    private DynamicAnalysisController dynamicAnalysisController;
     private ActionLineController actionLineController;
     private SheetGridController sheetGridController;
     private TimerTask editorRefresher;
@@ -87,12 +89,18 @@ public class MainEditorController implements Closeable {
 
         if (this.commandsController != null) {
             this.commandsController.setMainController(this);
+            this.setDynamicAnalysisController(this.commandsController.getDynamicAnalysisController());
         }
     }
 
     public void setActionLineController(ActionLineController actionLineController) {
         this.actionLineController = actionLineController;
         this.actionLineController.setMainController(this);
+    }
+    
+    public void setDynamicAnalysisController(DynamicAnalysisController dynamicAnalysisController) {
+        this.dynamicAnalysisController = dynamicAnalysisController;
+        this.dynamicAnalysisController.setMainEditorController(this);
     }
 
     public void setSheetGridController(SheetGridController sheetGridController) {
@@ -247,6 +255,7 @@ public class MainEditorController implements Closeable {
                             actionLineController.showCellDetails(cellData);
                             sheetGridController.showSelectedCellAndDependencies(cellData);
                             customizationsController.setSelectedCell(cellSubComponentControllerMap.get(cellID));
+                            dynamicAnalysisController.setSelectedCell(cellData.getCellId());
                         });
                     }
                 }
@@ -844,7 +853,9 @@ public class MainEditorController implements Closeable {
     }
     
     public void setInActive() {
-        // TODO
+        try {
+            this.close();
+        } catch (IOException ignore) {}
     }
     
     public void setEngineNameInSession(String sheetName) {
@@ -898,5 +909,49 @@ public class MainEditorController implements Closeable {
             this.editorRefresher.cancel();
             this.timer.cancel();
         }
+    }
+    
+    public void dynamicAnalysis(String cellID, double newValue) {
+        HttpUrl url = HttpUrl.parse(Constants.DYNAMIC_ANALYSIS)
+                .newBuilder()
+                .addQueryParameter("cellID", cellID)
+                .addQueryParameter("newValue", String.valueOf(newValue))
+                .build();
+        
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        
+        HttpClientUtil.runAsync(request, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() ->
+                        ExceptionWindowController.openExceptionPopup(
+                                "Something went wrong: " + e.getMessage())
+                );
+            }
+            
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                try(ResponseBody responseBody = response.body()) {
+                    String responseBodyString = responseBody.string();
+                    if (response.code() != 200) {
+                        Platform.runLater(() ->
+                                dynamicAnalysisController.updateErrorLabel(responseBodyString)
+                        );
+                    } else {
+                        SheetAndCellDTO sheetAndCellData =
+                                Constants.GSON_INSTANCE.fromJson(responseBodyString, SheetAndCellDTO.class);
+                        
+                        Platform.runLater(() -> {
+                            sheetGridController.updateGridModel(sheetAndCellData.getSheetDTO().getCells());
+                            actionLineController.showCellDetails(sheetAndCellData.getCellDTO());
+                            sheetGridController.showSelectedCellAndDependencies(sheetAndCellData.getCellDTO());
+                            dynamicAnalysisController.updateErrorLabel("");
+                        });
+                    }
+                }
+            }
+        });
     }
 }

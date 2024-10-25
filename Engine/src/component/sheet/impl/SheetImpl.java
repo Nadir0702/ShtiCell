@@ -163,6 +163,11 @@ public class SheetImpl implements Sheet {
         }
     }
     
+    @Override
+    public void updateDynamicSheet() {
+            TopologicalOrder.SORT.topologicalSort(this.getCells()).forEach(Cell::calculateEffectiveValue);
+    }
+    
     private int increaseVersion() {
          return ++this.version;
     }

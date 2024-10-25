@@ -38,12 +38,7 @@ public class TopSubComponentController {
                 
                 if (newValue != null && oldValue != null && !newValue.equals(oldValue)) {
                     this.currentVersion = this.versionsChoiceBox.getSelectionModel().getSelectedIndex() + 1;
-                    
-                    if (this.currentVersion == this.latestVersion) {
-                        this.versionsChoiceBox.getStyleClass().remove("new-version-available");
-                    }
-                    
-                    this.mainViewController.loadSheetVersion(this.currentVersion);
+                    this.goToCurrentVersion();
                 }
         });
     }
@@ -53,6 +48,14 @@ public class TopSubComponentController {
         mouseEvent.consume();
         
         this.mainViewController.getLatestVersionNumber();
+    }
+    
+    public void goToCurrentVersion() {
+        if (this.currentVersion == this.latestVersion) {
+            this.versionsChoiceBox.getStyleClass().remove("new-version-available");
+        }
+        
+        this.mainViewController.loadSheetVersion(this.currentVersion);
     }
     
     public void updateVersionsChoiceBox(int numOfVersions) {

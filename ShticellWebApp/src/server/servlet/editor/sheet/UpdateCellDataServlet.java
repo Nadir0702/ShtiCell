@@ -36,11 +36,13 @@ public class UpdateCellDataServlet extends HttpServlet {
             String newOriginalValue = request.getParameter(Constants.NEW_ORIGINAL_VALUE);
             
             if (cellID == null || cellID.isEmpty()) {
-                throw new IllegalArgumentException("Got No cell ID");
+                ServletUtils.writeErrorResponse(
+                        response, "Got No Cell ID", HttpServletResponse.SC_BAD_REQUEST);
             }
             
             if (newOriginalValue == null) {
-                throw new IllegalArgumentException("Got No original value");
+                ServletUtils.writeErrorResponse(
+                        response, "Got No original value", HttpServletResponse.SC_BAD_REQUEST);
             }
             SheetAndCellDTO sheetAndCellData;
             

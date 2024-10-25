@@ -1,7 +1,6 @@
 package server.servlet.refresher.editor;
 
 import com.google.gson.Gson;
-import dto.sheet.SheetMetaDataDTO;
 import dto.version.EditorRefresherAnswerDTO;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -14,9 +13,6 @@ import server.utils.SessionUtils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
 
 @WebServlet(name = "Editor Refresher Servlet", urlPatterns = "/refreshEditor")
 public class EditorRefresherServlet extends HttpServlet {
@@ -41,7 +37,7 @@ public class EditorRefresherServlet extends HttpServlet {
                 
                 EditorRefresherAnswerDTO refresherAnswer = new EditorRefresherAnswerDTO(
                         engine.isUserCannotEdit(engine.getUsersActiveVersion(username), username),
-                        !engine.isInLatestVersion(username),
+                        engine.shouldNotifyUser(username),
                         engine.showVersions().getVersionChanges().size());
                 
                 json = gson.toJson(refresherAnswer);

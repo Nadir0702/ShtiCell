@@ -8,10 +8,7 @@ import dto.permission.SentPermissionRequestDTO;
 import dto.range.RangeDTO;
 import dto.range.RangesDTO;
 import dto.returnable.EffectiveValueDTO;
-import dto.sheet.ColoredSheetDTO;
-import dto.sheet.SheetAndRangesDTO;
-import dto.sheet.SheetDTO;
-import dto.sheet.SheetMetaDataDTO;
+import dto.sheet.*;
 import dto.version.VersionChangesDTO;
 
 import java.io.InputStream;
@@ -28,9 +25,7 @@ public interface Engine {
     void updateSingleCellData(String cellID, String value, String username);
     VersionChangesDTO showVersions();
     SheetAndRangesDTO getSheetVersionAsDTO(int version, String username);
-    
     boolean isUserCannotEdit(int version, String username);
-    
     boolean isSheetLoaded();
     void loadFromFile(String path);
     void saveToFile(String path);
@@ -47,11 +42,11 @@ public interface Engine {
     void createNewPermissionRequest(SentPermissionRequestDTO requestToSend, String sender);
     List<PermissionDTO> getAllPermissions();
     void updatePermissionForUser(String sender, boolean answer, int requestID);
-    void updateActiveUserVersion(String username);
+    void updateUserActiveVersion(String username);
     boolean isPermitted(String username);
     boolean isInLatestVersion(String username);
-    
     int getUsersActiveVersion(String username);
-    
     Object getSheetEditLock();
+    boolean shouldNotifyUser(String username);
+    SheetAndCellDTO dynamicCellUpdate(String cellID, String newOriginalValue, String username);
 }

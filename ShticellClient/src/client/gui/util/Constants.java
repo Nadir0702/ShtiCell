@@ -31,6 +31,7 @@ public class Constants {
     private final static String CONTEXT_PATH = "/ShticellWebApp_Web_exploded";
     private final static String FULL_SERVER_PATH = BASE_URL + CONTEXT_PATH;
     
+    public static final String DYNAMIC_ANALYSIS = FULL_SERVER_PATH + "/dynamicAnalysis";
     public static final String BUILD_GRAPH = FULL_SERVER_PATH + "/buildGraph";
     public static final String FILTER_RANGE = FULL_SERVER_PATH + "/filterRange";
     public static final String GET_FILTERABLE_ELEMENTS = FULL_SERVER_PATH + "/getFilterableElements";
