@@ -29,6 +29,7 @@ public class DynamicAnalysisController {
     private int minValue;
     private int maxValue;
     private int stepSize;
+    private int analyserID;
     
     public DynamicAnalysisController() {
         this.errorLabelProperty = new SimpleStringProperty("");
@@ -59,7 +60,8 @@ public class DynamicAnalysisController {
             if (!Objects.equals(newValue, this.currentValue)) {
                 this.currentValue = Math.round(newValue.doubleValue() / this.stepSize) * this.stepSize;
                 this.dynamicAnalysisSlider.setValue(this.currentValue);
-                this.mainEditorController.dynamicAnalysis(this.cellIDTextField.getText(), this.currentValue);
+                this.mainEditorController.dynamicAnalysis(
+                        this.cellIDTextField.getText(), this.currentValue, this.analyserID);
             }
         });
     }
@@ -86,7 +88,6 @@ public class DynamicAnalysisController {
                 this.errorLabelProperty.set("Max value must be an integer");
                 this.maxValueTextField.setText("");
             }
-            
         });
     }
     
@@ -101,7 +102,6 @@ public class DynamicAnalysisController {
                 this.errorLabelProperty.set("Step Size must be an integer");
                 this.stepSizeTextField.setText("");
             }
-            
         });
     }
     
@@ -116,7 +116,6 @@ public class DynamicAnalysisController {
                 this.errorLabelProperty.set("Min value must be an integer");
                 this.minValueTextField.setText("");
             }
-            
         });
     }
     
@@ -134,5 +133,9 @@ public class DynamicAnalysisController {
     
     public void setSelectedCell(String cellID) {
         this.cellIDTextField.setText(cellID);
+    }
+    
+    public void setAnalyserID(int id) {
+        this.analyserID = id;
     }
 }

@@ -46,12 +46,14 @@ public class EngineImpl implements Engine{
     private final List<PermissionRequest> allPermissionRequests;
     private final Map<String, Integer> usersActiveVersion;
     private final Map<String, Boolean> isUserUpToDate;
+    private final Map<String, Sheet> dynamicAnalysisMap;
     
     private final Object sheetEditLock;
     private final ReadWriteLock usersPermissionLock;
     private final ReadWriteLock allPermissionLock;
     private final ReadWriteLock usersActiveVersionLock;
     private final ReadWriteLock isUserUpToDateLock;
+    private final Object dynamicAnalysisLock;
     
     public EngineImpl(User owner) {
         this.owner = owner;
@@ -63,6 +65,7 @@ public class EngineImpl implements Engine{
         this.allPermissionRequests = new LinkedList<>();
         this.usersActiveVersion = new HashMap<>();
         this.isUserUpToDate = new HashMap<>();
+        this.dynamicAnalysisMap = new HashMap<>();
         
         this.usersPermissions.put(this.owner.getUserName(),PermissionType.OWNER);
         this.allPermissionRequests.add(new PermissionRequest(
@@ -77,6 +80,7 @@ public class EngineImpl implements Engine{
         this.allPermissionLock = new ReentrantReadWriteLock();
         this.usersActiveVersionLock = new ReentrantReadWriteLock();
         this.isUserUpToDateLock = new ReentrantReadWriteLock();
+        this.dynamicAnalysisLock = new Object();
     }
     
     @Override
@@ -410,8 +414,9 @@ public class EngineImpl implements Engine{
     
     @Override
     public SheetAndCellDTO dynamicCellUpdate(String cellID, String newOriginalValue, String username) {
-        Sheet dynamicAnalysisSheet = this.archive.retrieveVersion(this.getUsersActiveVersion(username)).copySheet();
+        Sheet dynamicAnalysisSheet = this.getDynamicAnalysisSheet(username);
         Cell dynamicCell = dynamicAnalysisSheet.getCell(cellID);
+        
         if (dynamicCell == null || !dynamicCell.getEffectiveValue().getCellType().equals(CellType.NUMERIC)) {
             throw new IllegalArgumentException("Dynamic Analysis can only be done on a numeric cell");
         }
@@ -425,8 +430,33 @@ public class EngineImpl implements Engine{
         
         dynamicCell.setDynamicValue(newOriginalValue);
         dynamicAnalysisSheet.updateDynamicSheet();
+        this.addDynamicAnalysisSheet(dynamicAnalysisSheet, username);
         
         return new SheetAndCellDTO(new ColoredSheetDTO(dynamicAnalysisSheet), new CellDTO(dynamicCell, cellID));
+    }
+    
+    private Sheet getDynamicAnalysisSheet(String username) {
+        synchronized (this.dynamicAnalysisLock) {
+            Sheet dynamicAnalysisSheet = this.dynamicAnalysisMap.get(username);
+            if (dynamicAnalysisSheet == null) {
+                dynamicAnalysisSheet = this.archive.retrieveVersion(this.getUsersActiveVersion(username)).copySheet();
+            }
+            
+            return dynamicAnalysisSheet;
+        }
+    }
+    
+    private void addDynamicAnalysisSheet(Sheet dynamicAnalysisSheet, String username) {
+        synchronized (this.dynamicAnalysisLock) {
+            this.dynamicAnalysisMap.put(username, dynamicAnalysisSheet);
+        }
+    }
+    
+    @Override
+    public void finishDynamicAnalysis(String username) {
+        synchronized (this.dynamicAnalysisLock) {
+            this.dynamicAnalysisMap.remove(username);
+        }
     }
     
     @Override

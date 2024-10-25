@@ -7,14 +7,21 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.FlowPane;
+
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import static client.gui.editor.main.view.MainEditorController.effectiveValueFormatter;
+import static client.gui.util.Constants.DYNAMIC_ANALYSIS_FXML_RESOURCE_LOCATION;
 
 public class CommandsController {
     
+    @FXML private FlowPane dynamicAnalysisFlowPane;
     @FXML private TextField bottomLeftBoundaryTextField;
     @FXML private TextField topRightBoundaryTextField;
     @FXML private TextField columnsToSortByTextField;
@@ -22,23 +29,24 @@ public class CommandsController {
     @FXML private MenuButton filterElementMenuButton;
     @FXML private Button sortButton;
     @FXML private Button filterButton;
+    @FXML private Button finishAnalysisButton;
+    @FXML private Button addDynamicAnalyserButton;
     @FXML private Label sortErrorLabel;
     @FXML private Label filterErrorLabel;
     @FXML private Label graphErrorLabel;
     @FXML private Button buildGraphButton;
     @FXML private ChoiceBox<String> graphTypeChoiceBox;
-    @FXML private DynamicAnalysisController dynamicAnalysisController;
     
-    private List<ChoiceBox<String>> additionalColumnsToSortBy;
+    private List<DynamicAnalysisController> dynamicAnalysisControllers;
     
     private MainEditorController mainEditorController;
     private StringProperty sortErrorProperty;
     private StringProperty filterErrorProperty;
     
     public CommandsController() {
+        this.dynamicAnalysisControllers = new ArrayList<>();
         this.sortErrorProperty = new SimpleStringProperty("");
         this.filterErrorProperty = new SimpleStringProperty("");
-        this.additionalColumnsToSortBy = new ArrayList<>();
     }
     
     @FXML private void initialize() {
@@ -82,9 +90,8 @@ public class CommandsController {
         
         this.filterButton.disableProperty().bind(this.filterElementMenuButton.disableProperty());
         
-        if (this.dynamicAnalysisController != null) {
-            this.dynamicAnalysisController.setCommandsController(this);
-        }
+        
+        this.addAnalyser();
         
         this.filterColumnChoiceBox.getSelectionModel().selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> {
@@ -93,6 +100,24 @@ public class CommandsController {
                         .getUniqueItems(this.filterColumnChoiceBox.getValue(), getCurrentRangeAsString());
             }
         });
+    }
+    
+    private void addAnalyser() {
+        URL editorPageUrl = getClass().getResource(DYNAMIC_ANALYSIS_FXML_RESOURCE_LOCATION);
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setLocation(editorPageUrl);
+            this.dynamicAnalysisFlowPane.getChildren().add(fxmlLoader.load());
+            DynamicAnalysisController newController = fxmlLoader.getController();
+            newController.setAnalyserID(this.dynamicAnalysisControllers.size());
+            newController.setCommandsController(this);
+            this.dynamicAnalysisControllers.add(newController);
+            if (this.mainEditorController != null) {
+                this.mainEditorController.addDynamicAnalysisController(this.dynamicAnalysisControllers);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     
     public void updateFilterElementMenuButton(List<EffectiveValueDTO> availableFilters) {
@@ -107,6 +132,19 @@ public class CommandsController {
     
     private String getCurrentRangeAsString() {
         return this.topRightBoundaryTextField.getText() + ".." + this.bottomLeftBoundaryTextField.getText();
+    }
+    
+    @FXML
+    void onFinishAnalysisClicked(ActionEvent event) {
+        this.dynamicAnalysisControllers.clear();
+        this.dynamicAnalysisFlowPane.getChildren().clear();
+        this.mainEditorController.exitDynamicAnalysisMode();
+        this.addAnalyser();
+    }
+    
+    @FXML
+    void onAddAnalyserClicked(ActionEvent event) {
+        this.addAnalyser();
     }
     
     @FXML
@@ -226,7 +264,7 @@ public class CommandsController {
         this.graphErrorLabel.setText(message);
     }
     
-    public DynamicAnalysisController getDynamicAnalysisController() {
-        return this.dynamicAnalysisController;
+    public List<DynamicAnalysisController> getDynamicAnalysisControllers() {
+        return this.dynamicAnalysisControllers;
     }
 }

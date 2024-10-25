@@ -17,7 +17,8 @@ public class Constants {
     public final static String EDITOR_VIEW_FXML_RESOURCE_LOCATION = "/client/gui/editor/main/view/EditorView.fxml";
     public final static String FILE_UPLOAD_FXML_RESOURCE_LOCATION = "/client/gui/home/file/upload/FileUploadComponent.fxml";
     public final static String CELL_COMPONENT_FXML_RESOURCE_LOCATION = "/client/gui/editor/cell/CellSubComponent.fxml";
-    public final static String BACK_BUTTON_LAYER_FXML_RESOURCE_LOCATION = "/client/gui/editor/grid/BackButtonLayer.fxml";
+    public final static String DYNAMIC_ANALYSIS_FXML_RESOURCE_LOCATION = "/client/gui/editor/command/DynamicAnalysis.fxml";
+    
     
     // css locations
     public final static String GRID_COMPONENT_CSS_RESOURCE_LOCATION = "/client/gui/editor/grid/style/MainGridComponent.css";
@@ -31,6 +32,7 @@ public class Constants {
     private final static String CONTEXT_PATH = "/ShticellWebApp_Web_exploded";
     private final static String FULL_SERVER_PATH = BASE_URL + CONTEXT_PATH;
     
+    public static final String EXIT_DYNAMIC_ANALYSIS = FULL_SERVER_PATH +"/exitDynamicAnalysis";
     public static final String DYNAMIC_ANALYSIS = FULL_SERVER_PATH + "/dynamicAnalysis";
     public static final String BUILD_GRAPH = FULL_SERVER_PATH + "/buildGraph";
     public static final String FILTER_RANGE = FULL_SERVER_PATH + "/filterRange";

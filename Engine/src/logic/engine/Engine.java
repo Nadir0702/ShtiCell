@@ -49,4 +49,5 @@ public interface Engine {
     Object getSheetEditLock();
     boolean shouldNotifyUser(String username);
     SheetAndCellDTO dynamicCellUpdate(String cellID, String newOriginalValue, String username);
+    void finishDynamicAnalysis(String username);
 }
