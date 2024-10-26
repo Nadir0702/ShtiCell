@@ -71,8 +71,11 @@ public class TopSubComponentController {
         this.versionsChoiceBox.show();
     }
     
-    public void setSheetNameAndVersion(String sheetName, int sheetVersion) {
+    public void setSheetNameAndVersion(String sheetName, int sheetVersion, boolean isEnteringEditor) {
         this.sheetNameProperty.set(sheetName);
+        if (isEnteringEditor) {
+            this.latestVersion = sheetVersion;
+        }
         this.setSheetVersion(sheetVersion);
     }
     

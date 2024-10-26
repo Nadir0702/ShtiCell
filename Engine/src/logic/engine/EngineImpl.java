@@ -141,7 +141,7 @@ public class EngineImpl implements Engine{
         
         SheetImpl newSheetVersion = this.sheet.copySheet();
         updateCell(cellID, value, newSheetVersion, username);
-        Sheet tempSheet = this.sheet.updateSheet(newSheetVersion, isOriginalValueChanged);
+        Sheet tempSheet = this.sheet.updateSheet(newSheetVersion, isOriginalValueChanged, username);
         if (!tempSheet.equals(this.sheet)) {
             this.sheet = tempSheet;
             this.updateUserActiveVersion(username);

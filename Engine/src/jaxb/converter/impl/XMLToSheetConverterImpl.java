@@ -34,7 +34,7 @@ public class XMLToSheetConverterImpl implements XMLToSheetConverter {
         stlSheet.getSTLRanges().getSTLRange().forEach(stlRange -> this.createNewRange(stlRange, sheet));
         stlSheet.getSTLCells().getSTLCell().forEach(stlCell -> this.createNewCell(stlCell, sheet));
         sheet.getRanges().forEach((rangeName, range) -> range.populateRange(sheet));
-        return sheet.updateSheet(sheet, true);
+        return sheet.updateSheet(sheet, true, "");
     }
     
     private void createNewRange(STLRange stlRange, SheetImpl sheet) {

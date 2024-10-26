@@ -126,7 +126,7 @@ public class SheetImpl implements Sheet {
     }
     
     @Override
-    public Sheet updateSheet(SheetImpl newSheetVersion, boolean isOriginalValueChanged) {
+    public Sheet updateSheet(SheetImpl newSheetVersion, boolean isOriginalValueChanged, String username) {
         List<Cell> cellsThatHaveChanged =
                 TopologicalOrder.SORT.topologicalSort(newSheetVersion.getCells())
                         .stream()
@@ -139,7 +139,10 @@ public class SheetImpl implements Sheet {
 
         // successful calculation. update sheet and relevant cells version
         int newVersion = newSheetVersion.increaseVersion();
-        cellsThatHaveChanged.forEach(cell -> cell.updateVersion(newVersion));
+        cellsThatHaveChanged.forEach((cell) -> {
+            cell.updateVersion(newVersion);
+            cell.setUpdatedBy(username);
+        });
         newSheetVersion.numOfCellsUpdated = cellsThatHaveChanged.size();
 
         return newSheetVersion;

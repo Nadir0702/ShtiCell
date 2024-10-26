@@ -1,7 +1,6 @@
 package client.gui.editor.command;
 
 import client.gui.editor.main.view.MainEditorController;
-import dto.cell.CellDTO;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -137,5 +136,13 @@ public class DynamicAnalysisController {
     
     public void setAnalyserID(int id) {
         this.analyserID = id;
+    }
+    
+    public void resetController() {
+        this.cellIDTextField.setText("");
+        this.minValueTextField.setText("");
+        this.maxValueTextField.setText("");
+        this.stepSizeTextField.setText("");
+        this.errorLabelProperty.set("");
     }
 }

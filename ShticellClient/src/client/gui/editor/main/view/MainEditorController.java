@@ -150,7 +150,8 @@ public class MainEditorController implements Closeable {
                             initializeSheetLayoutAndControllers(
                                     sheetAndRanges.getSheetDTO(),
                                     sheetAndRanges.getRangesDTO(),
-                                    sheetAndRanges.isInReaderMode())
+                                    sheetAndRanges.isInReaderMode(),
+                                    true)
                         );
                     }
                 } catch (RuntimeException e) {
@@ -161,7 +162,7 @@ public class MainEditorController implements Closeable {
     }
     
     private void initializeSheetLayoutAndControllers(ColoredSheetDTO sheet,
-                                                     RangesDTO ranges ,boolean isInReaderMode) {
+                                                     RangesDTO ranges , boolean isInReaderMode, boolean isEnteringEditor) {
         GridBuilder gridBuilder = new GridBuilder(sheet.getLayout().getRow(),
                 sheet.getLayout().getColumn(),
                 sheet.getLayout().getRowHeight(),
@@ -174,16 +175,16 @@ public class MainEditorController implements Closeable {
             throw new RuntimeException(e);
         }
         setSheetGridController(gridBuilder.getSheetGridController());
-        setCellSubComponentControllerMap(sheetGridController.getCellsControllers());
-        sheetGridController.initializeGridModel(sheet.getCells());
-        rangesController.initializeRangesModel(ranges);
-        actionLineController.resetCellModel();
-        rangesController.resetController();
-        customizationsController.resetController();
-        commandsController.resetController();
-        topSubComponentController.setSheetNameAndVersion(sheet.getSheetName(), sheet.getVersion());
-        
-        sheetGridController.getCellsControllers().forEach((cellID, cellController) -> {
+        setCellSubComponentControllerMap(this.sheetGridController.getCellsControllers());
+        this.sheetGridController.initializeGridModel(sheet.getCells());
+        this.rangesController.initializeRangesModel(ranges);
+        this.actionLineController.resetCellModel();
+        this.rangesController.resetController();
+        this.customizationsController.resetController();
+        this.commandsController.resetController();
+        this.dynamicAnalysisControllers.forEach((DynamicAnalysisController::resetController));
+        this.topSubComponentController.setSheetNameAndVersion(sheet.getSheetName(), sheet.getVersion(), isEnteringEditor);
+        this.sheetGridController.getCellsControllers().forEach((cellID, cellController) -> {
             ColoredCellDTO currentCell = sheet.getCells().get(cellID);
             if (currentCell != null) {
                 cellController.setCellStyle(currentCell.getBackgroundColor(), currentCell.getTextColor());
@@ -368,7 +369,7 @@ public class MainEditorController implements Closeable {
                         Platform.runLater(() -> initializeSheetLayoutAndControllers(
                                 sheetAndRanges.getSheetDTO(),
                                 sheetAndRanges.getRangesDTO(),
-                                sheetAndRanges.isInReaderMode()));
+                                sheetAndRanges.isInReaderMode(), false));
                     }
                 }
             }
