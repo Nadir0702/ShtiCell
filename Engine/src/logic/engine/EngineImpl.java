@@ -11,7 +11,6 @@ import component.sheet.api.Sheet;
 import component.sheet.impl.SheetImpl;
 import dto.cell.CellDTO;
 import dto.cell.CellStyleDTO;
-import dto.cell.ColoredCellDTO;
 import dto.filter.FilterParametersDTO;
 import dto.permission.PermissionDTO;
 import dto.permission.SentPermissionRequestDTO;
@@ -539,5 +538,3 @@ public class EngineImpl implements Engine{
         return new ColoredSheetDTO(filteredSheet);
     }
 }
-
-

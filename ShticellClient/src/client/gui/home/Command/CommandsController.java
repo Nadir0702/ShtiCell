@@ -31,7 +31,6 @@ public class CommandsController implements Closeable {
     @FXML private TableColumn<PermissionRequestTableEntry, String> permissionColumn;
     @FXML private ChoiceBox<String> newPermissionChoiceBox;
     @FXML private TextField sheetNameTextField;
-    @FXML private Button viewSheetButton;
     @FXML private Button sendPermissionRequestButton;
     @FXML private Button acceptRequestButton;
     @FXML private Button declineRequestButton;

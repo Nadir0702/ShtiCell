@@ -71,11 +71,6 @@ public class DynamicAnalysisController {
         });
     }
     
-    @FXML
-    void onSliderMoved(MouseEvent event) {
-    
-    }
-    
     private void initializeMaxValueTextField() {
         this.maxValueTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             try {

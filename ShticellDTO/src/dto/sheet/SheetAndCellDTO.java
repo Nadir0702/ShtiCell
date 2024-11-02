@@ -1,7 +1,6 @@
 package dto.sheet;
 
 import dto.cell.CellDTO;
-import dto.cell.ColoredCellDTO;
 
 public class SheetAndCellDTO {
     

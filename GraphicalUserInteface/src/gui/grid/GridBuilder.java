@@ -62,7 +62,7 @@ public class GridBuilder {
         for (int i = 1; i <= this.numOfRows; i++) {
             for (int j = 1; j <= this.numOfCols; j++) {
                 FXMLLoader loader = new FXMLLoader();
-                String cellID = Cell.createCellID(i, j);
+                String cellID = "Cell.createCellID(i, j);";
                 URL url = getClass().getResource("/gui/cell/CellSubComponent.fxml");
                 loader.setLocation(url);
                 Label cell = loader.load();

@@ -7,7 +7,6 @@ import client.gui.editor.cell.CellModel;
 import client.gui.editor.cell.CellSubComponentController;
 import client.gui.editor.cell.DependenciesCellModel;
 import client.gui.editor.main.view.MainEditorController;
-import dto.returnable.EffectiveValueDTO;
 import javafx.scene.control.Button;
 
 import java.util.ArrayList;

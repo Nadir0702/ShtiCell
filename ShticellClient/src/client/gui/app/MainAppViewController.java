@@ -76,7 +76,7 @@ public class MainAppViewController implements Closeable {
     @Override
     public void close() throws IOException {
         this.homeViewController.close();
-//        this.editorViewController.close();
+        this.editorViewController.close();
     }
     
     private void loadLoginPage() {

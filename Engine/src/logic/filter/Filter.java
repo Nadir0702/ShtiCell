@@ -2,9 +2,7 @@ package logic.filter;
 
 import component.cell.api.Cell;
 import component.range.api.Range;
-import component.sheet.api.Sheet;
 import dto.returnable.EffectiveValueDTO;
-import logic.function.returnable.api.Returnable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -114,6 +112,3 @@ public class Filter {
         return column;
     }
 }
-
-
-

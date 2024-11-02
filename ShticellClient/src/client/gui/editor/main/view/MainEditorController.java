@@ -2,7 +2,6 @@ package client.gui.editor.main.view;
 
 import client.gui.app.MainAppViewController;
 import client.gui.editor.command.DynamicAnalysisController;
-import client.gui.editor.grid.BackButtonLayerController;
 import client.gui.exception.ExceptionWindowController;
 import client.gui.util.Constants;
 import client.gui.util.http.HttpClientUtil;
@@ -66,7 +65,6 @@ public class MainEditorController implements Closeable {
     private Timer timer;
 
     private MainAppViewController mainAppController;
-    private BackButtonLayerController backButtonLayerController;
     
     public MainEditorController() {
         this.dynamicAnalysisControllers = new ArrayList<>();
@@ -492,8 +490,6 @@ public class MainEditorController implements Closeable {
 
     private GridPane getSheetGrid() {
         BorderPane root = (BorderPane) this.mainAppController.getEditorRootElement();
-//        StackPane stackPane = (StackPane) root.getCenter();
-//        ScrollPane scrollPane = (ScrollPane) stackPane.getChildren().getFirst();
         ScrollPane scrollPane = (ScrollPane) root.getCenter();
         return (GridPane) scrollPane.getContent();
     }
@@ -972,16 +968,6 @@ public class MainEditorController implements Closeable {
                                 ExceptionWindowController.openExceptionPopup(
                                         "Something went wrong: " + responseBodyString)
                         );
-//                    } else {
-//                        SheetAndCellDTO sheetAndCellData =
-//                                Constants.GSON_INSTANCE.fromJson(responseBodyString, SheetAndCellDTO.class);
-//
-//                        Platform.runLater(() -> {
-//                            sheetGridController.updateGridModel(sheetAndCellData.getSheetDTO().getCells());
-//                            actionLineController.showCellDetails(sheetAndCellData.getCellDTO());
-//                            sheetGridController.showSelectedCellAndDependencies(sheetAndCellData.getCellDTO());
-//                            dynamicAnalysisControllers.get(analyserID).updateErrorLabel("");
-//                        });
                     }
                 }
             }

@@ -29,8 +29,6 @@ public class CommandsController {
     @FXML private MenuButton filterElementMenuButton;
     @FXML private Button sortButton;
     @FXML private Button filterButton;
-    @FXML private Button finishAnalysisButton;
-    @FXML private Button addDynamicAnalyserButton;
     @FXML private Label sortErrorLabel;
     @FXML private Label filterErrorLabel;
     @FXML private Label graphErrorLabel;
@@ -89,7 +87,6 @@ public class CommandsController {
         this.sortButton.disableProperty().bind(this.columnsToSortByTextField.textProperty().isEmpty());
         
         this.filterButton.disableProperty().bind(this.filterElementMenuButton.disableProperty());
-        
         
         this.addAnalyser();
         

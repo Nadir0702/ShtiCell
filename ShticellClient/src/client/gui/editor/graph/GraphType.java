@@ -5,7 +5,6 @@ import javafx.scene.chart.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-
 public enum GraphType {
     LINE_CHART("Line Chart") {
         

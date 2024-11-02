@@ -25,7 +25,6 @@ public class CustomizationController {
     @FXML private Label selectedCellLabel;
 
     private MainEditorController mainEditorController;
-    private BooleanProperty isFileLoadedProperty;
     private IntegerProperty columnWidthProperty;
     private IntegerProperty rowHeightProperty;
     private StringProperty columnNameProperty;

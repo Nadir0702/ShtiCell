@@ -77,8 +77,8 @@
             <Separator prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="15" />
             <Label styleClass="header" text="Dynamic Analisys" GridPane.columnIndex="1" GridPane.rowIndex="16" />
             <FlowPane fx:id="dynamicAnalysisFlowPane" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="17" />
-            <Button fx:id="finishAnalysisButton" mnemonicParsing="false" onAction="#onFinishAnalysisClicked" text="Finish Analysis" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="18" />
-            <Button fx:id="addDynamicAnalyserButton" mnemonicParsing="false" onAction="#onAddAnalyserClicked" text="+" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="18" />
+            <Button mnemonicParsing="false" onAction="#onFinishAnalysisClicked" text="Finish Analysis" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="18" />
+            <Button mnemonicParsing="false" onAction="#onAddAnalyserClicked" text="+" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="18" />
          </children>
       </GridPane>
    </content>

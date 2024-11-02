@@ -14,7 +14,6 @@ import server.utils.SessionUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-
 @WebServlet(name = "Update Cell Style Servlet", urlPatterns = "/updateCellStyle")
 public class UpdateCellStyleServlet extends HttpServlet {
     

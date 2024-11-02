@@ -38,13 +38,11 @@ import java.util.Objects;
 
 public class HomeViewController implements Closeable {
     
-    @FXML private Button LoadSheetFromFileButton;
     @FXML private CommandsController commandsController;
     @FXML private SheetsTableController sheetsTableController;
     @FXML private PermissionsTableController permissionsTableController;
     
     private SheetTableEntry selectedSheet;
-    private StringProperty userNameProperty;
     private Stage primaryStage;
     private MainAppViewController mainAppController;
     
