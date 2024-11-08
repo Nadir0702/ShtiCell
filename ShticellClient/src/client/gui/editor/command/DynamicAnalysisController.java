@@ -8,7 +8,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
 
 import java.util.Objects;
 
@@ -25,9 +24,9 @@ public class DynamicAnalysisController {
     private StringProperty errorLabelProperty;
     
     private double currentValue;
-    private int minValue;
-    private int maxValue;
-    private int stepSize;
+    private Integer minValue = null;
+    private Integer maxValue = null;
+    private Integer stepSize = null;
     private int analyserID;
     
     public DynamicAnalysisController() {
@@ -56,7 +55,8 @@ public class DynamicAnalysisController {
         this.initializeStepSizeTextField();
         
         this.dynamicAnalysisSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
-            if (!Objects.equals(newValue, this.currentValue)) {
+            if (!Objects.equals(newValue, this.currentValue)
+                    && this.maxValue != null && this.minValue != null && this.minValue <= this.maxValue) {
                 this.currentValue = Math.round(newValue.doubleValue() / this.stepSize) * this.stepSize;
                 this.dynamicAnalysisSlider.setValue(this.currentValue);
                 this.mainEditorController.dynamicAnalysis(
@@ -77,10 +77,30 @@ public class DynamicAnalysisController {
                 if (newValue != null && !newValue.isEmpty()) {
                     this.maxValue = Integer.parseInt(newValue);
                     this.dynamicAnalysisSlider.setMax(this.maxValue);
+                    if (this.minValue != null) {
+                        this.dynamicAnalysisSlider.setMin(this.minValue);
+                    }
                 }
             } catch (NumberFormatException e) {
                 this.errorLabelProperty.set("Max value must be an integer");
                 this.maxValueTextField.setText("");
+            }
+        });
+    }
+    
+    private void initializeMinValueTextField() {
+        this.minValueTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                if (newValue != null && !newValue.isEmpty()) {
+                    this.minValue = Integer.parseInt(newValue);
+                    this.dynamicAnalysisSlider.setMin(this.minValue);
+                    if (this.maxValue != null) {
+                        this.dynamicAnalysisSlider.setMax(this.maxValue);
+                    }
+                }
+            } catch (NumberFormatException e) {
+                this.errorLabelProperty.set("Min value must be an integer");
+                this.minValueTextField.setText("");
             }
         });
     }
@@ -95,20 +115,6 @@ public class DynamicAnalysisController {
             } catch (NumberFormatException e) {
                 this.errorLabelProperty.set("Step Size must be an integer");
                 this.stepSizeTextField.setText("");
-            }
-        });
-    }
-    
-    private void initializeMinValueTextField() {
-        this.minValueTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-            try {
-                if (newValue != null && !newValue.isEmpty()) {
-                    this.minValue = Integer.parseInt(newValue);
-                    this.dynamicAnalysisSlider.setMin(this.minValue);
-                }
-            } catch (NumberFormatException e) {
-                this.errorLabelProperty.set("Min value must be an integer");
-                this.minValueTextField.setText("");
             }
         });
     }
