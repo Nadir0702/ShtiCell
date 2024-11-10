@@ -23,13 +23,18 @@ public class XMLToSheetConverterImpl implements XMLToSheetConverter {
         InputStream inputStream = new FileInputStream(xml);
         return this.STLSheetToSheet(this.deserializeFrom(inputStream));
     }
-
+    
+    @Override
+    public Sheet convertFromStream(InputStream inputStream) throws FileNotFoundException, JAXBException {
+        return this.STLSheetToSheet(this.deserializeFrom(inputStream));
+    }
+    
     private Sheet STLSheetToSheet(STLSheet stlSheet) {
         SheetImpl sheet = new SheetImpl(stlSheet);
         stlSheet.getSTLRanges().getSTLRange().forEach(stlRange -> this.createNewRange(stlRange, sheet));
         stlSheet.getSTLCells().getSTLCell().forEach(stlCell -> this.createNewCell(stlCell, sheet));
         sheet.getRanges().forEach((rangeName, range) -> range.populateRange(sheet));
-        return sheet.updateSheet(sheet, true);
+        return sheet.updateSheet(sheet, true, "");
     }
     
     private void createNewRange(STLRange stlRange, SheetImpl sheet) {

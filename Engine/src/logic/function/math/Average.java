@@ -1,6 +1,5 @@
 package logic.function.math;
 
-import component.cell.api.Cell;
 import component.cell.api.CellType;
 import component.range.api.Range;
 import component.sheet.api.ReadonlySheet;

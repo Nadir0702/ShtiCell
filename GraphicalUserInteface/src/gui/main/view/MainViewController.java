@@ -1,7 +1,15 @@
 package gui.main.view;
 
 import component.cell.api.CellType;
-import dto.*;
+import dto.cell.CellDTO;
+import dto.cell.CellStyleDTO;
+import dto.cell.ColoredCellDTO;
+import dto.filter.FilterParametersDTO;
+import dto.range.RangeDTO;
+import dto.range.RangesDTO;
+import dto.returnable.EffectiveValueDTO;
+import dto.sheet.ColoredSheetDTO;
+import dto.sheet.SheetDTO;
 import gui.Main;
 import gui.action.line.ActionLineController;
 import gui.cell.CellSubComponentController;
@@ -33,10 +41,10 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import logic.Engine;
-import logic.EngineImpl;
-import logic.function.returnable.api.Returnable;
+import logic.engine.Engine;
+import logic.engine.EngineImpl;
 import tasks.FileLoadingTask;
+import user.User;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,7 +76,7 @@ public class MainViewController {
 
     @FXML
     public void initialize() {
-        this.engine = new EngineImpl();
+        this.engine = new EngineImpl(new User("user1"));
 
         if (this.topSubComponentController != null) {
             this.topSubComponentController.setMainController(this);
@@ -141,8 +149,8 @@ public class MainViewController {
 
     private void initializeSheetLayoutAndControllers() {
         try {
-            SheetDTO sheetDTO = this.engine.getSheetAsDTO();
-            RangesDTO rangesDto = this.engine.getAllRanges();
+            SheetDTO sheetDTO = this.engine.getSheetAsDTO("user");
+            RangesDTO rangesDto = this.engine.getAllRanges("user");
             GridBuilder gridBuilder = new GridBuilder(sheetDTO.getLayout().getRow(),
                     sheetDTO.getLayout().getColumn(),
                     sheetDTO.getLayout().getRowHeight(),
@@ -174,7 +182,7 @@ public class MainViewController {
             this.actionLineController.resetCellModel();
             this.customizationsController.deselectCell();
         } else {
-            CellDTO cellDTO = this.engine.getSingleCellData(cellSubComponentController.cellIDProperty().get());
+            CellDTO cellDTO = this.engine.getSingleCellData(cellSubComponentController.cellIDProperty().get(), "user");
             this.actionLineController.showCellDetails(cellDTO);
             this.sheetGridController.showSelectedCellAndDependencies(cellDTO);
             this.customizationsController.setSelectedCell(cellDTO);
@@ -183,9 +191,9 @@ public class MainViewController {
 
     public void updateCellValue(String cellToUpdate, String newValue) {
         try {
-            this.engine.updateSingleCellData(cellToUpdate, newValue);
-            SheetDTO sheetDTO = this.engine.getSheetAsDTO();
-            CellDTO cellDTO = this.engine.getSingleCellData(cellToUpdate);
+            this.engine.updateSingleCellData(cellToUpdate, newValue, "user");
+            SheetDTO sheetDTO = this.engine.getSheetAsDTO("user");
+            CellDTO cellDTO = this.engine.getSingleCellData(cellToUpdate, "user");
             this.sheetGridController.updateGridModel(sheetDTO.getCells());
             this.actionLineController.showCellDetails(cellDTO);
             this.sheetGridController.showSelectedCellAndDependencies(cellDTO);
@@ -200,7 +208,7 @@ public class MainViewController {
     }
 
     public void loadSheetVersion(int version) {
-        ColoredSheetDTO sheetDTO = this.engine.getSheetVersionAsDTO(version);
+        ColoredSheetDTO sheetDTO = this.engine.getSheetVersionAsDTO(version, "user").getSheetDTO();
         createReadonlyGrid(sheetDTO, " - version " + version);
     }
 
@@ -351,12 +359,12 @@ public class MainViewController {
 
     public void setCellStyle(String cellID, Color backgroundColor, Color textColor) {
         this.cellSubComponentControllerMap.get(cellID).setCellStyle(backgroundColor, textColor);
-        this.engine.updateCellStyle(cellID, backgroundColor, textColor);
+        this.engine.updateCellStyle(new CellStyleDTO(cellID, backgroundColor, textColor));
     }
 
     public boolean sortRange(String rangeToSort, List<String> columnsToSortBy) {
         try {
-            ColoredSheetDTO sortedSheet = this.engine.sortRangeOfCells(rangeToSort, columnsToSortBy);
+            ColoredSheetDTO sortedSheet = this.engine.sortRangeOfCells(rangeToSort, columnsToSortBy, "user");
             createReadonlyGrid(sortedSheet, " - Sorted");
             return true;
         } catch (ClassCastException e) {
@@ -370,7 +378,9 @@ public class MainViewController {
 
     public boolean filterRange(String rangeToFilterBy, String columnToFilterBy, List<Integer> itemsToFilterBy) {
         try {
-            ColoredSheetDTO filteredSheet = this.engine.filterRangeOfCells(rangeToFilterBy, columnToFilterBy, itemsToFilterBy);
+            ColoredSheetDTO filteredSheet =
+                    this.engine.filterRangeOfCells(
+                            new FilterParametersDTO(rangeToFilterBy, columnToFilterBy, itemsToFilterBy), "user");
             createReadonlyGrid(filteredSheet, " - Filtered");
             return true;
         } catch (RuntimeException e) {
@@ -404,16 +414,16 @@ public class MainViewController {
 
     public List<String> getColumnsOfRange(String rangeToFilter) {
         try {
-            return this.engine.getColumnsListOfRange(rangeToFilter);
+            return this.engine.getColumnsListOfRange(rangeToFilter, "user");
         } catch (RuntimeException e) {
             this.commandsController.updateFilterErrorLabel(e.getMessage());
             return Collections.emptyList();
         }
     }
 
-    public List<Returnable> getUniqueItems(String columnToFilterBy, String rangeToFilter) {
+    public List<EffectiveValueDTO> getUniqueItems(String columnToFilterBy, String rangeToFilter) {
         try {
-            return this.engine.getUniqueItemsToFilterBy(columnToFilterBy, rangeToFilter);
+            return this.engine.getUniqueItemsToFilterBy(columnToFilterBy, rangeToFilter, "user");
         } catch (RuntimeException e) {
             this.commandsController.updateFilterErrorLabel(e.getMessage());
         }
@@ -421,9 +431,9 @@ public class MainViewController {
         return Collections.emptyList();
     }
 
-    public static String effectiveValueFormatter(Returnable effectiveValue) {
-        CellType type = effectiveValue.getCellType();
-        String valueToPrint = effectiveValue.getValue().toString();
+    public static String effectiveValueFormatter(EffectiveValueDTO effectiveValue) {
+        String type = effectiveValue.getType();
+        String valueToPrint = effectiveValue.getEffectiveValue().toString();
         if (type.equals(CellType.BOOLEAN)) {
             valueToPrint = booleanFormatter(valueToPrint);
         } else if (type.equals(CellType.NUMERIC)) {
@@ -450,7 +460,8 @@ public class MainViewController {
 
     public boolean buildGraph(String rangeToBuildGraphFrom, String graphType) {
         try {
-            LinkedHashMap<Returnable, LinkedHashMap<Returnable, Returnable>> graph = this.engine.getGraphFromRange(rangeToBuildGraphFrom);
+            LinkedHashMap<EffectiveValueDTO, LinkedHashMap<EffectiveValueDTO, EffectiveValueDTO>> graph =
+                    this.engine.getGraphFromRange(rangeToBuildGraphFrom, "user");
             this.showGraphPopup(graphType, graph);
             return true;
         } catch (RuntimeException e) {
@@ -459,7 +470,7 @@ public class MainViewController {
         }
     }
 
-    private void showGraphPopup(String i_GraphType, LinkedHashMap<Returnable, LinkedHashMap<Returnable, Returnable>> graphData) {
+    private void showGraphPopup(String i_GraphType, LinkedHashMap<EffectiveValueDTO, LinkedHashMap<EffectiveValueDTO, EffectiveValueDTO>> graphData) {
         GraphType graphType = GraphType.valueOf(i_GraphType.toUpperCase().replace(" ", "_"));
         Chart graphChart = graphType.createChart(graphData);
 

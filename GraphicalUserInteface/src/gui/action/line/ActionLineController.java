@@ -1,6 +1,6 @@
 package gui.action.line;
 
-import dto.CellDTO;
+import dto.cell.CellDTO;
 import gui.cell.ActionLineCellModel;
 import gui.cell.CellModel;
 import gui.main.view.MainViewController;

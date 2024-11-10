@@ -37,7 +37,6 @@ public class Sum implements Function {
         } else {
             return SpecialValues.NAN;
         }
-        
     }
     
     @Override

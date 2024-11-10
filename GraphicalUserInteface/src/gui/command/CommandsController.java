@@ -1,5 +1,6 @@
 package gui.command;
 
+import dto.returnable.EffectiveValueDTO;
 import gui.main.view.MainViewController;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -94,7 +95,7 @@ public class CommandsController {
         this.filterColumnChoiceBox.getSelectionModel().selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> {
             if(newValue != null && !newValue.equals("Select Column")) {
-                List<Returnable> availableFilters =
+                List<EffectiveValueDTO> availableFilters =
                         this.mainViewController.getUniqueItems(this.filterColumnChoiceBox.getValue(),
                                 getCurrentRangeAsString());
                 this.filterElementMenuButton.getItems().clear();

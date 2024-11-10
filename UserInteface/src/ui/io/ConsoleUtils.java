@@ -1,10 +1,12 @@
 package ui.io;
 
 import component.cell.api.CellType;
-import dto.CellDTO;
-import dto.SheetDTO;
-import dto.VersionChangesDTO;
+import dto.cell.CellDTO;
+import dto.returnable.EffectiveValueDTO;
+import dto.sheet.SheetDTO;
+import dto.version.VersionChangesDTO;
 import logic.function.returnable.api.Returnable;
+import logic.function.returnable.impl.ReturnableImpl;
 import ui.menu.MainMenuOption;
 
 import java.math.RoundingMode;
@@ -51,7 +53,7 @@ public class ConsoleUtils {
         int colWidth = sheet.getLayout().getColumnWidth();
         String sheetName = sheet.getSheetName();
         int versionNumber = sheet.getVersion();
-        Map<String, Returnable> activeCells = sheet.getCells(); // Assume this is the map of active cells
+        Map<String, EffectiveValueDTO> activeCells = sheet.getCells(); // Assume this is the map of active cells
 
         // Display the sheet name and version
         System.out.println("Sheet Name: " + sheetName);
@@ -75,7 +77,7 @@ public class ConsoleUtils {
                 String cellValue = "";
 
                 if (activeCells.containsKey(cellKey)) {
-                    cellValue = effectiveValueFormatter(activeCells.get(cellKey));
+                    cellValue = effectiveValueFormatter((Returnable) activeCells.get(cellKey));
                 }
 
 
@@ -146,7 +148,7 @@ public class ConsoleUtils {
         System.out.println("Cell ID: " + cellDTO.getCellId());
         System.out.println("Original Value: " + cellDTO.getOriginalValue());
 
-        String valueToPrint = effectiveValueFormatter(cellDTO.getEffectiveValue());
+        String valueToPrint = effectiveValueFormatter(new ReturnableImpl(cellDTO.getEffectiveValue().getEffectiveValue(), CellType.NUMERIC));
 
         System.out.println("Effective Value: " + valueToPrint);
     }
